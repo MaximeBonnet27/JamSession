@@ -33,6 +33,11 @@ int init_config(int count, char ** args){
 	return 0;
 }
 
+void handle(char* message){
+	char* commande_name=strtok(message,"/");
+	printf("%s",commande_name);
+}
+
 int main(int argc, char ** argv){
 
 	// Initialisation
@@ -40,6 +45,8 @@ int main(int argc, char ** argv){
 		fprintf(stderr,"Argument manquant!\n");
 		return EXIT_FAILURE;
 	}
-	
+	init_commandes();
+
+	handle("iubvid/gfgf");
 	return EXIT_SUCCESS;
 }

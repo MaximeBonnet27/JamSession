@@ -11,7 +11,7 @@ TARGETS = $(BIN)/serveur
 all: dirs $(TARGETS)
 
 
-$(BIN)/serveur : $(OBJ)/serveur.o
+$(BIN)/serveur : $(OBJ)/serveur.o $(OBJ)/commandes.o
 	$(CC) $(LFLAGS) -o $@ $^ $(LIBS)
 
 
