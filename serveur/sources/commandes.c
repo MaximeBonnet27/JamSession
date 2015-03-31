@@ -54,7 +54,7 @@ void init_commandes(){
 	tab_commandes[UNKNOWN].handler = handler_UNKNOWN;
 }
 
-s_commande string_to_commande(char * commande){
+t_commande string_to_commande(char * commande){
 	if(strcmp(commande,"CONNECT") == 0){
 		return tab_commandes[CONNECT];
 	}else if(strcmp(commande,"WELCOME") == 0){
@@ -90,7 +90,7 @@ s_commande string_to_commande(char * commande){
 	}	       
 
 }
-char * commande_to_string(s_commande commande){
+char * commande_to_string(t_commande commande){
 
 	switch(commande.type){
 		case CONNECT : return "CONNECT";
@@ -114,4 +114,21 @@ char * commande_to_string(s_commande commande){
 
 }
 
+void handler_UNKNOWN(char ** args){}
+void handler_CONNECT(char ** args){}
+void handler_WELCOME(char ** args){}
+void handler_AUDIO_PORT(char ** args){}
+void handler_AUDIO_OK(char ** args){}
+void handler_CONNECTED(char ** args){}
+void handler_EXIT(char ** args){}
+void handler_EXITED(char ** args){}
+void handler_EMPTY_SESSION(char ** args){}
+void handler_CURRENT_SESSION(char ** args){}
+void handler_SET_OPTIONS(char ** args){}
+void handler_ACK_OPTS(char ** args){}
+void handler_FULL_SESSION(char ** args){}
+void handler_AUDIO_CHUNK(char ** args){}
+void handler_AUDIO_KO(char ** args){}
+void handler_AUDIO_MIX(char ** args){}
+void handler_AUDIO_ACK(char ** args){}
 

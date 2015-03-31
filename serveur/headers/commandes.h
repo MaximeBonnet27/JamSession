@@ -27,14 +27,14 @@ typedef enum {
 	AUDIO_MIX,
 	AUDIO_ACK
 
-} t_commande;
+} e_commande;
 
 typedef struct {
-	t_commande type;
+	e_commande type;
 	void (*handler)(char **);
-} s_commande; 
+} t_commande; 
 
-s_commande tab_commandes[NBCOMMANDES];
+t_commande tab_commandes[NBCOMMANDES];
 
 /* INIT */
 
@@ -42,8 +42,8 @@ void init_commandes();
 
 /* PARSE */
 
-s_commande string_to_commande(char * commande);
-char * commande_to_string(s_commande commande);
+t_commande string_to_commande(char * commande);
+char * commande_to_string(t_commande commande);
 
 /* HANDLERS */
 void handler_UNKNOWN(char ** args);
