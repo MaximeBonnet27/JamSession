@@ -131,7 +131,7 @@ int main(int argc, char ** argv){
 		fprintf(stderr,"Argument manquant!\n");
 		return EXIT_FAILURE;
 	}
-
+	log("HELLOOO");
 	init_commandes();
 	// Création du thread gérant la boucle principale.
 	pthread_t main_thread;

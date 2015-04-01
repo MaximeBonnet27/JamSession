@@ -6,6 +6,11 @@
 #include <string.h>
 #include <sys/types.h>
 #include <pthread.h>
+#ifndef DEBUG
+#define DEBUG 0
+#endif
+#define log(X) if(DEBUG) fprintf(stderr,"%s\n", X);
+
 typedef struct 
 {
 	char* name;

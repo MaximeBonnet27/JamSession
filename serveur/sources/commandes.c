@@ -55,6 +55,8 @@ void init_commandes(){
 }
 
 t_commande string_to_commande(char * commande){
+	log("Commande executee");
+	log(commande);
 	if(strcmp(commande,"CONNECT") == 0){
 		return tab_commandes[CONNECT];
 	}else if(strcmp(commande,"WELCOME") == 0){
