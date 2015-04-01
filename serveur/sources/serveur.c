@@ -1,15 +1,15 @@
 #include "serveur.h"
 
-t_serveur serveur;
 
 int init_serveur(int count, char ** args){
-
+	printf("initialisation du serveur\n");
 	if(count % 2 != 0){
 		return -1;
 	}
 
 	// Valeurs par défaut.
 	serveur.max_user = DEFAULT_MAX_USER;
+	serveur.nb_user=0;
 	serveur.timeout = DEFAULT_TIMEOUT;
 	serveur.port = DEFAULT_PORT;
 
@@ -28,10 +28,19 @@ int init_serveur(int count, char ** args){
 			fprintf(stderr,"Argument inconnu : %s\n", args[i]);
 		}
 	}
+	serveur.clients=malloc(sizeof(t_client)*serveur.max_user);
+	
+	for(i=0;i<serveur.max_user;i++)
+		serveur.clients[i]=NULL;
+	serveur.mutex=(pthread_mutex_t)PTHREAD_MUTEX_INITIALIZER;
+
 	serveur.port_string = (char *) malloc(sizeof(char) * 6);
 	sprintf(serveur.port_string,"%d",serveur.port);
+
 	struct addrinfo hints, *resultat;
+
 	int yes = 1;
+
 	memset(&hints, 0, sizeof(hints));
 	hints.ai_family = AF_INET; // IPv4
 	hints.ai_socktype = SOCK_STREAM; // TCP
@@ -69,19 +78,22 @@ int init_serveur(int count, char ** args){
 	return 0;
 }
 
-void handle(char* message){
-	//char* commande_name=strtok(message,"/");
-	//printf("%s",commande_name);
-	printf("%s", message);
+void handle(char* message,int socket){
+	char* args;
+	char* commande_name=strtok_r(message,"/",&args);
+
+	t_commande commande=string_to_commande(commande_name);
+	commande.handler(args,socket);
 }
 
 void * loop(void * args){
+	printf("lancement du serveur\n");
+
 	struct sockaddr_storage addr_user;
 	socklen_t size_usr = sizeof(addr_user);
 	int socket_accept;
-	printf("LOOP commence :\n");
+
 	while(1){
-		printf("ACCEPT : \n");
 		socket_accept = accept(serveur.socket, (struct sockaddr *) &addr_user, &size_usr);
 		if(socket_accept == -1){
 			perror("Accept nouvelle connexion");
@@ -103,17 +115,13 @@ void * new_connection(void * args){
 	int socket = *ptr_socket;
 	char commande[COMMAND_MAX_SIZE];
 	// Tout d'abord, on attend le CONNECT.
-	printf("ATTENTE CONNECT:\n");
 	if(recv(socket, commande, sizeof(commande), 0) == -1){
 		perror("Recv CONNECT");
 		exit(-1);
 		return NULL;
 	}
-	printf("APRES RECV\n");
-	handle(commande);
-	
+	handle(commande,socket);
 	pthread_exit((void *)0);
-
 }
 
 int main(int argc, char ** argv){
@@ -125,7 +133,6 @@ int main(int argc, char ** argv){
 	}
 
 	init_commandes();
-	printf("MAIN_THREAD\n");
 	// Création du thread gérant la boucle principale.
 	pthread_t main_thread;
 	if((pthread_create(&main_thread, NULL, loop, NULL)) != 0){

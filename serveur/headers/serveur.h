@@ -24,21 +24,11 @@
 
 #define LISTEN_QUEUE_SIZE 5
 #define COMMAND_MAX_SIZE 128
-typedef struct {
 
-	int port;
-	char * port_string;
-	int max_user;
-	int timeout;
-	int socket;
-		
-	// + liste de clients
-
-} t_serveur;
 // Initialisation du serveur
 int init_serveur(int count, char ** args);
 // Handler de commandes
-void handle(char* commande);
+void handle(char* commande,int socket);
 // Boucle d'accept du serveur
 void * loop(void * args);
 // Fonction d'accueil des clients
