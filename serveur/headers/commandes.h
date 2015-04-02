@@ -1,14 +1,10 @@
 #ifndef COMMANDS_H_GUARD
 #define COMMANDS_H_GUARD
 
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
-
 #include "serveur_type.h"
 
 #define NBCOMMANDES 18
-
+#define COMMAND_MAX_SIZE 128
 typedef enum {
 
 	UNKNOWN,

@@ -4,17 +4,34 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-#include <sys/types.h>
 #include <pthread.h>
+#include <unistd.h>
+#include <errno.h>
+#include <string.h>
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <netdb.h>
+#include <arpa/inet.h>
+#include <sys/wait.h>
+#include <signal.h>
+
 #ifndef DEBUG
 #define DEBUG 0
 #endif
-#define log(X) if(DEBUG) fprintf(stderr,"%s\n", X);
 
+#define PORT_AUDIO_INIT 2020
+#define LISTEN_QUEUE_SIZE 5
+
+#define log(X) if(DEBUG) fprintf(stderr,"%s\n", X);
+#define logf(X,Y) if(DEBUG) fprintf(stderr,X,Y);
+#define log2f(X,Y,Z) if(DEBUG) fprintf(stderr,X,Y,Z);
+#define log3f(A,B,C,D) if(DEBUG) fprintf(stderr,A,B,C,D);
 typedef struct 
 {
 	char* name;
 	int socket;
+	int socket_audio;
 	/*autre chose?*/
 } t_client;
 
@@ -38,4 +55,6 @@ t_serveur serveur;
 
 int add_client(char* name, int socket);
 t_client* creer_client(char* name, int socket);
+int get_indice_client(char * name);
+int creer_socket_audio(char * name);
 #endif

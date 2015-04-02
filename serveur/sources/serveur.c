@@ -2,7 +2,7 @@
 
 
 int init_serveur(int count, char ** args){
-	printf("initialisation du serveur\n");
+	log("initialisation du serveur");
 	if(count % 2 != 0){
 		return -1;
 	}
@@ -87,7 +87,7 @@ void handle(char* message,int socket){
 }
 
 void * loop(void * args){
-	printf("lancement du serveur\n");
+	log("lancement du serveur");
 
 	struct sockaddr_storage addr_user;
 	socklen_t size_usr = sizeof(addr_user);
@@ -120,6 +120,7 @@ void * new_connection(void * args){
 		exit(-1);
 		return NULL;
 	}
+	// Appel du handler de CONNECT
 	handle(commande,socket);
 	pthread_exit((void *)0);
 }
@@ -131,7 +132,6 @@ int main(int argc, char ** argv){
 		fprintf(stderr,"Argument manquant!\n");
 		return EXIT_FAILURE;
 	}
-	log("HELLOOO");
 	init_commandes();
 	// Création du thread gérant la boucle principale.
 	pthread_t main_thread;
