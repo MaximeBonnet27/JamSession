@@ -21,6 +21,8 @@ public class Client {
 	private Socket socketAudio;
 	private DataInputStream input;
 	private PrintWriter output;
+	private DataInputStream inputAudio;
+	private PrintWriter outputAudio;
 	private String nom;
 	public Client(String adresse, int port, String nom) {
 		/* Mise en place de la socket et des I/O */
@@ -49,6 +51,8 @@ public class Client {
 		try{
 			socket.close();
 			input.close();
+			socketAudio.close();
+			inputAudio.close();
 		}
 		catch(Exception e){
 			e.printStackTrace();
@@ -60,6 +64,12 @@ public class Client {
 		output.write(commande);
 		output.flush();
 	}
+	
+	public void sendAudio(String commande){
+		outputAudio.write(commande);
+		outputAudio.flush();
+	}
+
 	public String receive(){
 		String val = null;
 		try{
@@ -71,12 +81,23 @@ public class Client {
 		return val;
 	}
 
+	public String receiveAudio(){
+		String val = null;
+		try{
+			val = inputAudio.readLine();
+		}
+		catch(IOException e){
+			e.printStackTrace();
+		}
+		return val;
+	}
+
 	public void setSocketAudio(int port){
-		System.out.println("SETSOCKETAUDIO " + port);
 		try{
 			String addr = socket.getRemoteSocketAddress().toString().split("/")[0];
-			System.out.println("ADDR : " + addr);
 			this.socketAudio = new Socket(addr, port);
+			this.inputAudio = new DataInputStream(socketAudio.getInputStream());
+			this.outputAudio = new PrintWriter(socketAudio.getOutputStream());
 		}
 		catch(Exception e){
 			e.printStackTrace();

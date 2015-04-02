@@ -9,5 +9,7 @@ run_client :
 debug_serveur :
 	cd serveur && make debug && make run
 clean :
-	cd serveur && make clean
-	cd client && ant clean
+	@cd serveur && make clean
+	@cd client && ant clean
+	@rm *~
+	@echo "Repertoire nettoyé!\n"

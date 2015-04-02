@@ -188,7 +188,9 @@ void handler_AUDIO_OK(char * args,int socket){
 		perror("Accept nouvelle connexion audio");
 		return;
 	}
+	pthread_mutex_lock(&serveur.mutex);
 	serveur.clients[get_indice_client(args)]->socket_audio = socket_accept;	
+	pthread_mutex_unlock(&serveur.mutex);
 	if(send(serveur.clients[get_indice_client(args)]->socket, audio_ok_cmd, strlen(audio_ok_cmd) + 1, 0) == -1){
 		perror("Send audio ok");
 	}

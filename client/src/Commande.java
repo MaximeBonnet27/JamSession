@@ -2,7 +2,7 @@
 import java.util.Arrays;
 
 public enum Commande {
-	UNKNOWN("UNKNOWN"),
+		UNKNOWN("UNKNOWN"),
 		CONNECT("CONNECT"),
 		WELCOME("WELCOME"),
 		AUDIO_PORT("AUDIO_PORT"),
