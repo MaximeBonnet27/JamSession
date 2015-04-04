@@ -42,8 +42,6 @@ public class Client {
 
 	public boolean connect(){
 		Commande.CONNECT.handler(this,nom);
-		Commande.WELCOME.handler(this);
-		Commande.AUDIO_PORT.handler(this);
 		return true;
 	}
 
@@ -74,6 +72,7 @@ public class Client {
 		String val = null;
 		try{
 			val = input.readLine();
+			System.out.println("CANAL CTRL : " + val);
 		}
 		catch(IOException e){
 			e.printStackTrace();
@@ -85,6 +84,7 @@ public class Client {
 		String val = null;
 		try{
 			val = inputAudio.readLine();
+			System.out.println("CANAL AUDIO : " + val);
 		}
 		catch(IOException e){
 			e.printStackTrace();
@@ -104,10 +104,15 @@ public class Client {
 		}
 	}
 
+	public void mainLoop(){
+		ClientLoop loop = new ClientLoop(this);
+		loop.start();
+	}
+
 	public static void main(String... args) throws UnknownHostException, IOException {
 		Client client = new Client("maxime");
 		client.connect();
-		client.exit();
+		client.mainLoop();
 	}
-
+	
 }

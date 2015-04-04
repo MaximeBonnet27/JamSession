@@ -51,7 +51,7 @@ public enum Commande {
 			case EXITED: handlerExited(args, client); break;
 			case FULL_SESSION: handlerFullSession(args, client); break;
 			case SET_OPTIONS: handlerSetOptions(args, client); break;
-			default : System.out.println("Handler Commandes : Commande inconnue");
+			default : System.out.println("Handler Commandes : Commande inconnue" + this);
 
 		}
 	}
@@ -94,7 +94,7 @@ public enum Commande {
 		if((val = client.receive()) != null){
 			String[] args = argumentsFromCommande(val);
 			client.setSocketAudio(Integer.parseInt(args[0]));
-
+			
 		}
 	}
 
@@ -113,8 +113,14 @@ public enum Commande {
 	private void handlerSetOptions(String[] args2, Client client) {
 	}
 
-	private String[] argumentsFromCommande(String commande){
+	public static String commandeNameFromCommandeReceived(String commande){
+		String [] res = commande.split("/");
+		return res[0];
+	}
+
+	public static String[] argumentsFromCommande(String commande){
 		String [] res = commande.split("/");
 		return Arrays.copyOfRange(res, 1, res.length);
 	}
+
 }

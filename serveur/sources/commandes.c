@@ -134,6 +134,7 @@ void handler_CONNECT(char * args,int socket){
 
 	handler_WELCOME(args,socket);
 	handler_AUDIO_PORT(args,socket);
+	handler_CONNECTED(args, socket);
 }
 /*
  * Envoi de WELCOME
@@ -199,7 +200,27 @@ void handler_AUDIO_OK(char * args,int socket){
 
 
 }
-void handler_CONNECTED(char * args,int socket){}
+/*
+ * Envoi de CONNECTED
+ * Args : user
+ * socket : ctrl
+ */
+void handler_CONNECTED(char * args,int socket){
+	
+	log("Envoi de connected");
+	char connected_cmd[COMMAND_MAX_SIZE];
+	sprintf(connected_cmd,"CONNECTED/%s/\n",args);
+	int i;
+	// BROADCAST
+	for(i = 0; i < serveur.max_user; i++){
+		if(serveur.clients[i] != NULL){
+			if(send(serveur.clients[i]->socket, connected_cmd, strlen(connected_cmd) + 1, 0) == -1){
+				perror("Send connected_cmd");
+			}
+		}
+	}
+
+}
 void handler_EXIT(char * args,int socket){}
 void handler_EXITED(char * args,int socket){}
 void handler_EMPTY_SESSION(char * args,int socket){}
