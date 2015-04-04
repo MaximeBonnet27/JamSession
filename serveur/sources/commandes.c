@@ -161,6 +161,7 @@ void handler_AUDIO_PORT(char * args,int socket){
 	int new_socket_audio = creer_socket_audio(args);
 	char audio_port_cmd[COMMAND_MAX_SIZE];
 	sprintf(audio_port_cmd,"AUDIO_PORT/%d/\n",PORT_AUDIO_INIT + get_indice_client(args));
+
 	if(send(socket, audio_port_cmd, strlen(audio_port_cmd) + 1, 0) == -1){
 		perror("Send audio port");
 	}

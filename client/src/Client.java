@@ -59,11 +59,13 @@ public class Client {
 	}
 
 	public void send(String commande){
+		System.out.println("CANAL CTRL : " + commande + " -> ");
 		output.write(commande);
 		output.flush();
 	}
 	
 	public void sendAudio(String commande){
+		System.out.println("CANAL AUDIO : " + commande + " -> ");
 		outputAudio.write(commande);
 		outputAudio.flush();
 	}
@@ -72,7 +74,7 @@ public class Client {
 		String val = null;
 		try{
 			val = input.readLine();
-			System.out.println("CANAL CTRL : " + val);
+			System.out.println("CANAL CTRL : <- " + val);
 		}
 		catch(IOException e){
 			e.printStackTrace();
@@ -84,7 +86,7 @@ public class Client {
 		String val = null;
 		try{
 			val = inputAudio.readLine();
-			System.out.println("CANAL AUDIO : " + val);
+			System.out.println("CANAL AUDIO : <- " + val);
 		}
 		catch(IOException e){
 			e.printStackTrace();
@@ -93,6 +95,7 @@ public class Client {
 	}
 
 	public void setSocketAudio(int port){
+		System.out.println("Mise en place de la socket audio");
 		try{
 			String addr = socket.getRemoteSocketAddress().toString().split("/")[0];
 			this.socketAudio = new Socket(addr, port);
