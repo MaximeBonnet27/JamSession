@@ -1,6 +1,6 @@
 #include "commandes.h"
 void init_commandes(){
-	printf("initialisation des commandes\n");
+	log("Initialisation des commandes");
 
 	tab_commandes[CONNECT].type             = CONNECT;
 	tab_commandes[CONNECT].handler          = handler_CONNECT;
@@ -55,8 +55,6 @@ void init_commandes(){
 }
 
 t_commande string_to_commande(char * commande){
-	log("Commande executee");
-	log(commande);
 	if(strcmp(commande,"CONNECT") == 0){
 		return tab_commandes[CONNECT];
 	}else if(strcmp(commande,"WELCOME") == 0){
@@ -117,7 +115,7 @@ char * commande_to_string(t_commande commande){
 }
 
 void handler_UNKNOWN(char * args, int socket){
-	fprintf(stderr, "commande inconnue\n");
+	fprintf(stderr, "Commande inconnue\n");
 }
 /*
  * Receptionn de CONNECT
@@ -125,8 +123,8 @@ void handler_UNKNOWN(char * args, int socket){
  * socket : ctrl
  */ 
 void handler_CONNECT(char * args,int socket){
-	logf("nouvelle connexion de: %s\n",strtok(args,"/"));
-
+	strtok(args,"/");	
+	logf("Connect : NAME = (%s)\n", args);
 	if(add_client(args,socket) == -1){
 		fprintf(stderr,"Serveur complet");
 		return;
@@ -142,13 +140,12 @@ void handler_CONNECT(char * args,int socket){
  * socket : ctrl
  */
 void handler_WELCOME(char * args,int socket){
-	log("Envoi de welcome"); 
 	char welcome_cmd[COMMAND_MAX_SIZE];
 	sprintf(welcome_cmd,"WELCOME/%s/\n",args);
 	if(send(socket, welcome_cmd, strlen(welcome_cmd) + 1, 0) == -1){
 		perror("Send welcome");
 	}
-	log2f("%s envoyé a %s", welcome_cmd, args); 
+	logf("<- %s", welcome_cmd); 
 }
 /*
  * Envoi de AUDIO_PORT
@@ -157,7 +154,6 @@ void handler_WELCOME(char * args,int socket){
  */
 void handler_AUDIO_PORT(char * args,int socket){
 
-	log("Envoi du port Audio");
 	int new_socket_audio = creer_socket_audio(args);
 	char audio_port_cmd[COMMAND_MAX_SIZE];
 	sprintf(audio_port_cmd,"AUDIO_PORT/%d/\n",PORT_AUDIO_INIT + get_indice_client(args));
@@ -165,7 +161,7 @@ void handler_AUDIO_PORT(char * args,int socket){
 	if(send(socket, audio_port_cmd, strlen(audio_port_cmd) + 1, 0) == -1){
 		perror("Send audio port");
 	}
-	log2f("%s envoyé a %s", audio_port_cmd, args); 
+	logf("<- %s",audio_port_cmd); 
 
 	handler_AUDIO_OK(args, new_socket_audio);	
 
@@ -177,7 +173,6 @@ void handler_AUDIO_PORT(char * args,int socket){
  */
 void handler_AUDIO_OK(char * args,int socket){
 
-	log("Envoi de la confirmation AUDIO_OK");
 	char audio_ok_cmd[COMMAND_MAX_SIZE];
 	sprintf(audio_ok_cmd,"AUDIO_OK/\n");
 
@@ -196,7 +191,7 @@ void handler_AUDIO_OK(char * args,int socket){
 	if(send(serveur.clients[get_indice_client(args)]->socket, audio_ok_cmd, strlen(audio_ok_cmd) + 1, 0) == -1){
 		perror("Send audio ok");
 	}
-	log2f("%s envoyé a %s", audio_ok_cmd, args); 
+	logf("<- %s", audio_ok_cmd); 
 
 
 
@@ -207,8 +202,7 @@ void handler_AUDIO_OK(char * args,int socket){
  * socket : ctrl
  */
 void handler_CONNECTED(char * args,int socket){
-	
-	log("Envoi de connected");
+
 	char connected_cmd[COMMAND_MAX_SIZE];
 	sprintf(connected_cmd,"CONNECTED/%s/\n",args);
 	int i;
@@ -222,7 +216,26 @@ void handler_CONNECTED(char * args,int socket){
 	}
 
 }
-void handler_EXIT(char * args,int socket){}
+/*
+ * Reception de EXIT
+ * Args : user/(...)
+ * socket : ctrl
+ */
+void handler_EXIT(char * args,int socket){
+	supprimer_client(strtok(args,"/"));
+	char exited_cmd[COMMAND_MAX_SIZE];
+	logf("Verif args = (%s)\n", args);
+	sprintf(exited_cmd,"EXITED/%s/\n",args);
+	// BROADCAST
+	int i;
+	for(i = 0; i < serveur.max_user; i++){
+		if(serveur.clients[i] != NULL){
+			if(send(serveur.clients[i]->socket, exited_cmd, strlen(exited_cmd) + 1, 0) == -1){
+				perror("Send exited_cmd");
+			}
+		}
+	}
+}
 void handler_EXITED(char * args,int socket){}
 void handler_EMPTY_SESSION(char * args,int socket){}
 void handler_CURRENT_SESSION(char * args,int socket){}

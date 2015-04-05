@@ -17,5 +17,5 @@ void handle(char* commande,int socket);
 // Boucle d'accept du serveur
 void * loop(void * args);
 // Fonction d'accueil des clients
-void * new_connection(void * args);
+void * thread_handle_commandes(void * args);
 #endif

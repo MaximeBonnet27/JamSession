@@ -27,6 +27,9 @@ public enum Commande {
 
 	public static Commande getCommande(String nom){
 		for(Commande c : Commande.values()){
+			// Black Magic ?!
+			// Equals ne marchait pas avec AUDIO_PORT
+			// (Taille recue était 11, alors que commande de 10...)
 			if(nom.endsWith(c.nom))
 				return c;
 		}
@@ -47,7 +50,7 @@ public enum Commande {
 			case CONNECTED: handlerConnected(args, client); break;
 			case CURRENT_SESSION: handlerCurrentSession(args, client); break;
 			case EMPTY_SESSION: handlerEmptySession(args, client); break;
-			case EXIT: handlerExit(args, client); break;
+			case EXIT: handlerExit(client); break;
 			case EXITED: handlerExited(args, client); break;
 			case FULL_SESSION: handlerFullSession(args, client); break;
 			case SET_OPTIONS: handlerSetOptions(args, client); break;
@@ -59,7 +62,6 @@ public enum Commande {
 	 * Envoi de CONNECT
 	 */ 
 	private void handlerConnect(Client client, String username) {
-
 		client.send("CONNECT/"+username+"/");
 	}
 	/**
@@ -87,7 +89,6 @@ public enum Commande {
 	 */
 	private void handlerAudioPort(Client client, String port) {
 		client.setSocketAudio(Integer.parseInt(port));
-
 	}
 
 	private void handlerConnected(String[] args2, Client client) {
@@ -96,7 +97,9 @@ public enum Commande {
 	}
 	private void handlerEmptySession(String[] args2, Client client) {
 	}
-	private void handlerExit(String[] args2, Client client) {
+	private void handlerExit(Client client) {
+		client.send("EXIT/"+client.getNom()+"/");
+		client.exit();
 	}
 	private void handlerExited(String[] args2, Client client) {
 	}

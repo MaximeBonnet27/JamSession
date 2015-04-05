@@ -30,4 +30,4 @@ clean:
 	rm -rf $(BIN)/* $(OBJ)/*
 
 cleanall:
-	rm -rf *~ $(INC)/*~ $(SRC)/*~ 
+	rm -rf $(INC)/*~ $(SRC)/*~ 

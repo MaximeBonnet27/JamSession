@@ -1,7 +1,6 @@
 #include "serveur_type.h"
 
 int add_client(char* name, int socket){
-	log("ajout client");
 	pthread_mutex_lock(&(serveur.mutex));
 
 	if(serveur.nb_user >= serveur.max_user){
@@ -24,6 +23,25 @@ int add_client(char* name, int socket){
 	return 0;
 }
 
+void supprimer_client(char *name){
+	log("Suppression du client ...");
+	pthread_mutex_lock(&serveur.mutex);
+	log("Suppression, mutex pris");
+	int index = get_indice_client(name);
+	log("Suppression, indice OK");
+	if(index == serveur.max_user){
+		log("Impossible de supprimer ce client");
+		return;
+	}
+	close(serveur.clients[index]->socket);
+	close(serveur.clients[index]->socket_audio);
+	free(serveur.clients[index]->name);
+	free(serveur.clients[index]);
+	serveur.clients[index] = NULL;	
+	pthread_mutex_unlock(&serveur.mutex);
+	log("Suprression, mutex laché");
+	log("Fin Suppression du client");
+}
 t_client* creer_client(char* name, int socket){
 	t_client* c=malloc(sizeof(t_client));
 	c->name=strdup(name);
@@ -33,17 +51,19 @@ t_client* creer_client(char* name, int socket){
 
 int get_indice_client(char * name){
 	int i;
+	logf("NAME -> (%s)\n", name);
 	for(i = 0; i < serveur.max_user; i++){
-		if(strcmp(serveur.clients[i]->name, name) == 0){
+		if(serveur.clients[i] != NULL && strcmp(serveur.clients[i]->name, name) == 0){
 			break;
 		}
 	}
+	logf("INDICE Client : %d\n", i);
 	return i;
 }
 int creer_socket_audio(char * name){
 
 	int socket_audio;
-	
+
 	char port_to_string[6]; 
 	sprintf(port_to_string,"%d",PORT_AUDIO_INIT + get_indice_client(name));
 	struct addrinfo hints, *resultat;

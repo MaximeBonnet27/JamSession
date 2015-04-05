@@ -2,7 +2,7 @@
 
 
 int init_serveur(int count, char ** args){
-	log("initialisation du serveur");
+	log("Initialisation du serveur");
 	if(count % 2 != 0){
 		return -1;
 	}
@@ -29,7 +29,7 @@ int init_serveur(int count, char ** args){
 		}
 	}
 	serveur.clients=malloc(sizeof(t_client)*serveur.max_user);
-	
+
 	for(i=0;i<serveur.max_user;i++)
 		serveur.clients[i]=NULL;
 	serveur.mutex=(pthread_mutex_t)PTHREAD_MUTEX_INITIALIZER;
@@ -80,14 +80,14 @@ int init_serveur(int count, char ** args){
 
 void handle(char* message,int socket){
 	char* args;
+	logf("CLIENT -> %s\n", message);
 	char* commande_name=strtok_r(message,"/",&args);
-
 	t_commande commande=string_to_commande(commande_name);
 	commande.handler(args,socket);
 }
 
 void * loop(void * args){
-	log("lancement du serveur");
+	log("Lancement du serveur ...");
 
 	struct sockaddr_storage addr_user;
 	socklen_t size_usr = sizeof(addr_user);
@@ -99,8 +99,8 @@ void * loop(void * args){
 			perror("Accept nouvelle connexion");
 			continue;
 		}
-		pthread_t new_connection_thread;
-		if((pthread_create(&new_connection_thread, NULL, new_connection, &socket_accept)) != 0){
+		pthread_t handle_commandes_thread;
+		if((pthread_create(&handle_commandes_thread, NULL, thread_handle_commandes, &socket_accept)) != 0){
 			perror("Création du thread d'accueil");
 			exit(-1);
 			return NULL;
@@ -109,19 +109,23 @@ void * loop(void * args){
 
 }
 
-void * new_connection(void * args){
+void * thread_handle_commandes(void * args){
 
 	int *ptr_socket = (int *) args;
 	int socket = *ptr_socket;
 	char commande[COMMAND_MAX_SIZE];
-	// Tout d'abord, on attend le CONNECT.
-	if(recv(socket, commande, sizeof(commande), 0) == -1){
-		perror("Recv CONNECT");
-		exit(-1);
-		return NULL;
+	while(1){
+		// Reset de la commande
+		memset(commande, 0, COMMAND_MAX_SIZE);
+		// On recoit la commande.
+		if(recv(socket, commande, sizeof(commande), 0) <= 0){
+			log("Socket client fermée");
+			pthread_exit((void *)0);
+		}
+		
+		// Traitement de la commande recue
+		handle(commande,socket);
 	}
-	// Appel du handler de CONNECT
-	handle(commande,socket);
 	pthread_exit((void *)0);
 }
 

@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
+import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.util.Scanner;
 
@@ -24,6 +25,8 @@ public class Client {
 	private DataInputStream inputAudio;
 	private PrintWriter outputAudio;
 	private String nom;
+	private boolean running;
+
 	public Client(String adresse, int port, String nom) {
 		/* Mise en place de la socket et des I/O */
 		try{
@@ -35,6 +38,7 @@ public class Client {
 		}
 
 		this.nom = nom;
+		this.running = false;
 	}
 	public Client(String nom){
 		this("localhost",2015, nom);
@@ -43,6 +47,14 @@ public class Client {
 	public boolean connect(){
 		Commande.CONNECT.handler(this,nom);
 		return true;
+	}
+
+	public boolean isRunning(){
+		return running;
+	}
+
+	public String getNom(){
+		return nom;
 	}
 
 	public boolean exit(){
@@ -55,6 +67,8 @@ public class Client {
 		catch(Exception e){
 			e.printStackTrace();
 		}
+		running = false;
+		System.out.println("Running = false");
 		return true;
 	}
 
@@ -63,7 +77,7 @@ public class Client {
 		output.write(commande);
 		output.flush();
 	}
-	
+
 	public void sendAudio(String commande){
 		System.out.println("CANAL AUDIO : " + commande + " -> ");
 		outputAudio.write(commande);
@@ -75,6 +89,8 @@ public class Client {
 		try{
 			val = input.readLine();
 			System.out.println("CANAL CTRL : <- " + val);
+		}
+		catch(SocketException e){
 		}
 		catch(IOException e){
 			e.printStackTrace();
@@ -108,14 +124,19 @@ public class Client {
 	}
 
 	public void mainLoop(){
+		this.running = true;
 		ClientLoop loop = new ClientLoop(this);
+		ClientInput in = new ClientInput(this);
 		loop.start();
+		in.start();
 	}
 
 	public static void main(String... args) throws UnknownHostException, IOException {
-		Client client = new Client("maxime");
+		Client client = new Client(args[0]);
 		client.connect();
 		client.mainLoop();
-	}
 	
+
+	}
+
 }

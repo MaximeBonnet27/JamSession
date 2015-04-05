@@ -55,6 +55,7 @@ typedef struct {
 t_serveur serveur;
 
 int add_client(char* name, int socket);
+void supprimer_client(char * name);
 t_client* creer_client(char* name, int socket);
 int get_indice_client(char * name);
 int creer_socket_audio(char * name);

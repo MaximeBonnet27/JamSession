@@ -4,7 +4,9 @@ run_serveur :
 	cd serveur && make run
 
 run_client :
-	cd client && ant run
+	cd client && ant run -Darg0=Maxime
+run_client_2 : 
+	cd client && ant run -Darg0=Plop
 
 debug_serveur :
 	cd serveur && make debug && make run
