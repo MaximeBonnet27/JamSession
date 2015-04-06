@@ -7,7 +7,6 @@ int add_client(char* name, int socket){
 		fprintf(stderr,"bug\n");
 		return -1;
 	}
-
 	int i;
 	int placer=1;
 
@@ -24,23 +23,20 @@ int add_client(char* name, int socket){
 }
 
 void supprimer_client(char *name){
-	log("Suppression du client ...");
 	pthread_mutex_lock(&serveur.mutex);
-	log("Suppression, mutex pris");
 	int index = get_indice_client(name);
-	log("Suppression, indice OK");
 	if(index == serveur.max_user){
 		log("Impossible de supprimer ce client");
 		return;
 	}
-	close(serveur.clients[index]->socket);
-	close(serveur.clients[index]->socket_audio);
+	shutdown(serveur.clients[index]->socket, SHUT_RDWR);
+	shutdown(serveur.clients[index]->socket_audio, SHUT_RDWR);
+	
 	free(serveur.clients[index]->name);
 	free(serveur.clients[index]);
 	serveur.clients[index] = NULL;	
+	serveur.nb_user--;
 	pthread_mutex_unlock(&serveur.mutex);
-	log("Suprression, mutex laché");
-	log("Fin Suppression du client");
 }
 t_client* creer_client(char* name, int socket){
 	t_client* c=malloc(sizeof(t_client));
@@ -51,13 +47,11 @@ t_client* creer_client(char* name, int socket){
 
 int get_indice_client(char * name){
 	int i;
-	logf("NAME -> (%s)\n", name);
 	for(i = 0; i < serveur.max_user; i++){
 		if(serveur.clients[i] != NULL && strcmp(serveur.clients[i]->name, name) == 0){
 			break;
 		}
 	}
-	logf("INDICE Client : %d\n", i);
 	return i;
 }
 int creer_socket_audio(char * name){
@@ -81,18 +75,18 @@ int creer_socket_audio(char * name){
 	}
 	// Création socket
 	if((socket_audio = socket(resultat->ai_family, resultat->ai_socktype, resultat->ai_protocol)) == -1){
-		perror("Création socket");
+		perror("Création socket audio");
 		return -1;
 	}
 	// Réutilisation du port
 	if (setsockopt(socket_audio, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(int)) == -1) {
-		perror("setsockopt");
+		perror("setsockopt audio");
 		return -1;
 	}
 	// Bind
 	if(bind(socket_audio, resultat->ai_addr, resultat->ai_addrlen) == -1){
-		close(serveur.socket);
-		perror("Bind socket");
+		close(socket_audio);
+		perror("Bind socket audio");
 		return -1;
 	}
 
@@ -100,10 +94,26 @@ int creer_socket_audio(char * name){
 
 	// Listen
 	if(listen(socket_audio,LISTEN_QUEUE_SIZE) == -1){
-		perror("Listen");
+		perror("Listen audio");
 		return -1;
 	}
 
 	return socket_audio;
+
+}
+
+void check_client_deconnectes(){
+	// Broadcast d'un PING
+	int i;
+	char ping_msg[] = "PING\n";
+	for(i = 0; i < serveur.max_user; i++){
+		if(serveur.clients[i] != NULL){
+			// On supprime ceux dont la socket est fermée
+			if(send(serveur.clients[i]->socket, ping_msg, strlen(ping_msg) + 1, MSG_NOSIGNAL) == -1){
+				log("Client mal deconnecté");
+				supprimer_client(serveur.clients[i]->name);
+			}
+		}
+	}
 
 }

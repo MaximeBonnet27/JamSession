@@ -18,7 +18,8 @@ public enum Commande {
 	AUDIO_CHUNK("AUDIO_CHUNK"),
 	AUDIO_KO("AUDIO_KO"),
 	AUDIO_MIX("AUDIO_MIX"),
-	AUDIO_ACK("AUDIO_ACK");
+	AUDIO_ACK("AUDIO_ACK"),
+	LS("LS");
 
 	private String nom;
 	private Commande(String nom) {
@@ -54,6 +55,7 @@ public enum Commande {
 			case EXITED: handlerExited(args, client); break;
 			case FULL_SESSION: handlerFullSession(args, client); break;
 			case SET_OPTIONS: handlerSetOptions(args, client); break;
+			case LS : handlerLS(client);
 			default : System.out.println("Handler Commandes : Commande inconnue : " + this);
 
 		}
@@ -106,6 +108,9 @@ public enum Commande {
 	private void handlerFullSession(String[] args2, Client client) {
 	}
 	private void handlerSetOptions(String[] args2, Client client) {
+	}
+	private void handlerLS(Client client){
+		client.send("LS/");
 	}
 
 	public static String commandeNameFromCommandeReceived(String commande){

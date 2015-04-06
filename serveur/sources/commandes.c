@@ -52,6 +52,9 @@ void init_commandes(){
 
 	tab_commandes[UNKNOWN].type             = UNKNOWN;
 	tab_commandes[UNKNOWN].handler          = handler_UNKNOWN;
+
+	tab_commandes[LS].type = LS;
+	tab_commandes[LS].handler = handler_LS;
 }
 
 t_commande string_to_commande(char * commande){
@@ -85,6 +88,9 @@ t_commande string_to_commande(char * commande){
 		return tab_commandes[AUDIO_MIX];
 	}else if(strcmp(commande,"AUDIO_ACK") == 0){
 		return tab_commandes[AUDIO_ACK];
+	}
+	else if(strcmp(commande,"LS") == 0){
+		return tab_commandes[LS];
 	}else {
 		return tab_commandes[UNKNOWN];
 	}	       
@@ -224,7 +230,6 @@ void handler_CONNECTED(char * args,int socket){
 void handler_EXIT(char * args,int socket){
 	supprimer_client(strtok(args,"/"));
 	char exited_cmd[COMMAND_MAX_SIZE];
-	logf("Verif args = (%s)\n", args);
 	sprintf(exited_cmd,"EXITED/%s/\n",args);
 	// BROADCAST
 	int i;
@@ -247,3 +252,18 @@ void handler_AUDIO_KO(char * args,int socket){}
 void handler_AUDIO_MIX(char * args,int socket){}
 void handler_AUDIO_ACK(char * args,int socket){}
 
+/*
+ * Reception de LS
+ * Arguments inutiles.
+ */
+void handler_LS(char * args, int socket){
+	log("Etat du serveur actuel : [");
+	log2f("Utilisateurs : %d / %d\n", serveur.nb_user, serveur.max_user);
+	int i;
+	for(i = 0; i <  serveur.max_user; i++){
+		if(serveur.clients[i] != NULL){
+			logf("Client : %s\n", serveur.clients[i]->name);
+		}
+	}
+	log("]");
+}

@@ -23,7 +23,8 @@ typedef enum {
 	AUDIO_CHUNK,
 	AUDIO_KO,
 	AUDIO_MIX,
-	AUDIO_ACK
+	AUDIO_ACK,
+	LS
 
 } e_commande;
 
@@ -62,6 +63,7 @@ void handler_AUDIO_KO(char * args ,int socket);
 void handler_AUDIO_MIX(char * args ,int socket);
 void handler_AUDIO_ACK(char * args ,int socket);
 void handler_UNKNOWN(char * args ,int socket);
+void handler_LS(char * args, int socket);
 
 #endif
 

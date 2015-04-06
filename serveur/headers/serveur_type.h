@@ -59,4 +59,5 @@ void supprimer_client(char * name);
 t_client* creer_client(char* name, int socket);
 int get_indice_client(char * name);
 int creer_socket_audio(char * name);
+void check_client_deconnectes();
 #endif

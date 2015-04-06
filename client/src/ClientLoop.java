@@ -17,6 +17,7 @@ public class ClientLoop extends Thread {
 			commande.handler(client, Commande.argumentsFromCommande(commandeRecue));
 		}
 		System.out.println("Gestion commandes entrantes finie.");
+		client.exit();
 	}
 
 }

@@ -120,6 +120,7 @@ void * thread_handle_commandes(void * args){
 		// On recoit la commande.
 		if(recv(socket, commande, sizeof(commande), 0) <= 0){
 			log("Socket client fermée");
+			check_client_deconnectes();
 			pthread_exit((void *)0);
 		}
 		
