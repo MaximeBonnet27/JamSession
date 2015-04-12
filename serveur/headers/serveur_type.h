@@ -51,6 +51,8 @@ typedef struct {
 	int timeout;
 	// Socket du serveur
 	int socket;
+	// Socket audio du serveur
+	int socket_audio;
 	// Options de la jam
 	char * style;
 	char * tempo;
@@ -68,7 +70,6 @@ int add_client(char* name, int socket);
 void supprimer_client(char * name);
 t_client* creer_client(char* name, int socket);
 int get_indice_client(char * name);
-int creer_socket_audio(char * name);
-void check_client_deconnectes();
+int creer_socket_audio();
 void set_options(char * style, char * tempo);
 #endif

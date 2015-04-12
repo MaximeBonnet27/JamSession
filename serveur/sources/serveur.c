@@ -83,7 +83,7 @@ int init_serveur(int count, char ** args){
 		perror("Listen");
 		return -1;
 	}
-
+	creer_socket_audio();
 	return 0;
 }
 /**

@@ -14,7 +14,7 @@ int add_client(char* name, int socket){
 	// le nouvel utilisateur.
 	int i;
 	int place=1;
-	
+
 	for(i=0;i<serveur.max_user && place;i++){
 		if(serveur.clients[i]==NULL){
 			// Creation du client a la place trouvee.
@@ -79,19 +79,15 @@ int get_indice_client(char * name){
 }
 
 /**
- * Creation de la socket audio associee a l'utilisateur
- * dont le nom est passe en parametre
+ * Creation de la socket audio du serveur
  */
 
-int creer_socket_audio(char * name){
-	// La nouvelle socket a creer
-	int socket_audio;
-
+int creer_socket_audio(){
 	// Le numero du port sous forme de chaine de caratere
 	// Chaque client a son port, qui correspond a 
 	// PORT_AUDIO_INIT + son indice dans le tableau des utilisateurs
 	char port_to_string[6]; 
-	sprintf(port_to_string,"%d",PORT_AUDIO_INIT + get_indice_client(name));
+	sprintf(port_to_string,"%d",PORT_AUDIO_INIT);
 
 	// Initialisation de la socket
 	struct addrinfo hints, *resultat;
@@ -108,18 +104,18 @@ int creer_socket_audio(char * name){
 		return -1;
 	}
 	// Création socket
-	if((socket_audio = socket(resultat->ai_family, resultat->ai_socktype, resultat->ai_protocol)) == -1){
+	if((serveur.socket_audio = socket(resultat->ai_family, resultat->ai_socktype, resultat->ai_protocol)) == -1){
 		perror("Création socket audio");
 		return -1;
 	}
 	// Réutilisation du port
-	if (setsockopt(socket_audio, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(int)) == -1) {
+	if (setsockopt(serveur.socket_audio, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(int)) == -1) {
 		perror("setsockopt audio");
 		return -1;
 	}
 	// Bind
-	if(bind(socket_audio, resultat->ai_addr, resultat->ai_addrlen) == -1){
-		close(socket_audio);
+	if(bind(serveur.socket_audio, resultat->ai_addr, resultat->ai_addrlen) == -1){
+		close(serveur.socket_audio);
 		perror("Bind socket audio");
 		return -1;
 	}
@@ -127,34 +123,13 @@ int creer_socket_audio(char * name){
 	freeaddrinfo(resultat);
 
 	// Listen
-	if(listen(socket_audio,LISTEN_QUEUE_SIZE) == -1){
+	if(listen(serveur.socket_audio,LISTEN_QUEUE_SIZE) == -1){
 		perror("Listen audio");
 		return -1;
 	}
-
-	return socket_audio;
-
+	return 1;
 }
-/**
- * Fonction de nettoyage des clients deconnectes,
- * il se peut qu'un client se soit deconnecte sans avoir envoyer de
- * commande EXIT, on le verifie ici
- */
-void check_client_deconnectes(){
-	// Broadcast d'un PING
-	int i;
-	char ping_msg[] = "PING\n";
-	for(i = 0; i < serveur.max_user; i++){
-		if(serveur.clients[i] != NULL){
-			// On supprime ceux dont la socket est fermée
-			if(send(serveur.clients[i]->socket, ping_msg, strlen(ping_msg) + 1, MSG_NOSIGNAL) == -1){
-				log("Client mal deconnecté");
-				supprimer_client(serveur.clients[i]->name);
-			}
-		}
-	}
 
-}
 
 void set_options(char * style, char * tempo){
 	pthread_mutex_lock(&serveur.mutex);

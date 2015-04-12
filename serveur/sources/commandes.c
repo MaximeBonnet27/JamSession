@@ -199,24 +199,22 @@ void handler_WELCOME(char * args,int socket){
  * socket : ctrl
  */
 void handler_AUDIO_PORT(char * args,int socket){
-	// Création d'une nouvelle socket pour le canal audio
-	int new_socket_audio = creer_socket_audio(args);
 	// Ecriture de la commande
 	char audio_port_cmd[COMMAND_MAX_SIZE];
-	sprintf(audio_port_cmd,"AUDIO_PORT/%d/\n",PORT_AUDIO_INIT + get_indice_client(args));
+	sprintf(audio_port_cmd,"AUDIO_PORT/%d/\n",PORT_AUDIO_INIT);
 	// Envoi au client
 	if(send(socket, audio_port_cmd, strlen(audio_port_cmd) + 1, 0) == -1){
 		perror("Send audio port");
 	}
 	logf("<- %s",audio_port_cmd); 
 	// Pour s'assurer que la connexion a bien marche.
-	handler_AUDIO_OK(args, new_socket_audio);	
+	handler_AUDIO_OK(args, serveur.socket_audio);	
 
 }
 /*
  * Envoi de AUDIO_OK
  * Args : user
- * socket : audio
+ * socket : audio du serveur
  */
 void handler_AUDIO_OK(char * args,int socket){
 	// Ecriture de la commande
@@ -281,7 +279,7 @@ void handler_EXIT(char * args,int socket){
 	supprimer_client(strtok(args,"/"));
 
 	// Signal a tout le monde de la deconnexion
-	handler_EXITED(NULL, socket);
+	handler_EXITED(args, socket);
 
 }
 /**
@@ -416,4 +414,26 @@ void handler_LS(char * args, int socket){
 		}
 	}
 	log("]");
+}
+
+/**
+ * Fonction de nettoyage des clients deconnectes,
+ * il se peut qu'un client se soit deconnecte sans avoir envoyer de
+ * commande EXIT, on le verifie ici
+ */
+void check_client_deconnectes(){
+	// Broadcast d'un PING
+	int i;
+	char ping_msg[] = "PING\n";
+	for(i = 0; i < serveur.max_user; i++){
+		if(serveur.clients[i] != NULL){
+			// On supprime ceux dont la socket est fermée
+			if(send(serveur.clients[i]->socket, ping_msg, strlen(ping_msg) + 1, MSG_NOSIGNAL) == -1){
+				log("Client mal deconnecté");
+				handler_EXIT(serveur.clients[i]->name, serveur.clients[i]->socket);
+
+			}
+		}
+	}
+
 }

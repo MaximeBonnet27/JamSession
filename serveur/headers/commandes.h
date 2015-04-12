@@ -65,5 +65,7 @@ void handler_AUDIO_ACK(char * args ,int socket);
 void handler_UNKNOWN(char * args ,int socket);
 void handler_LS(char * args, int socket);
 
+/* Fonctions annexes */
+void check_client_deconnectes();
 #endif
 
