@@ -13,5 +13,5 @@ debug_serveur :
 clean :
 	@cd serveur && make clean
 	@cd client && ant clean
-	@rm *~
+	@rm -f *~
 	@echo "Repertoire nettoyé!\n"

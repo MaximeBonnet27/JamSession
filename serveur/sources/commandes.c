@@ -1,4 +1,11 @@
 #include "commandes.h"
+
+/**
+ * Initialisation du tableau des commandes.
+ * On associe à chaque commande son type et sa fonction de handler.
+ *
+ */
+
 void init_commandes(){
 	log("Initialisation des commandes");
 
@@ -52,10 +59,18 @@ void init_commandes(){
 
 	tab_commandes[UNKNOWN].type             = UNKNOWN;
 	tab_commandes[UNKNOWN].handler          = handler_UNKNOWN;
-
+	/*
+	 * Fonction en + par rapport à ce qui est demandé, 
+	 * le client peut demander au serveur d'afficher
+	 * les clients connectés.
+	 */
 	tab_commandes[LS].type = LS;
 	tab_commandes[LS].handler = handler_LS;
 }
+
+/**
+ * Renvoie la t_commande associée à une commande sous forme de chaine de caractère
+ */
 
 t_commande string_to_commande(char * commande){
 	if(strcmp(commande,"CONNECT") == 0){
@@ -96,6 +111,12 @@ t_commande string_to_commande(char * commande){
 	}	       
 
 }
+
+/**
+ * Renvoie le nom sous forme de chaine de caractère associé
+ * à la t_commande passée en paramètre.
+ */
+
 char * commande_to_string(t_commande commande){
 
 	switch(commande.type){
@@ -120,6 +141,9 @@ char * commande_to_string(t_commande commande){
 
 }
 
+/**
+ * Reception d'une commande inconnue.
+ */
 void handler_UNKNOWN(char * args, int socket){
 	fprintf(stderr, "Commande inconnue\n");
 }
@@ -129,13 +153,15 @@ void handler_UNKNOWN(char * args, int socket){
  * socket : ctrl
  */ 
 void handler_CONNECT(char * args,int socket){
+	// On récupère juste la première partie qui correspond au nom de l'utilisateur
 	strtok(args,"/");	
 	logf("Connect : NAME = (%s)\n", args);
+	// Ajout de cet user.
 	if(add_client(args,socket) == -1){
 		fprintf(stderr,"Serveur complet");
 		return;
 	}
-
+	// Suite de la procédure de connexion.
 	handler_WELCOME(args,socket);
 	handler_AUDIO_PORT(args,socket);
 	handler_CONNECTED(args, socket);
@@ -146,12 +172,17 @@ void handler_CONNECT(char * args,int socket){
  * socket : ctrl
  */
 void handler_WELCOME(char * args,int socket){
+	// Ecriture de la commande
 	char welcome_cmd[COMMAND_MAX_SIZE];
 	sprintf(welcome_cmd,"WELCOME/%s/\n",args);
+	// Envoi au client
 	if(send(socket, welcome_cmd, strlen(welcome_cmd) + 1, 0) == -1){
 		perror("Send welcome");
 	}
 	logf("<- %s", welcome_cmd); 
+	// La suite de la procédure de connection est lancée par CONNECT,
+	// on n'a plus rien a faire.
+	// (Prochaine fonction appelee : AUDIO_PORT)
 }
 /*
  * Envoi de AUDIO_PORT
@@ -159,16 +190,17 @@ void handler_WELCOME(char * args,int socket){
  * socket : ctrl
  */
 void handler_AUDIO_PORT(char * args,int socket){
-
+	// Création d'une nouvelle socket pour le canal audio
 	int new_socket_audio = creer_socket_audio(args);
+	// Ecriture de la commande
 	char audio_port_cmd[COMMAND_MAX_SIZE];
 	sprintf(audio_port_cmd,"AUDIO_PORT/%d/\n",PORT_AUDIO_INIT + get_indice_client(args));
-
+	// Envoi au client
 	if(send(socket, audio_port_cmd, strlen(audio_port_cmd) + 1, 0) == -1){
 		perror("Send audio port");
 	}
 	logf("<- %s",audio_port_cmd); 
-
+	// Pour s'assurer que la connexion a bien marche.
 	handler_AUDIO_OK(args, new_socket_audio);	
 
 }
@@ -178,11 +210,13 @@ void handler_AUDIO_PORT(char * args,int socket){
  * socket : audio
  */
 void handler_AUDIO_OK(char * args,int socket){
-
+	// Ecriture de la commande
 	char audio_ok_cmd[COMMAND_MAX_SIZE];
 	sprintf(audio_ok_cmd,"AUDIO_OK/\n");
-
-
+	
+	// Attente d'une nouvelle connexion sur la socket passee
+	// en argument, qui est la socket creee precedemment
+	// dans le handler AUDIO_PORT
 	struct sockaddr_storage addr_user;
 	socklen_t size_usr = sizeof(addr_user);
 
@@ -191,15 +225,18 @@ void handler_AUDIO_OK(char * args,int socket){
 		perror("Accept nouvelle connexion audio");
 		return;
 	}
+	// La connexion s'est bien passee, on peut effectivement associer
+	// la socket audio au client.
 	pthread_mutex_lock(&serveur.mutex);
 	serveur.clients[get_indice_client(args)]->socket_audio = socket_accept;	
 	pthread_mutex_unlock(&serveur.mutex);
+	// Envoi de la confirmation
 	if(send(serveur.clients[get_indice_client(args)]->socket, audio_ok_cmd, strlen(audio_ok_cmd) + 1, 0) == -1){
 		perror("Send audio ok");
 	}
 	logf("<- %s", audio_ok_cmd); 
-
-
+	// Le canal audio est donc bien etabli
+	// Le handler de CONNECTED est ensuite appele par la handler de CONNECT
 
 }
 /*
@@ -208,19 +245,20 @@ void handler_AUDIO_OK(char * args,int socket){
  * socket : ctrl
  */
 void handler_CONNECTED(char * args,int socket){
-
+	// Ecriture de la commande
 	char connected_cmd[COMMAND_MAX_SIZE];
 	sprintf(connected_cmd,"CONNECTED/%s/\n",args);
 	int i;
 	// BROADCAST
 	for(i = 0; i < serveur.max_user; i++){
+		// Si le client est connecte
 		if(serveur.clients[i] != NULL){
 			if(send(serveur.clients[i]->socket, connected_cmd, strlen(connected_cmd) + 1, 0) == -1){
 				perror("Send connected_cmd");
 			}
 		}
 	}
-
+	// Procedure de connexion d'un nouvel utilisateur finie.
 }
 /*
  * Reception de EXIT
@@ -228,7 +266,11 @@ void handler_CONNECTED(char * args,int socket){
  * socket : ctrl
  */
 void handler_EXIT(char * args,int socket){
+	// On recupere seulement la premiere partie de la commande
+	// qui correspond au nom d'utilisateur, et on le supprime dans la
+	// structure du serveur.
 	supprimer_client(strtok(args,"/"));
+	// Ecriture de la commande
 	char exited_cmd[COMMAND_MAX_SIZE];
 	sprintf(exited_cmd,"EXITED/%s/\n",args);
 	// BROADCAST
@@ -257,6 +299,9 @@ void handler_AUDIO_ACK(char * args,int socket){}
  * Arguments inutiles.
  */
 void handler_LS(char * args, int socket){
+	// La fonction, au final, ne fait que des logs.
+	// On parcourt toute la table des clients, et on affiche
+	// le nom de ceux qui sont connectes.
 	log("Etat du serveur actuel : [");
 	log2f("Utilisateurs : %d / %d\n", serveur.nb_user, serveur.max_user);
 	int i;

@@ -1,8 +1,12 @@
 #include "serveur.h"
 
-
+/**
+ * Initialisation de la structure du serveur
+ */
 int init_serveur(int count, char ** args){
 	log("Initialisation du serveur");
+	// Il faut un nombre pair d'arguments 
+	// (On a des paires (nomArgument + valeur))
 	if(count % 2 != 0){
 		return -1;
 	}
@@ -12,7 +16,7 @@ int init_serveur(int count, char ** args){
 	serveur.nb_user=0;
 	serveur.timeout = DEFAULT_TIMEOUT;
 	serveur.port = DEFAULT_PORT;
-
+	// On recupere les valeurs passes en arguments, si specifiees.
 	int i;
 	for(i = 0; i < count; i += 2){
 		if(strcmp(args[i],"-max") == 0){
@@ -28,17 +32,22 @@ int init_serveur(int count, char ** args){
 			fprintf(stderr,"Argument inconnu : %s\n", args[i]);
 		}
 	}
+	// Allocation du tableau des clients
 	serveur.clients=malloc(sizeof(t_client)*serveur.max_user);
 
-	for(i=0;i<serveur.max_user;i++)
+	for(i=0;i<serveur.max_user;i++){
 		serveur.clients[i]=NULL;
+	}
+	// Initialisation du mutex central du serveur.
 	serveur.mutex=(pthread_mutex_t)PTHREAD_MUTEX_INITIALIZER;
 
+	// On aura besoin du port du serveur sous forme de chaine de caracteres
+	// pour certaines fonctions sur les sockets.
 	serveur.port_string = (char *) malloc(sizeof(char) * 6);
 	sprintf(serveur.port_string,"%d",serveur.port);
 
+	// Initialisation de la socket
 	struct addrinfo hints, *resultat;
-
 	int yes = 1;
 
 	memset(&hints, 0, sizeof(hints));
@@ -66,7 +75,7 @@ int init_serveur(int count, char ** args){
 		perror("Bind socket");
 		return -1;
 	}
-
+	// On libere la structure resultat, plus utile
 	freeaddrinfo(resultat);
 
 	// Listen
@@ -77,28 +86,39 @@ int init_serveur(int count, char ** args){
 
 	return 0;
 }
-
+/**
+ * Traitement d'une commande venant du client
+ */
 void handle(char* message,int socket){
 	char* args;
 	logf("CLIENT -> %s\n", message);
+	// On recupere les arguments de la commande
 	char* commande_name=strtok_r(message,"/",&args);
+	// On recupere la t_commande correspondant a la commande recue
 	t_commande commande=string_to_commande(commande_name);
+	// Et on appelle la fonction correspondant a cette commande
+	// avec les arguments
 	commande.handler(args,socket);
 }
-
+/**
+ * Boucle principale du serveur, attente de nouvelles connexions.
+ *
+ */
 void * loop(void * args){
 	log("Lancement du serveur ...");
 
 	struct sockaddr_storage addr_user;
 	socklen_t size_usr = sizeof(addr_user);
 	int socket_accept;
-
+	
 	while(1){
+		// On attend une nouvelle connexion sur la socket principale
 		socket_accept = accept(serveur.socket, (struct sockaddr *) &addr_user, &size_usr);
 		if(socket_accept == -1){
 			perror("Accept nouvelle connexion");
 			continue;
 		}
+		// On lance un nouveau thread qui va s'occuper de traiter le nouveau client
 		pthread_t handle_commandes_thread;
 		if((pthread_create(&handle_commandes_thread, NULL, thread_handle_commandes, &socket_accept)) != 0){
 			perror("Création du thread d'accueil");
@@ -108,9 +128,11 @@ void * loop(void * args){
 	}
 
 }
-
+/*
+ * Thread de traitement d'un client, boucle en attente de commandes. 
+ */
 void * thread_handle_commandes(void * args){
-
+	// Recupere la socket passee en argument.
 	int *ptr_socket = (int *) args;
 	int socket = *ptr_socket;
 	char commande[COMMAND_MAX_SIZE];
@@ -127,6 +149,7 @@ void * thread_handle_commandes(void * args){
 		// Traitement de la commande recue
 		handle(commande,socket);
 	}
+	// Normalement, ne devrait pas arriver.
 	pthread_exit((void *)0);
 }
 
@@ -144,6 +167,8 @@ int main(int argc, char ** argv){
 		perror("Création du thread principal ");
 		return -1;
 	}
+	// Normalement, le main_thread est une boucle infinie, 
+	// donc le code ci-dessous n'est jamais atteint.
 	int * status;
 	if(pthread_join(main_thread, (void **) &status) != 0){
 		perror("Join");
