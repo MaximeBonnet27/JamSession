@@ -9,17 +9,19 @@
 	<!-- Compiler les sources -->
 	<target name="compile" depends="init">
 		<javac debug="true" srcdir="${src}" excludes="" destdir="${build}"
-			includeantruntime="false" />
+			includeantruntime="false">
+			<compilerarg line="-Xlint:deprecation" />
+		</javac>
 	</target>
 
 	<target name="run" depends="compile" description="Lance le client en monde console">
-		<java classname="client.model.Client" fork="true"
+		<java classname="Client" fork="true"
 			classpath="${build}">
 			<arg value="${arg0}" />
 		</java>
 	</target>
 
-	<target name="ihm" depends="compile" description="Lance l'IHM">
+	<target name="ihm" depends="compile" description="Lance IHM">
 		<java classname="client.controller.ControllerClient" fork="true"
 			classpath="${build}">
 		</java>

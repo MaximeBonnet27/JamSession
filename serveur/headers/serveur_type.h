@@ -30,28 +30,38 @@
 #define log3f(A,B,C,D) if(DEBUG) fprintf(stderr,A,B,C,D);
 typedef struct 
 {
+	// Nom du client
 	char* name;
+	// Socket de controle
 	int socket;
+	// Socket audio
 	int socket_audio;
 	/*autre chose?*/
 } t_client;
 
 typedef struct {
-
+	// Port principal du serveur
 	int port;
+	// Port principal, ecrit en chaine de caractere
 	char * port_string;
+	// Nombre maximal d'utilisateurs connectes en meme temps
 	int max_user;
+	// Nombre d'utilisateurs connectes actuellement
 	int nb_user;
 	int timeout;
+	// Socket du serveur
 	int socket;
-		
-	// + liste de clients
+	// Options de la jam
+	char * style;
+	char * tempo;
+	// Tableau des utilisateurs	
 	t_client** clients;
 
 
 	pthread_mutex_t mutex;
 } t_serveur;
 
+// Instance unique du serveur
 t_serveur serveur;
 
 int add_client(char* name, int socket);
@@ -60,4 +70,5 @@ t_client* creer_client(char* name, int socket);
 int get_indice_client(char * name);
 int creer_socket_audio(char * name);
 void check_client_deconnectes();
+void set_options(char * style, char * tempo);
 #endif

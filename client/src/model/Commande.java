@@ -41,7 +41,7 @@ public enum Commande {
 		switch(this){
 			case CONNECT : handlerConnect(client,args[0]); break;
 			case WELCOME : handlerWelcome(client); break;
-			case ACK_OPTS: handlerAckOpts(args, client); break;
+			case ACK_OPTS: handlerAckOpts(client); break;
 			case AUDIO_ACK: handlerAudioAck(args, client); break;
 			case AUDIO_CHUNK: handlerAudioChunk(args, client); break;
 			case AUDIO_KO: handlerAudioKo(args, client); break;
@@ -50,10 +50,10 @@ public enum Commande {
 			case AUDIO_PORT: handlerAudioPort(client, args[0]); break;
 			case CONNECTED: handlerConnected(args, client); break;
 			case CURRENT_SESSION: handlerCurrentSession(args, client); break;
-			case EMPTY_SESSION: handlerEmptySession(args, client); break;
+			case EMPTY_SESSION: handlerEmptySession(client); break;
 			case EXIT: handlerExit(client); break;
 			case EXITED: handlerExited(args, client); break;
-			case FULL_SESSION: handlerFullSession(args, client); break;
+			case FULL_SESSION: handlerFullSession(client); break;
 			case SET_OPTIONS: handlerSetOptions(args, client); break;
 			case LS : handlerLS(client);
 			default : System.out.println("Handler Commandes : Commande inconnue : " + this);
@@ -70,11 +70,19 @@ public enum Commande {
 	 * Reception de WELCOME
 	 */
 	private void handlerWelcome(Client client) {
+		/*
+		 * Rien a faire
+		 */
 	}
 
 
-
-	private void handlerAckOpts(String[] args2, Client client) {
+	/**
+	 * Reception de ACK_OPTS
+	 */
+	private void handlerAckOpts(Client client) {
+		/*
+		 * Rien a faire
+		 */
 	}
 	private void handlerAudioAck(String[] args2, Client client) {
 	}
@@ -97,7 +105,12 @@ public enum Commande {
 	}
 	private void handlerCurrentSession(String[] args2, Client client) {
 	}
-	private void handlerEmptySession(String[] args2, Client client) {
+	/**
+	 * Reception de EMPTY_SESSION
+	 */
+	private void handlerEmptySession(Client client) {
+		String [] options = client.getOptionsSouhaitees();
+		handlerSetOptions(options, client);
 	}
 	private void handlerExit(Client client) {
 		client.send("EXIT/"+client.getNom()+"/");
@@ -105,9 +118,17 @@ public enum Commande {
 	}
 	private void handlerExited(String[] args2, Client client) {
 	}
-	private void handlerFullSession(String[] args2, Client client) {
+	/**
+	 * Reception de FULL_SESSION
+	 */
+	private void handlerFullSession(Client client) {
+		handlerExit(client);
 	}
-	private void handlerSetOptions(String[] args2, Client client) {
+	/**
+	 * Envoi de SET_OPTIONS
+	 */
+	private void handlerSetOptions(String[] options, Client client) {
+		client.send("SET_OPTIONS/"+options[0]+"/"+options[1]+"/");
 	}
 	private void handlerLS(Client client){
 		client.send("LS/");

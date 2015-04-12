@@ -4,8 +4,9 @@
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
-import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.IOException;
+import java.io.BufferedReader;
 import java.io.PrintWriter;
 import java.net.Socket;
 import java.net.SocketException;
@@ -20,9 +21,9 @@ public class Client {
 
 	private Socket socket;
 	private Socket socketAudio;
-	private DataInputStream input;
+	private BufferedReader input;
 	private PrintWriter output;
-	private DataInputStream inputAudio;
+	private BufferedReader inputAudio;
 	private PrintWriter outputAudio;
 	private String nom;
 	private boolean running;
@@ -31,7 +32,8 @@ public class Client {
 		/* Mise en place de la socket et des I/O */
 		try{
 			this.socket = new Socket(adresse, port);
-			this.input = new DataInputStream(socket.getInputStream());
+			this.input = new BufferedReader(
+					new InputStreamReader(socket.getInputStream()));
 			this.output = new PrintWriter(socket.getOutputStream());
 		}catch(Exception e){
 			e.printStackTrace();
@@ -98,6 +100,12 @@ public class Client {
 		return val;
 	}
 
+	public String [] getOptionsSouhaitees(){
+		String [] res = {"Blues", "90"};
+		return res;
+	}
+
+
 	public String receiveAudio(){
 		String val = null;
 		try{
@@ -115,7 +123,8 @@ public class Client {
 		try{
 			String addr = socket.getRemoteSocketAddress().toString().split("/")[0];
 			this.socketAudio = new Socket(addr, port);
-			this.inputAudio = new DataInputStream(socketAudio.getInputStream());
+			this.inputAudio = new BufferedReader(
+					new InputStreamReader(socketAudio.getInputStream()));
 			this.outputAudio = new PrintWriter(socketAudio.getOutputStream());
 		}
 		catch(Exception e){

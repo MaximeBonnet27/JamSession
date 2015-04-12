@@ -152,3 +152,13 @@ void check_client_deconnectes(){
 	}
 
 }
+
+void set_options(char * style, char * tempo){
+	pthread_mutex_lock(&serveur.mutex);
+
+	serveur.style = strdup(style);
+	serveur.tempo = strdup(tempo);
+
+	pthread_mutex_unlock(&serveur.mutex);
+
+}
