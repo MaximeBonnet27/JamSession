@@ -12,10 +12,16 @@
 			includeantruntime="false" />
 	</target>
 
-	<target name="run" depends="compile" description="Lance le client">
-		<java classname="Client" fork="true"
+	<target name="run" depends="compile" description="Lance le client en monde console">
+		<java classname="client.model.Client" fork="true"
 			classpath="${build}">
 			<arg value="${arg0}" />
+		</java>
+	</target>
+
+	<target name="ihm" depends="compile" description="Lance l'IHM">
+		<java classname="client.controller.ControllerClient" fork="true"
+			classpath="${build}">
 		</java>
 	</target>
 
