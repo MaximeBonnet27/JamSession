@@ -38,6 +38,9 @@ void supprimer_client(char *name){
 		log("Impossible de supprimer ce client");
 		return;
 	}
+	// Arret des communications sur les deux sockets
+	shutdown(serveur.clients[index]->socket, SHUT_RDWR);
+	shutdown(serveur.clients[index]->socket_audio, SHUT_RDWR);
 	// Fermeture des deux sockets du client.
 	close(serveur.clients[index]->socket);
 	close(serveur.clients[index]->socket_audio);
