@@ -22,41 +22,41 @@ public class UIProfil extends JPanel implements IProfil,ActionListener,IProfilDe
 	private JMenu 	m_reseaux;
 	private JMenuItem mi_deconnexion;
 	private JMenuItem mi_communication;
-	
+
 	private UITchat tchatView;
 	private UIContacts contactsView;
-	
+
 	public UIProfil(JFrame parent){
 		super();
-		
+
 		setLayout(new BorderLayout());
-		
+
 		this.parent=parent;
-		
+
 		menuBar=new JMenuBar();
-		
+
 		/*menu profil*/
 		m_profil=new JMenu("Profil");
 		mi_deconnexion=new JMenuItem("Deconnexion");
 		mi_deconnexion.addActionListener(this);
 		m_profil.add(mi_deconnexion);
 		menuBar.add(m_profil);
-		
+
 		/*menu reseaux*/
 		m_reseaux=new JMenu("Reseaux");
 		mi_communication=new JMenuItem("Show communications");
 		m_reseaux.add(mi_communication);
 		mi_communication.addActionListener(this);
 		menuBar.add(m_reseaux);
-		
+
 		tchatView=new UITchat();
 		tchatView.setDelegate(this);
 		contactsView=new UIContacts();
-		
-		
+
+
 		add(tchatView,BorderLayout.CENTER);
 		add(contactsView,BorderLayout.LINE_START);
-		
+
 		addComponentListener(new ComponentAdapter() {
 			@Override
 			public void componentResized(ComponentEvent e) {
@@ -64,11 +64,11 @@ public class UIProfil extends JPanel implements IProfil,ActionListener,IProfilDe
 			}
 		});
 	}
-	
+
 	@Override
 	public IProfil init(int width, int height) {
 		parent.setJMenuBar(menuBar);
-		
+
 		tchatView.init(width*3/4, height);
 		contactsView.init(width*1/4, height);
 		return this;
@@ -81,13 +81,13 @@ public class UIProfil extends JPanel implements IProfil,ActionListener,IProfilDe
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		Object source=e.getSource();
-		
+
 		if(source.equals(mi_deconnexion)){
 			deconnexion();
 		}else if(source.equals(mi_communication)){
 			show_communication();
 		}else{
-			
+
 		}
 	}
 
@@ -111,6 +111,7 @@ public class UIProfil extends JPanel implements IProfil,ActionListener,IProfilDe
 	public void sendMessage(String message) {
 		if(delegate!=null)
 			delegate.sendMessage(message);
+
 	}
 
 	@Override

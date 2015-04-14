@@ -1,10 +1,13 @@
 package controller;
 
-import model.Client;
 import interfaces.IClientInterface;
-import interfaces.UIClient;
 import interfaces.IClientInterfaceDelegate;
+import interfaces.UIClient;
 import interfaces.UIClientDebug;
+
+import java.net.ConnectException;
+
+import model.Client;
 
 public class ControllerClient extends Thread implements IClientInterfaceDelegate{
 	public static void main(String[] args) {
@@ -33,7 +36,7 @@ public class ControllerClient extends Thread implements IClientInterfaceDelegate
 	@Override
 	public void run() {
 		super.run();
-		this.show_communication();
+		//this.show_communication();
 		this.view.showLauncher();
 	}
 
@@ -42,9 +45,10 @@ public class ControllerClient extends Thread implements IClientInterfaceDelegate
 	@Override
 	public void connexion(String pseudo, String addr_serveur,String port_serveur) {
 		modelClient=new Client(addr_serveur, Integer.parseInt(port_serveur), pseudo);
+		
 		modelClient.setController(this);
 		modelClient.setOutPutStreamDebug(debugView.getOutputStream());
-		
+
 		if(modelClient.connect()){
 			modelClient.mainLoop();
 			view.showProfil();
@@ -53,19 +57,21 @@ public class ControllerClient extends Thread implements IClientInterfaceDelegate
 		}
 	}
 
-	
+
 	/*model to controller methods*/
 
-	
-	
-	
-	
+
+
+
+
 	/*view to controller methods*/
 	@Override
 	public void deconnexion() {
 		view.showLauncher();
-		System.err.println("ici");
-		modelClient.exit();
+		// Si on est encore sur le launcher
+		if(modelClient != null){
+			modelClient.exit();
+		}
 	}
 
 	@Override
@@ -75,9 +81,13 @@ public class ControllerClient extends Thread implements IClientInterfaceDelegate
 
 	@Override
 	public void sendMessage(String message) {
+		modelClient.sendMessage(message);
 		//view.receiveMessage(message, "moi");
 		//view.addContact(message);
 	}
-
 	
+	public void receiveMessage(String message, String from){
+		view.receiveMessage(message, from);
+	}
+
 }

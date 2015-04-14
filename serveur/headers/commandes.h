@@ -3,7 +3,7 @@
 
 #include "serveur_type.h"
 
-#define NBCOMMANDES 18
+#define NBCOMMANDES 20
 #define COMMAND_MAX_SIZE 128
 typedef enum {
 
@@ -24,6 +24,8 @@ typedef enum {
 	AUDIO_KO,
 	AUDIO_MIX,
 	AUDIO_ACK,
+	TALK,
+	LISTEN,
 	LS
 
 } e_commande;
@@ -45,23 +47,32 @@ t_commande string_to_commande(char * commande);
 char * commande_to_string(t_commande commande);
 
 /* HANDLERS */
-void handler_UNKNOWN(char * args ,int socket);
+/* Connexion */
 void handler_CONNECT(char * args ,int socket);
 void handler_WELCOME(char * args ,int socket);
 void handler_AUDIO_PORT(char * args ,int socket);
 void handler_AUDIO_OK(char * args ,int socket);
 void handler_CONNECTED(char * args ,int socket);
+/* Deconnexion */
 void handler_EXIT(char * args ,int socket);
 void handler_EXITED(char * args ,int socket);
+/* Config */
 void handler_EMPTY_SESSION(char * args ,int socket);
 void handler_CURRENT_SESSION(char * args ,int socket);
 void handler_SET_OPTIONS(char * args ,int socket);
 void handler_ACK_OPTS(char * args ,int socket);
 void handler_FULL_SESSION(char * args ,int socket);
+/* Audio */
 void handler_AUDIO_CHUNK(char * args ,int socket);
 void handler_AUDIO_KO(char * args ,int socket);
 void handler_AUDIO_MIX(char * args ,int socket);
 void handler_AUDIO_ACK(char * args ,int socket);
+
+/* Chat */
+void handler_TALK(char * args, int socket);
+void handler_LISTEN(char * args, int socket);
+
+/* Misc. */
 void handler_UNKNOWN(char * args ,int socket);
 void handler_LS(char * args, int socket);
 

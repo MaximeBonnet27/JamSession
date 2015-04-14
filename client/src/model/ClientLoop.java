@@ -14,23 +14,20 @@ public class ClientLoop extends Thread {
 	public void run(){
 		String commandeRecue = "";
 		Commande commande;
-		while(client.isRunning()){
-			try{
-			commandeRecue = client.receive();
-			if(commandeRecue == null || commandeRecue.isEmpty()) break;
-			commande = Commande.getCommande(Commande.commandeNameFromCommandeReceived(commandeRecue));
-			commande.handler(client, Commande.argumentsFromCommande(commandeRecue));
-			
-			}catch(SocketException e){
-				if(client.isRunning()){
-					System.err.println("JE RUNNNNNNNNNNNN");
-					e.printStackTrace();
-				}else{
-					break;
-				}
+		try{
+			while(client.isRunning()){
+				commandeRecue = client.receive();
+				if(commandeRecue == null || commandeRecue.isEmpty()) break;
+				commande = Commande.getCommande(Commande.commandeNameFromCommandeReceived(commandeRecue));
+				commande.handler(client, Commande.argumentsFromCommande(commandeRecue));
+
 			}
 		}
-		System.err.println("Gestion commandes entrantes finie.");
+		catch(SocketException e){
+			if(client.isRunning()){
+				e.printStackTrace();
+			}
+		}
 		client.exit();
 	}
 

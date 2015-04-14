@@ -44,6 +44,8 @@ public class UIClient extends JFrame implements IClientInterface,IClientInterfac
 		this.launcher.init(this.getWidth(),this.getHeight());
 		this.profil.init(this.getWidth(),this.getHeight());
 		
+		this.setLocationRelativeTo(null);
+		
 		//this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);//send deconnexion
 		this.addWindowListener(new WindowAdapter() {
 			@Override

@@ -80,6 +80,7 @@ int add_client(char* name, int socket);
 void supprimer_client(char * name);
 t_client* creer_client(char* name, int socket);
 int get_indice_client(char * name);
+int get_indice_from_socket(int socket);
 int creer_socket_audio();
 void set_options(char * style, char * tempo);
 void commencer_jam();

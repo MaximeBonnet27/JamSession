@@ -61,6 +61,7 @@ void supprimer_client(char *name){
 t_client* creer_client(char* name, int socket){
 	t_client* c=malloc(sizeof(t_client));
 	c->name=strdup(name);
+	logf("Socket = %d\n", socket);
 	c->socket=socket;
 	c->is_admin = 0;
 	return c;
@@ -73,6 +74,21 @@ int get_indice_client(char * name){
 	int i;
 	for(i = 0; i < serveur.max_user; i++){
 		if(serveur.clients[i] != NULL && strcmp(serveur.clients[i]->name, name) == 0){
+			break;
+		}
+	}
+	return i;
+}
+
+/**
+ * Renvoie l'indice du client dans le tableau des utilisateurs 
+ * a partir de sa socket
+ */
+
+int get_indice_from_socket(int socket){
+	int i;
+	for(i = 0; i < serveur.max_user; i++){
+		if(serveur.clients[i] != NULL && serveur.clients[i]->socket == socket){
 			break;
 		}
 	}
@@ -143,17 +159,17 @@ void set_options(char * style, char * tempo){
 
 void commencer_jam(){
 	pthread_mutex_lock(&serveur.mutex);
-	/*if(serveur.configure){
+	if(serveur.configure){
 		serveur.playing = 1;
 		log("La jam commence");
-	}*/
+	}
 	pthread_mutex_unlock(&serveur.mutex);
 }
 
 void stopper_jam(){
 	pthread_mutex_lock(&serveur.mutex);
-	/*serveur.playing = 0;
+	serveur.playing = 0;
 	serveur.configure = 0;
 	log("La jam se stoppe");
-	*/pthread_mutex_unlock(&serveur.mutex);
+	pthread_mutex_unlock(&serveur.mutex);
 }

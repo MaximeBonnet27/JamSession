@@ -57,8 +57,17 @@ void init_commandes(){
 	tab_commandes[AUDIO_ACK].type           = AUDIO_ACK;
 	tab_commandes[AUDIO_ACK].handler        = handler_AUDIO_ACK;
 
+	tab_commandes[TALK].type = TALK;
+	tab_commandes[TALK].handler = handler_TALK;
+
+	tab_commandes[LISTEN].type = LISTEN;
+	tab_commandes[LISTEN].handler = handler_LISTEN;
+
+
+
 	tab_commandes[UNKNOWN].type             = UNKNOWN;
 	tab_commandes[UNKNOWN].handler          = handler_UNKNOWN;
+
 	/*
 	 * Fonction en + par rapport à ce qui est demandé, 
 	 * le client peut demander au serveur d'afficher
@@ -66,6 +75,7 @@ void init_commandes(){
 	 */
 	tab_commandes[LS].type = LS;
 	tab_commandes[LS].handler = handler_LS;
+
 }
 
 /**
@@ -103,8 +113,11 @@ t_commande string_to_commande(char * commande){
 		return tab_commandes[AUDIO_MIX];
 	}else if(strcmp(commande,"AUDIO_ACK") == 0){
 		return tab_commandes[AUDIO_ACK];
-	}
-	else if(strcmp(commande,"LS") == 0){
+	}else if (strcmp(commande,"LISTEN") == 0){
+		return tab_commandes[LISTEN];
+	}else if(strcmp(commande,"TALK") == 0){
+		return tab_commandes[TALK];
+	}else if(strcmp(commande,"LS") == 0){
 		return tab_commandes[LS];
 	}else {
 		return tab_commandes[UNKNOWN];
@@ -136,6 +149,9 @@ char * commande_to_string(t_commande commande){
 		case AUDIO_KO:          return "AUDIO_KO";
 		case AUDIO_MIX:         return "AUDIO_MIX";
 		case AUDIO_ACK:         return "AUDIO_ACK";
+		case LISTEN : return "LISTEN";
+		case TALK : return "TALK";
+		case LS : return "LS";
 		default:                return "UNKNOWN";
 	}
 
@@ -297,7 +313,7 @@ void handler_EXITED(char * args,int socket){
 	sprintf(exited_cmd,"EXITED/%s/\n",args);
 	// BROADCAST
 	// + verification si l'admin s'est deconnecte
-	
+
 	int i;
 	int admin_deco = 1;
 	// Trouver le premier index non vide, qui sera le nouvel admin
@@ -330,11 +346,13 @@ void handler_EXITED(char * args,int socket){
 	if(admin_deco){
 		// On arrete la jam en attendant que les parametres soient retablis
 		stopper_jam();
-		// Empty_session car permet de mettre les parametres de la jam a jour
-		handler_EMPTY_SESSION(serveur.clients[premier_index]->name, serveur.clients[premier_index]->socket);
+		if(i != serveur.max_user){
+			// Empty_session car permet de mettre les parametres de la jam a jour
+			handler_EMPTY_SESSION(serveur.clients[premier_index]->name, serveur.clients[premier_index]->socket);
+		}
 	}
 	logf("<- %s",exited_cmd);
-	
+
 }
 /**
  * Envoi de EMPTY_SESSION
@@ -353,7 +371,7 @@ void handler_EMPTY_SESSION(char * args,int socket){
 	// Cet utilisateur devient l'admin
 	serveur.clients[get_indice_client(args)]->is_admin = 1;
 	serveur.configure = 1;
-	
+
 	logf("<- %s", empty_session_cmd);
 }
 /**
@@ -430,6 +448,40 @@ void handler_AUDIO_CHUNK(char * args,int socket){}
 void handler_AUDIO_KO(char * args,int socket){}
 void handler_AUDIO_MIX(char * args,int socket){}
 void handler_AUDIO_ACK(char * args,int socket){}
+/*
+ * Reception de TALK
+ * args : texte/
+ * socket : ctrl
+ */
+void handler_TALK(char * args, int socket){
+	// On doit juste transmettre le message à tout le monde
+	char next_arg[COMMAND_MAX_SIZE];
+	sprintf(next_arg, "%s/%s", serveur.clients[get_indice_from_socket(socket)]->name, args);
+	handler_LISTEN(next_arg, -1);
+
+}
+
+/* 
+ * Envoi de LISTEN
+ * args : musicien/texte/
+ * socket : N/A
+ */
+void handler_LISTEN(char * args, int socket){
+
+	// Ecriture de la commande
+	char listen_cmd[COMMAND_MAX_SIZE];
+	sprintf(listen_cmd, "LISTEN/%s\n", args);
+	int i;
+	for(i = 0; i <  serveur.max_user; i++){
+		if(serveur.clients[i] != NULL){
+			if(send(serveur.clients[i]->socket, listen_cmd, strlen(listen_cmd) + 1, 0) == -1){
+				perror("Send listen");
+			}
+		}
+	}
+	logf("<-(BROADCAST) %s", listen_cmd);
+
+}
 
 /*
  * Reception de LS

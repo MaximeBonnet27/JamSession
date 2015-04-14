@@ -72,6 +72,15 @@ public class Client{
 		this.controller = controller;
 	}
 
+	public void sendMessage(String message) {
+		Commande.TALK.handler(this, message);
+	}
+
+	public void receiveMessage(String texte, String nomUtil) {
+		controller.receiveMessage(texte, nomUtil);
+	}
+
+	
 	public boolean connect(){
 		Commande.CONNECT.handler(this,nom);
 		return true;
@@ -86,30 +95,23 @@ public class Client{
 	}
 
 	public boolean exit(){
+		Commande.EXIT.handler(this, nom);
+		return true;
+	}
+	
+	public void cleanUp(){
 		if(isRunning()){
 			running = false;
 			try{
-			System.err.println("close socket");
 			socket.close();
-			System.err.println("closes socket");
-
 			input.close();
-			System.err.println("close input");
-
-
-
 			inputAudio.close();
-			System.err.println("close inputAudio");
-
 			socketAudio.close();
-			System.err.println("close socketAudio");
 			}catch(IOException e){
 				e.printStackTrace();
 			}
 
-			System.err.println("Running = false");
 		}
-		return true;
 	}
 
 	public void send(String commande){
@@ -131,7 +133,6 @@ public class Client{
 			System.out.println("CANAL CTRL : <- " + val);
 		}
 		catch(IOException e){
-			e.printStackTrace();
 		}
 		return val;
 	}
@@ -181,6 +182,8 @@ public class Client{
 		client.connect();
 		client.mainLoop();
 	}
+
+
 
 
 }
