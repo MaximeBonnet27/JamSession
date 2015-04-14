@@ -52,11 +52,11 @@ public enum Commande {
 			case AUDIO_MIX: handlerAudioMix(args, client); break;
 			case AUDIO_OK: handlerAudioOk(args, client); break;
 			case AUDIO_PORT: handlerAudioPort(client, args[0]); break;
-			case CONNECTED: handlerConnected(args, client); break;
+			case CONNECTED: handlerConnected(client, args[0]); break;
 			case CURRENT_SESSION: handlerCurrentSession(args, client); break;
 			case EMPTY_SESSION: handlerEmptySession(client); break;
 			case EXIT: handlerExit(client); break;
-			case EXITED: handlerExited(args, client); break;
+			case EXITED: handlerExited(client, args[0]); break;
 			case FULL_SESSION: handlerFullSession(client); break;
 			case SET_OPTIONS: handlerSetOptions(args, client); break;
 			case TALK : handlerTalk(client, args[0]); break;
@@ -107,8 +107,11 @@ public enum Commande {
 	private void handlerAudioPort(Client client, String port) {
 		client.setSocketAudio(Integer.parseInt(port));
 	}
-
-	private void handlerConnected(String[] args2, Client client) {
+	/**
+	 * Reception de CONNECTED 
+	 */
+	private void handlerConnected(Client client, String nomUser) {
+	  client.addContact(nomUser);
 	}
 	private void handlerCurrentSession(String[] args2, Client client) {
 	}
@@ -119,11 +122,18 @@ public enum Commande {
 		String [] options = client.getOptionsSouhaitees();
 		handlerSetOptions(options, client);
 	}
+	/**
+	 * Envoi de EXIT 
+	 */
 	private void handlerExit(Client client) {
 		client.send("EXIT/"+client.getNom()+"/");
 		client.cleanUp();
 	}
-	private void handlerExited(String[] args2, Client client) {
+	/**
+	 * Reception de EXITED 
+	 */
+	private void handlerExited(Client client, String nomUser) {
+	  client.removeContact(nomUser);
 	}
 	/**
 	 * Reception de FULL_SESSION

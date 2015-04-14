@@ -126,7 +126,11 @@ public class UIClient extends JFrame implements IClientInterface,IClientInterfac
 			delegate.sendMessage(message);
 	}
 
-
+	@Override
+	public void removeContact(String name) {
+	 profil.removeContact(name); 
+	}
+	
 	@Override
 	public void addContact(String name) {
 		profil.addContact(name);

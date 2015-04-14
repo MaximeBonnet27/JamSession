@@ -172,9 +172,7 @@ public class Client{
 	public void mainLoop(){
 		this.running = true;
 		ClientLoop loop = new ClientLoop(this);
-		//ClientInput in = new ClientInput(this, new InputStreamReader(System.in));
 		loop.start();
-		//in.start();
 	}
 
 	public static void main(String... args) throws UnknownHostException, IOException {
@@ -182,6 +180,14 @@ public class Client{
 		client.connect();
 		client.mainLoop();
 	}
+
+  public void removeContact(String nomUser) {
+    controller.removeContact(nomUser);
+  }
+
+  public void addContact(String nomUser) {
+    controller.addContact(nomUser);
+  }
 
 
 

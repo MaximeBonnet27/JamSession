@@ -4,7 +4,7 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.util.Scanner;
 
-
+@Deprecated
 public class ClientInput extends Thread{
 
 	private Client client;

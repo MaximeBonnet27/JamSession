@@ -2,7 +2,6 @@ package model;
 
 import java.net.SocketException;
 
-
 public class ClientLoop extends Thread {
 
 	private Client client;

@@ -40,4 +40,8 @@ public class UIContacts extends JPanel{
 		public void addContact(String name){
 			contactModel.addElement(name);
 		}
+		
+		public void removeContact(String name){
+		  contactModel.removeElement(name);
+		}
 }
