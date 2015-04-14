@@ -1,3 +1,5 @@
+package model;
+
 /**
  * 
  */
@@ -7,6 +9,8 @@ import java.io.DataOutputStream;
 import java.io.InputStreamReader;
 import java.io.IOException;
 import java.io.BufferedReader;
+import java.io.OutputStream;
+import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.net.Socket;
 import java.net.SocketException;
@@ -41,11 +45,18 @@ public class Client {
 
 		this.nom = nom;
 		this.running = false;
+		
+		System.setOut(System.out);
 	}
+	
 	public Client(String nom){
 		this("localhost",2015, nom);
 	}
 
+	public void setOutPutStreamDebug(OutputStream stream){
+		System.setOut(new PrintStream(stream));
+	}
+	
 	public boolean connect(){
 		Commande.CONNECT.handler(this,nom);
 		return true;
@@ -91,8 +102,10 @@ public class Client {
 		try{
 			val = input.readLine();
 			System.out.println("CANAL CTRL : <- " + val);
+			System.err.println("CANAL CTRL : <- " + val);
 		}
 		catch(SocketException e){
+			e.printStackTrace();
 		}
 		catch(IOException e){
 			e.printStackTrace();

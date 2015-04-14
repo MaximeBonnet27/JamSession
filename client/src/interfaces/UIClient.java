@@ -1,4 +1,4 @@
-package client.interfaces;
+package interfaces;
 
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
@@ -11,10 +11,10 @@ import javax.swing.JFrame;
 import javax.swing.JSplitPane;
 import javax.swing.JTextArea;
 
-import client.interfaces.launcher.ILauncher;
-import client.interfaces.launcher.UILauncher;
-import client.interfaces.profil.IProfil;
-import client.interfaces.profil.UIProfil;
+import interfaces.launcher.ILauncher;
+import interfaces.launcher.UILauncher;
+import interfaces.profil.IProfil;
+import interfaces.profil.UIProfil;
 
 public class UIClient extends JFrame implements IClientInterface,IClientInterfaceDelegate {
 	private IClientInterfaceDelegate delegate;

@@ -1,6 +1,6 @@
-package client.interfaces;
+package interfaces;
 
-import client.interfaces.profil.IProfil;
+import interfaces.profil.IProfil;
 
 public interface IClientInterface extends IProfil {
 	public IClientInterface init(int width,int height);

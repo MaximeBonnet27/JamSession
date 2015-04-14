@@ -1,4 +1,4 @@
-package client.interfaces.launcher;
+package interfaces.launcher;
 
 /*methodes de traitement d'actions*/
 public interface ILaucherDelegate {

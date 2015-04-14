@@ -1,6 +1,6 @@
-package client.interfaces;
-import client.interfaces.launcher.ILaucherDelegate;
-import client.interfaces.profil.IProfilDelegate;
+package interfaces;
+import interfaces.launcher.ILaucherDelegate;
+import interfaces.profil.IProfilDelegate;
 
 public interface IClientInterfaceDelegate extends ILaucherDelegate, IProfilDelegate{
 

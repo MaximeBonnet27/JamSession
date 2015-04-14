@@ -1,4 +1,4 @@
-package client.interfaces.launcher;
+package interfaces.launcher;
 
 import java.awt.Component;
 import java.awt.Dimension;
@@ -74,6 +74,7 @@ public class UILauncher extends JPanel implements ActionListener,ILauncher,ILauc
 	@Override
 	public void connexion(String pseudo, String addr_serveur,
 			String port_serveur) {
+		
 		if(delegate!=null){
 			delegate.connexion(jtfPseudo.getText(),jtfServeur.getText(),jtfPort.getText());
 		}
@@ -82,8 +83,8 @@ public class UILauncher extends JPanel implements ActionListener,ILauncher,ILauc
 	@Override
 	public void reset() {
 		jtfPseudo.setText("Pseudo");		
-		jtfServeur.setText("@serveur");
-		jtfPort.setText("port");
+		jtfServeur.setText("localhost");
+		jtfPort.setText("2015");
 		jbConnexion.setText("connexion");
 	}
 

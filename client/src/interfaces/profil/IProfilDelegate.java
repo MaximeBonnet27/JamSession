@@ -1,6 +1,6 @@
-package client.interfaces.profil;
+package interfaces.profil;
 
-import client.interfaces.profil.tchat.ITchatDelegate;
+import interfaces.profil.tchat.ITchatDelegate;
 
 public interface IProfilDelegate extends ITchatDelegate {
 	public void deconnexion();

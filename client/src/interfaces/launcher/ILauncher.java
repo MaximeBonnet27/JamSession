@@ -1,4 +1,4 @@
-package client.interfaces.launcher;
+package interfaces.launcher;
 
 /*methodes d'affichage*/
 public interface ILauncher {

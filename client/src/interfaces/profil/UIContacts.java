@@ -1,4 +1,4 @@
-package client.interfaces.profil;
+package interfaces.profil;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;

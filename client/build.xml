@@ -15,14 +15,14 @@
 	</target>
 
 	<target name="run" depends="compile" description="Lance le client en monde console">
-		<java classname="Client" fork="true"
+		<java classname="model.Client" fork="true"
 			classpath="${build}">
 			<arg value="${arg0}" />
 		</java>
 	</target>
 
 	<target name="ihm" depends="compile" description="Lance IHM">
-		<java classname="client.controller.ControllerClient" fork="true"
+		<java classname="controller.ControllerClient" fork="true"
 			classpath="${build}">
 		</java>
 	</target>

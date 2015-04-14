@@ -28,6 +28,10 @@
 #define logf(X,Y) if(DEBUG) fprintf(stderr,X,Y);
 #define log2f(X,Y,Z) if(DEBUG) fprintf(stderr,X,Y,Z);
 #define log3f(A,B,C,D) if(DEBUG) fprintf(stderr,A,B,C,D);
+
+#ifndef MSG_NOSIGNAL
+#define MSG_NOSIGNAL SO_NOSIGPIPE
+#endif
 typedef struct 
 {
 	// Nom du client

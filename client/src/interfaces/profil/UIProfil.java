@@ -1,4 +1,4 @@
-package client.interfaces.profil;
+package interfaces.profil;
 
 import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
@@ -11,7 +11,7 @@ import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
-import client.interfaces.profil.tchat.UITchat;
+import interfaces.profil.tchat.UITchat;
 
 public class UIProfil extends JPanel implements IProfil,ActionListener,IProfilDelegate{
 

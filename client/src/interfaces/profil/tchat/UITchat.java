@@ -1,4 +1,4 @@
-package client.interfaces.profil.tchat;
+package interfaces.profil.tchat;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
