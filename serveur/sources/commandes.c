@@ -171,6 +171,8 @@ void handler_CONNECT(char * args,int socket){
 		handler_EMPTY_SESSION(NULL, socket);
 	}else{
 		handler_CURRENT_SESSION(NULL, socket);
+		// On peut lancer la jam si elle n'avait pas encore commence
+		commencer_jam();
 	}
 }
 
@@ -293,9 +295,23 @@ void handler_EXITED(char * args,int socket){
 	char exited_cmd[COMMAND_MAX_SIZE];
 	sprintf(exited_cmd,"EXITED/%s/\n",args);
 	// BROADCAST
+	// + verification si l'admin s'est deconnecte
+	
 	int i;
+	int admin_deco = 1;
+	// Trouver le premier index non vide, qui sera le nouvel admin
+	int premier_index = -1;
+
 	for(i = 0; i < serveur.max_user; i++){
 		if(serveur.clients[i] != NULL){
+			if(premier_index == -1){
+				premier_index = i;
+			}
+			// On a trouve l'admin, il est n'est donc pas
+			// deconnecte
+			if(serveur.clients[i]->is_admin){
+				admin_deco = 0;
+			}
 			if(send(serveur.clients[i]->socket, exited_cmd, strlen(exited_cmd) + 1, 0) == -1){
 				perror("Send exited_cmd");
 			}
@@ -305,6 +321,16 @@ void handler_EXITED(char * args,int socket){
 			// les clients l'etat actuel du serveur
 			handler_CURRENT_SESSION(NULL, serveur.clients[i]->socket);
 		}
+	}
+	// Si l'admin s'est deconnecte, alors l'utilisateur stocke
+	// a l'index premier_index sera promu admin a sa place
+	// (Il y a des chances pour que ce soit celui qui s'est connecte 
+	// apres l'admin)
+	if(admin_deco){
+		// On arrete la jam en attendant que les parametres soient retablis
+		stopper_jam();
+		// Empty_session car permet de mettre les parametres de la jam a jour
+		handler_EMPTY_SESSION(serveur.clients[premier_index]->name, serveur.clients[premier_index]->socket);
 	}
 	
 }
@@ -323,6 +349,11 @@ void handler_EMPTY_SESSION(char * args,int socket){
 		perror("Send empty_session");
 	}	
 
+	// Cet utilisateur devient l'admin
+	logf("Indice client : %d\n", get_indice_client(args));
+	serveur.clients[get_indice_client(args)]->is_admin = 1;
+	serveur.configure = 1;
+	
 }
 /**
  * Envoi de CURRENT_SESSION

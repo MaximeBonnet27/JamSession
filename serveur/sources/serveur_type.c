@@ -62,6 +62,7 @@ t_client* creer_client(char* name, int socket){
 	t_client* c=malloc(sizeof(t_client));
 	c->name=strdup(name);
 	c->socket=socket;
+	c->is_admin = 0;
 	return c;
 }
 /**
@@ -138,5 +139,21 @@ void set_options(char * style, char * tempo){
 	serveur.tempo = strdup(tempo);
 
 	pthread_mutex_unlock(&serveur.mutex);
+}
 
+void commencer_jam(){
+	pthread_mutex_lock(&serveur.mutex);
+	if(serveur.configure){
+		serveur.playing = 1;
+		log("La jam commence");
+	}
+	pthread_mutex_unlock(&serveur.mutex);
+}
+
+void stopper_jam(){
+	pthread_mutex_lock(&serveur.mutex);
+	serveur.playing = 0;
+	serveur.configure = 0;
+	log("La jam se stoppe");
+	pthread_mutex_unlock(&serveur.mutex);
 }

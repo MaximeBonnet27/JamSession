@@ -32,6 +32,10 @@ int init_serveur(int count, char ** args){
 			fprintf(stderr,"Argument inconnu : %s\n", args[i]);
 		}
 	}
+
+	// Au depart, la jam n'est pas active
+	serveur.playing = 0;
+	serveur.configure = 0;
 	// Allocation du tableau des clients
 	serveur.clients=malloc(sizeof(t_client)*serveur.max_user);
 

@@ -36,7 +36,8 @@ typedef struct
 	int socket;
 	// Socket audio
 	int socket_audio;
-	/*autre chose?*/
+	// Booleen, indique si le client est l'admin
+	int is_admin;
 } t_client;
 
 typedef struct {
@@ -56,6 +57,11 @@ typedef struct {
 	// Options de la jam
 	char * style;
 	char * tempo;
+	// Indique si la jam est active ou non.
+	int playing;
+	// Booleen, indique si le serveur a ete correctement
+	// configure (on ne voudrait pas lancer la jam si non)
+	int configure;
 	// Tableau des utilisateurs	
 	t_client** clients;
 
@@ -72,4 +78,6 @@ t_client* creer_client(char* name, int socket);
 int get_indice_client(char * name);
 int creer_socket_audio();
 void set_options(char * style, char * tempo);
+void commencer_jam();
+void stopper_jam();
 #endif
