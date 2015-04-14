@@ -21,9 +21,9 @@ int add_client(char* name, int socket){
 			serveur.clients[i]=creer_client(name,socket);
 			serveur.nb_user++;
 			place=0;
+			break;
 		}
 	}
-
 	pthread_mutex_unlock(&(serveur.mutex));
 	return 0;
 }
@@ -143,17 +143,17 @@ void set_options(char * style, char * tempo){
 
 void commencer_jam(){
 	pthread_mutex_lock(&serveur.mutex);
-	if(serveur.configure){
+	/*if(serveur.configure){
 		serveur.playing = 1;
 		log("La jam commence");
-	}
+	}*/
 	pthread_mutex_unlock(&serveur.mutex);
 }
 
 void stopper_jam(){
 	pthread_mutex_lock(&serveur.mutex);
-	serveur.playing = 0;
+	/*serveur.playing = 0;
 	serveur.configure = 0;
 	log("La jam se stoppe");
-	pthread_mutex_unlock(&serveur.mutex);
+	*/pthread_mutex_unlock(&serveur.mutex);
 }

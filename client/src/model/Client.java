@@ -46,7 +46,6 @@ public class Client {
 		this.nom = nom;
 		this.running = false;
 		
-		System.setOut(System.out);
 	}
 	
 	public Client(String nom){
@@ -102,7 +101,6 @@ public class Client {
 		try{
 			val = input.readLine();
 			System.out.println("CANAL CTRL : <- " + val);
-			System.err.println("CANAL CTRL : <- " + val);
 		}
 		catch(SocketException e){
 			e.printStackTrace();
@@ -148,7 +146,7 @@ public class Client {
 	public void mainLoop(){
 		this.running = true;
 		ClientLoop loop = new ClientLoop(this);
-		ClientInput in = new ClientInput(this);
+		ClientInput in = new ClientInput(this, new InputStreamReader(System.in));
 		loop.start();
 		in.start();
 	}

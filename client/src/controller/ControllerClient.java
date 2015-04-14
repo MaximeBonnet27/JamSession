@@ -43,8 +43,8 @@ public class ControllerClient extends Thread implements IClientInterfaceDelegate
 	public void connexion(String pseudo, String addr_serveur,String port_serveur) {
 		modelClient=new Client(addr_serveur, Integer.parseInt(port_serveur), pseudo);
 		modelClient.setOutPutStreamDebug(debugView.getOutputStream());
-		
 		if(modelClient.connect()){
+			modelClient.mainLoop();
 			view.showProfil();
 		}else{
 			//view.errorConnection()
@@ -67,4 +67,5 @@ public class ControllerClient extends Thread implements IClientInterfaceDelegate
 		view.receiveMessage(message, "moi");
 		view.addContact(message);
 	}
+	
 }

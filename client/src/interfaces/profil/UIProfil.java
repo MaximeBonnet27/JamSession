@@ -121,7 +121,6 @@ public class UIProfil extends JPanel implements IProfil,ActionListener,IProfilDe
 	@Override
 	public void addContact(String name) {
 		contactsView.addContact(name);
-		
 	}
 
 }

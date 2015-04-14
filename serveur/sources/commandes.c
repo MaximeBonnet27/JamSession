@@ -159,7 +159,7 @@ void handler_CONNECT(char * args,int socket){
 	if(add_client(args,socket) == -1){
 		fprintf(stderr,"Serveur complet");
 		// Si le serveur est complet, on le signale au client
-		handler_FULL_SESSION(NULL, socket);
+		handler_FULL_SESSION(args, socket);
 		return;
 	}
 	// Suite de la procédure de connexion.
@@ -168,9 +168,9 @@ void handler_CONNECT(char * args,int socket){
 	handler_CONNECTED(args, socket);
 	// Mise en place des parametres
 	if(serveur.nb_user == 1){
-		handler_EMPTY_SESSION(NULL, socket);
+		handler_EMPTY_SESSION(args, socket);
 	}else{
-		handler_CURRENT_SESSION(NULL, socket);
+		handler_CURRENT_SESSION(args, socket);
 		// On peut lancer la jam si elle n'avait pas encore commence
 		commencer_jam();
 	}
@@ -267,6 +267,7 @@ void handler_CONNECTED(char * args,int socket){
 			}
 		}
 	}
+	logf("<- %s", connected_cmd);
 	// Procedure de connexion d'un nouvel utilisateur finie.
 }
 /*
@@ -332,6 +333,7 @@ void handler_EXITED(char * args,int socket){
 		// Empty_session car permet de mettre les parametres de la jam a jour
 		handler_EMPTY_SESSION(serveur.clients[premier_index]->name, serveur.clients[premier_index]->socket);
 	}
+	logf("<- %s",exited_cmd);
 	
 }
 /**
@@ -348,12 +350,11 @@ void handler_EMPTY_SESSION(char * args,int socket){
 	if(send(socket, empty_session_cmd, strlen(empty_session_cmd) + 1, 0) == -1){
 		perror("Send empty_session");
 	}	
-
 	// Cet utilisateur devient l'admin
-	logf("Indice client : %d\n", get_indice_client(args));
 	serveur.clients[get_indice_client(args)]->is_admin = 1;
 	serveur.configure = 1;
 	
+	logf("<- %s", empty_session_cmd);
 }
 /**
  * Envoi de CURRENT_SESSION
@@ -370,6 +371,7 @@ void handler_CURRENT_SESSION(char * args,int socket){
 	if(send(socket, current_session_cmd, strlen(current_session_cmd) + 1, 0) == -1){
 		perror("Send current_session");
 	}
+	logf("<- %s", current_session_cmd);
 
 }
 /**
@@ -402,6 +404,7 @@ void handler_ACK_OPTS(char * args,int socket){
 	if(send(socket, ack_opts_cmd, strlen(ack_opts_cmd) + 1, 0) == -1){
 		perror("Send ack_opts");
 	}
+	logf("<- %s", ack_opts_cmd);
 }
 
 /**
@@ -418,6 +421,7 @@ void handler_FULL_SESSION(char * args,int socket){
 	if(send(socket, full_session_cmd, strlen(full_session_cmd) + 1, 0) == -1){
 		perror("Send full_session");
 	}
+	logf("<- %s", full_session_cmd);
 }
 
 
