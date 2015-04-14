@@ -75,6 +75,7 @@ public enum Commande {
 		/*
 		 * Rien a faire
 		 */
+		client.setConnected(true);
 	}
 
 

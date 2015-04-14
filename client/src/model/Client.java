@@ -15,13 +15,18 @@ import java.io.PrintWriter;
 import java.net.Socket;
 import java.net.SocketException;
 import java.net.UnknownHostException;
+import java.util.Observable;
 import java.util.Scanner;
+
+import controller.ControllerClient;
 
 /**
  * @author 3100381
  *
  */
-public class Client {
+public class Client{
+
+	private ControllerClient controller;
 
 	private Socket socket;
 	private Socket socketAudio;
@@ -30,7 +35,10 @@ public class Client {
 	private BufferedReader inputAudio;
 	private PrintWriter outputAudio;
 	private String nom;
+	private boolean connected;
 	private boolean running;
+
+
 
 	public Client(String adresse, int port, String nom) {
 		/* Mise en place de la socket et des I/O */
@@ -45,17 +53,25 @@ public class Client {
 
 		this.nom = nom;
 		this.running = false;
-		
+		this.connected=false;
 	}
-	
+
 	public Client(String nom){
 		this("localhost",2015, nom);
+	}
+
+	public void setConnected(boolean b) {
+		connected=b;
 	}
 
 	public void setOutPutStreamDebug(OutputStream stream){
 		System.setOut(new PrintStream(stream));
 	}
-	
+
+	public void setController(ControllerClient controller) {
+		this.controller = controller;
+	}
+
 	public boolean connect(){
 		Commande.CONNECT.handler(this,nom);
 		return true;
@@ -70,17 +86,29 @@ public class Client {
 	}
 
 	public boolean exit(){
-		try{
+		if(isRunning()){
+			running = false;
+			try{
+			System.err.println("close socket");
 			socket.close();
+			System.err.println("closes socket");
+
 			input.close();
-			socketAudio.close();
+			System.err.println("close input");
+
+
+
 			inputAudio.close();
+			System.err.println("close inputAudio");
+
+			socketAudio.close();
+			System.err.println("close socketAudio");
+			}catch(IOException e){
+				e.printStackTrace();
+			}
+
+			System.err.println("Running = false");
 		}
-		catch(Exception e){
-			e.printStackTrace();
-		}
-		running = false;
-		System.out.println("Running = false");
 		return true;
 	}
 
@@ -96,14 +124,11 @@ public class Client {
 		outputAudio.flush();
 	}
 
-	public String receive(){
+	public String receive() throws SocketException{
 		String val = null;
 		try{
 			val = input.readLine();
 			System.out.println("CANAL CTRL : <- " + val);
-		}
-		catch(SocketException e){
-			e.printStackTrace();
 		}
 		catch(IOException e){
 			e.printStackTrace();
@@ -146,17 +171,16 @@ public class Client {
 	public void mainLoop(){
 		this.running = true;
 		ClientLoop loop = new ClientLoop(this);
-		ClientInput in = new ClientInput(this, new InputStreamReader(System.in));
+		//ClientInput in = new ClientInput(this, new InputStreamReader(System.in));
 		loop.start();
-		in.start();
+		//in.start();
 	}
 
 	public static void main(String... args) throws UnknownHostException, IOException {
 		Client client = new Client(args[0]);
 		client.connect();
 		client.mainLoop();
-	
-
 	}
+
 
 }

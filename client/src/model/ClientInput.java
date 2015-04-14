@@ -17,19 +17,14 @@ public class ClientInput extends Thread{
 	public void run(){
 		Scanner in = new Scanner(System.in);
 		Commande commande;
-		System.out.println("BLABLABLA");
 		try{
 			BufferedReader br=new BufferedReader(input);
 			String ligne="";
 			if(client.isRunning())
-				System.out.println("JE RUNNNNNN");
 
 			while(client.isRunning ()){
-				System.out.println("je suis dedans");
 				while(!br.ready()){
-					System.out.println("ready");
 					ligne = br.readLine();
-					System.out.println("jai ecrit " + ligne);
 				}
 				commande = Commande.getCommande(Commande.commandeNameFromCommandeReceived(ligne));
 				commande.handler(client, Commande.argumentsFromCommande(ligne));

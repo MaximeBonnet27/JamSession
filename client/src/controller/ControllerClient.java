@@ -42,7 +42,9 @@ public class ControllerClient extends Thread implements IClientInterfaceDelegate
 	@Override
 	public void connexion(String pseudo, String addr_serveur,String port_serveur) {
 		modelClient=new Client(addr_serveur, Integer.parseInt(port_serveur), pseudo);
+		modelClient.setController(this);
 		modelClient.setOutPutStreamDebug(debugView.getOutputStream());
+		
 		if(modelClient.connect()){
 			modelClient.mainLoop();
 			view.showProfil();
@@ -51,10 +53,19 @@ public class ControllerClient extends Thread implements IClientInterfaceDelegate
 		}
 	}
 
+	
+	/*model to controller methods*/
+
+	
+	
+	
+	
+	/*view to controller methods*/
 	@Override
 	public void deconnexion() {
 		view.showLauncher();
-		System.out.println("deconnexion");
+		System.err.println("ici");
+		modelClient.exit();
 	}
 
 	@Override
@@ -64,8 +75,9 @@ public class ControllerClient extends Thread implements IClientInterfaceDelegate
 
 	@Override
 	public void sendMessage(String message) {
-		view.receiveMessage(message, "moi");
-		view.addContact(message);
+		//view.receiveMessage(message, "moi");
+		//view.addContact(message);
 	}
+
 	
 }
