@@ -1,19 +1,14 @@
 package interfaces;
 
-import java.awt.event.ComponentAdapter;
-import java.awt.event.ComponentEvent;
-import java.awt.event.ComponentListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.awt.event.WindowListener;
+import java.io.IOException;
+import java.net.UnknownHostException;
 
 import javax.swing.JFrame;
-import javax.swing.JSplitPane;
-import javax.swing.JTextArea;
 
-import interfaces.launcher.ILauncher;
+import interfaces.inscription.UIInscription;
 import interfaces.launcher.UILauncher;
-import interfaces.profil.IProfil;
 import interfaces.profil.UIProfil;
 
 public class UIClient extends JFrame implements IClientInterface,IClientInterfaceDelegate {
@@ -21,6 +16,7 @@ public class UIClient extends JFrame implements IClientInterface,IClientInterfac
 
 	private UILauncher launcher;
 	private UIProfil profil;
+	private UIInscription inscription;
 	
 	public UIClient(){
 		super();
@@ -29,6 +25,9 @@ public class UIClient extends JFrame implements IClientInterface,IClientInterfac
 		
 		this.profil=new UIProfil(this);
 		this.profil.setDelegate(this);
+		
+		this.inscription=new UIInscription();
+		this.inscription.setDelegate(this);
 	}
 
 
@@ -43,6 +42,7 @@ public class UIClient extends JFrame implements IClientInterface,IClientInterfac
 		
 		this.launcher.init(this.getWidth(),this.getHeight());
 		this.profil.init(this.getWidth(),this.getHeight());
+		this.inscription.init(this.getWidth(),this.getHeight());
 		
 		this.setLocationRelativeTo(null);
 		
@@ -60,7 +60,7 @@ public class UIClient extends JFrame implements IClientInterface,IClientInterfac
 
 	@Override
 	public void connexion(String pseudo, String addr_serveur,
-			String port_serveur) {
+			String port_serveur) throws UnknownHostException, IOException {
 		if(delegate!=null)
 			this.delegate.connexion(pseudo, addr_serveur, port_serveur);
 
@@ -85,6 +85,14 @@ public class UIClient extends JFrame implements IClientInterface,IClientInterfac
 		refresh();
 	}
 
+	@Override
+	public void showInscription() {
+		clean();
+		setTitle("JamSession-Inscription");
+		inscription.reset();
+		getContentPane().add(inscription);
+		refresh();
+	}
 
 	@Override
 	public void deconnexion() {
@@ -135,6 +143,33 @@ public class UIClient extends JFrame implements IClientInterface,IClientInterfac
 	public void addContact(String name) {
 		profil.addContact(name);
 	}
+
+
+	@Override
+	public void creerCompte() {
+		if(delegate!=null)
+			delegate.creerCompte();
+		
+	}
+
+
+	@Override
+	public void inscription(String pseudo, String password,String addr_serveur,String port_serveur) throws Exception {
+		if(delegate!=null)
+			delegate.inscription(pseudo, password, addr_serveur, port_serveur);
+		
+	}
+
+
+	@Override
+	public void annulerInscription() {
+		if(delegate!=null)
+			delegate.annulerInscription();
+		
+	}
+
+
+	
 
 
 

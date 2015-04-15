@@ -23,6 +23,9 @@ public enum Commande {
 	AUDIO_ACK("AUDIO_ACK"),
 	TALK("TALK"),
 	LISTEN("LISTEN"),
+	REGISTER("REGISTER"),
+	ACCESSDENIED("ACCESSDENIED"),
+	LOGIN("LOGIN"),
 	LS("LS");
 
 	private String nom;
@@ -30,6 +33,7 @@ public enum Commande {
 		this.nom = nom;
 	}
 
+	
 	public static Commande getCommande(String nom){
 		for(Commande c : Commande.values()){
 			// Black Magic ?!
@@ -61,6 +65,9 @@ public enum Commande {
 			case SET_OPTIONS: handlerSetOptions(args, client); break;
 			case TALK : handlerTalk(client, args[0]); break;
 			case LISTEN : handlerListen(client, args[0], args[1]); break;
+			case REGISTER: handlerRegister(client, args[0], args[1]);
+			case ACCESSDENIED: handlerAccessDenied(client, args[0]);
+			case LOGIN: handlerLogin(client, args[0]);
 			case LS : handlerLS(client);
 			default : System.out.println("Handler Commandes : Commande inconnue : " + this);
 
@@ -71,13 +78,15 @@ public enum Commande {
 	 */ 
 	private void handlerConnect(Client client, String username) {
 		client.send("CONNECT/"+username+"/");
+		//manque des trucs!
+		//devrais attendre welcome!
 	}
 	/**
 	 * Reception de WELCOME
 	 */
 	private void handlerWelcome(Client client) {
 		/*
-		 * Rien a faire
+		 * doit attendre la reception de welcome
 		 */
 		client.setConnected(true);
 	}
@@ -91,30 +100,39 @@ public enum Commande {
 		 * Rien a faire
 		 */
 	}
+	
 	private void handlerAudioAck(String[] args2, Client client) {
 	}
+	
 	private void handlerAudioChunk(String[] args2, Client client) {
 	}
+	
 	private void handlerAudioKo(String[] args2, Client client) {
 	}
+	
 	private void handlerAudioMix(String[] args2, Client client) {
 	}
+	
 	private void handlerAudioOk(String[] args2, Client client) {
 	}
+	
 	/**
 	 * Reception de AUDIO_PORT
 	 */
 	private void handlerAudioPort(Client client, String port) {
 		client.setSocketAudio(Integer.parseInt(port));
 	}
+	
 	/**
 	 * Reception de CONNECTED 
 	 */
 	private void handlerConnected(Client client, String nomUser) {
 	  client.addContact(nomUser);
 	}
+	
 	private void handlerCurrentSession(String[] args2, Client client) {
 	}
+	
 	/**
 	 * Reception de EMPTY_SESSION
 	 */
@@ -122,6 +140,7 @@ public enum Commande {
 		String [] options = client.getOptionsSouhaitees();
 		handlerSetOptions(options, client);
 	}
+	
 	/**
 	 * Envoi de EXIT 
 	 */
@@ -129,33 +148,39 @@ public enum Commande {
 		client.send("EXIT/"+client.getNom()+"/");
 		client.cleanUp();
 	}
+	
 	/**
 	 * Reception de EXITED 
 	 */
 	private void handlerExited(Client client, String nomUser) {
 	  client.removeContact(nomUser);
 	}
+	
 	/**
 	 * Reception de FULL_SESSION
 	 */
 	private void handlerFullSession(Client client) {
 		handlerExit(client);
 	}
+	
 	/**
 	 * Envoi de SET_OPTIONS
 	 */
 	private void handlerSetOptions(String[] options, Client client) {
 		client.send("SET_OPTIONS/"+options[0]+"/"+options[1]+"/");
 	}
+	
 	private void handlerLS(Client client){
 		client.send("LS/");
 	}
+	
 	/**
 	 * Envoi de TALK
 	 */
 	private void handlerTalk(Client client, String texte){
 		client.send("TALK/"+texte+"/");
 	}
+	
 	/**
 	 * Reception de LISTEN
 	 */
@@ -163,6 +188,22 @@ public enum Commande {
 		client.receiveMessage(texte, nomUtil);
 	}
 
+	/**
+	 * Inscription client
+	 */
+	private void handlerRegister(Client client,String name,String password){
+		client.send(this+"/"+name+"/"+password+"/");
+	}
+	
+	private void handlerAccessDenied(Client client, String message){
+		//client.accessDenied(message);
+		//du coup client cleanup etc...
+	}
+	
+	private void handlerLogin(Client client, String password){
+		//client.connect avec password
+	}
+	
 	public static String commandeNameFromCommandeReceived(String commande){
 		String [] res = commande.split("/");
 		return res[0];

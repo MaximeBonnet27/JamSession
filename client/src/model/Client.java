@@ -24,6 +24,13 @@ import controller.ControllerClient;
  * @author 3100381
  *
  */
+
+//TODO
+/*
+ * Dans commande : remplacer les noms de commandes par THIS
+ * Systeme de notify pour le connected
+ * 
+ */
 public class Client{
 
 	private ControllerClient controller;
@@ -40,23 +47,20 @@ public class Client{
 
 
 
-	public Client(String adresse, int port, String nom) {
+	public Client(String adresse, int port, String nom) throws UnknownHostException, IOException{
 		/* Mise en place de la socket et des I/O */
-		try{
-			this.socket = new Socket(adresse, port);
-			this.input = new BufferedReader(
-					new InputStreamReader(socket.getInputStream()));
-			this.output = new PrintWriter(socket.getOutputStream());
-		}catch(Exception e){
-			e.printStackTrace();
-		}
+		this.socket = new Socket(adresse, port);
+		this.input = new BufferedReader(
+				new InputStreamReader(socket.getInputStream()));
+		this.output = new PrintWriter(socket.getOutputStream());
+
 
 		this.nom = nom;
 		this.running = false;
 		this.connected=false;
 	}
 
-	public Client(String nom){
+	public Client(String nom) throws UnknownHostException, IOException{
 		this("localhost",2015, nom);
 	}
 
@@ -80,7 +84,7 @@ public class Client{
 		controller.receiveMessage(texte, nomUtil);
 	}
 
-	
+
 	public boolean connect(){
 		Commande.CONNECT.handler(this,nom);
 		return true;
@@ -98,15 +102,15 @@ public class Client{
 		Commande.EXIT.handler(this, nom);
 		return true;
 	}
-	
+
 	public void cleanUp(){
 		if(isRunning()){
 			running = false;
 			try{
-			socket.close();
-			input.close();
-			inputAudio.close();
-			socketAudio.close();
+				socket.close();
+				input.close();
+				inputAudio.close();
+				socketAudio.close();
 			}catch(IOException e){
 				e.printStackTrace();
 			}
@@ -168,27 +172,33 @@ public class Client{
 			e.printStackTrace();
 		}
 	}
+	
 
+	public void removeContact(String nomUser) {
+		controller.removeContact(nomUser);
+	}
+
+	public void addContact(String nomUser) {
+		controller.addContact(nomUser);
+	}
+	
 	public void mainLoop(){
 		this.running = true;
 		ClientLoop loop = new ClientLoop(this);
 		loop.start();
 	}
-
+	
 	public static void main(String... args) throws UnknownHostException, IOException {
 		Client client = new Client(args[0]);
 		client.connect();
 		client.mainLoop();
 	}
 
-  public void removeContact(String nomUser) {
-    controller.removeContact(nomUser);
-  }
-
-  public void addContact(String nomUser) {
-    controller.addContact(nomUser);
-  }
-
+	
+	public void inscription(String password){
+		String[] args={nom,password};
+		Commande.REGISTER.handler(this, args);
+	}
 
 
 
