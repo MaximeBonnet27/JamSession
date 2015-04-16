@@ -9,5 +9,5 @@ import interfaces.inscription.IInscriptionDelegate;
 public interface ILaucherDelegate{
 	void connexion(String pseudo, String addr_serveur, String port_serveur)throws  UnknownHostException, IOException;
 	void creerCompte();
-	public void showLauncher();
+	
 }

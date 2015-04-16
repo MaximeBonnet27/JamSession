@@ -128,9 +128,4 @@ public class ControllerClient extends Thread implements IClientInterfaceDelegate
 		view.showLauncher();
 	}
 
-	@Override
-	public void showLauncher() {
-		// TODO Auto-generated method stub
-		
-	}
 }

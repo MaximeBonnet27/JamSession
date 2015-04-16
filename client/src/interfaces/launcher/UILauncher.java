@@ -45,9 +45,9 @@ public class UILauncher extends JPanel implements ActionListener,ILauncher,ILauc
 
 		jbConnexion=new JButton("Se connecter");
 		jbcreerCompte=new JButton("Créer un Compte");
-		jbLogin=new JButton("Login");
+		jbLogin=new JButton("Mode Anonyme");
 
-		anonymous=true;
+		anonymous=false;
 
 	}
 
@@ -55,25 +55,35 @@ public class UILauncher extends JPanel implements ActionListener,ILauncher,ILauc
 	public void actionPerformed(ActionEvent e) {
 		Object source=e.getSource();
 		if(source.equals(jbConnexion)){
-			if(anonymous)
+			//if(anonymous)
 				connectionAction();
-			else
-				changeStatus();
+			//else
+				//changeStatus();
 		}else if(source.equals(jbcreerCompte)){
 			creerCompte();
 		}else if(source.equals(jbLogin)){
-			if(anonymous)
+			//if(anonymous)
 				changeStatus();
-			else
-				connectionAction();
+			//else
+			//	connectionAction();
 		}
 			
 	}
 
 
 	private void changeStatus() {
+		
+		if(anonymous){
+			jlPassW.setVisible(true);
+			jpfPassW.setVisible(true);
+			jbLogin.setText("Mode Anonyme");
+		}else{
+			jlPassW.setVisible(false);
+			jpfPassW.setVisible(false);
+			jbLogin.setText("Mon Compte");
+		}
 		anonymous=!anonymous;
-		showLauncher();
+		
 	}
 
 	/********************ILauncher*************************/
@@ -118,13 +128,13 @@ public class UILauncher extends JPanel implements ActionListener,ILauncher,ILauc
 		this.add(jtfPseudo);
 		this.add(Box.createRigidArea(dimension));
 
-		if(!anonymous){
+		//if(!anonymous){
 			this.add(jlPassW);
 			this.add(Box.createRigidArea(dimension));
 
 			this.add(jpfPassW);
 			this.add(Box.createRigidArea(dimension));
-		}
+		//}
 		this.add(jlServeur);
 		this.add(Box.createRigidArea(dimension));
 
@@ -170,6 +180,7 @@ public class UILauncher extends JPanel implements ActionListener,ILauncher,ILauc
 				delegate.connexion(pseudo,addr_serveur,port_serveur);
 			} catch (IOException e) {
 				show_error(e.getMessage());
+				jbConnexion.setEnabled(true);
 			}
 		}
 	}
@@ -201,7 +212,7 @@ public class UILauncher extends JPanel implements ActionListener,ILauncher,ILauc
 			return false;
 		}else{
 			if(!anonymous){
-				if(jpfPassW.getPassword().length!=0){
+				if(jpfPassW.getPassword().length==0){
 					show_error("mot de passe vide");
 					return false;
 				}
@@ -218,13 +229,5 @@ public class UILauncher extends JPanel implements ActionListener,ILauncher,ILauc
 
 	}
 
-	@Override
-	public void showLauncher() {
-		// faut le faire qu'une fois
-//		this.init(getWidth(), getHeight());
-		if(delegate!=null)
-			delegate.showLauncher();
-		
-	}
 
 }
