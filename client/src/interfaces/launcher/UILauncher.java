@@ -178,7 +178,7 @@ public class UILauncher extends JPanel implements ActionListener,ILauncher,ILauc
 		if(delegate!=null){
 			try {
 				delegate.connexion(pseudo,addr_serveur,port_serveur);
-			} catch (IOException e) {
+			} catch (Exception e) {
 				show_error(e.getMessage());
 				jbConnexion.setEnabled(true);
 			}
@@ -188,9 +188,12 @@ public class UILauncher extends JPanel implements ActionListener,ILauncher,ILauc
 
 	private void connectionAction(){
 		jbConnexion.setEnabled(false);
-		if(verificationEntre())
+		if(verificationEntre()){
+			if(anonymous)
 			connexion(jtfPseudo.getText(),jtfServeur.getText(),jtfPort.getText());
-		else
+			else
+			login(jtfPseudo.getText(),jtfServeur.getText(),jtfPort.getText(),new String(jpfPassW.getPassword()));
+		}else
 			jbConnexion.setEnabled(true);
 	}
 
@@ -210,7 +213,7 @@ public class UILauncher extends JPanel implements ActionListener,ILauncher,ILauc
 		if(jtfPort.getText().isEmpty()){
 			show_error("port du serveur vide");
 			return false;
-		}else{
+		}else{// TODO Auto-generated method stub
 			if(!anonymous){
 				if(jpfPassW.getPassword().length==0){
 					show_error("mot de passe vide");
@@ -227,6 +230,23 @@ public class UILauncher extends JPanel implements ActionListener,ILauncher,ILauc
 		if(delegate!=null)
 			delegate.creerCompte();
 
+	}
+
+	/* (non-Javadoc)
+	 * @see interfaces.launcher.ILaucherDelegate#login(java.lang.String, java.lang.String, java.lang.String, java.lang.String)
+	 */
+	@Override
+	public void login(String pseudo, String addr_serveur, String port_serveur,
+			String password){
+		if(delegate!=null){
+			try{
+			delegate.login(pseudo, addr_serveur, port_serveur, password);
+			}catch(Exception e){
+				show_error(e.getMessage());
+				jbConnexion.setEnabled(true);
+			}
+		}
+		
 	}
 
 

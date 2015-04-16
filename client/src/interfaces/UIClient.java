@@ -60,7 +60,7 @@ public class UIClient extends JFrame implements IClientInterface,IClientInterfac
 
 	@Override
 	public void connexion(String pseudo, String addr_serveur,
-			String port_serveur) throws UnknownHostException, IOException {
+			String port_serveur) throws Exception {
 		if(delegate!=null)
 			this.delegate.connexion(pseudo, addr_serveur, port_serveur);
 
@@ -154,17 +154,29 @@ public class UIClient extends JFrame implements IClientInterface,IClientInterfac
 
 
 	@Override
-	public void inscription(String pseudo, String password,String addr_serveur,String port_serveur) throws Exception {
+	public void register(String pseudo, String password,String addr_serveur,String port_serveur) throws Exception {
 		if(delegate!=null)
-			delegate.inscription(pseudo, password, addr_serveur, port_serveur);
+			delegate.register(pseudo, password, addr_serveur, port_serveur);
 		
 	}
 
 
 	@Override
-	public void annulerInscription() {
+	public void annulerRegister() {
 		if(delegate!=null)
-			delegate.annulerInscription();
+			delegate.annulerRegister();
+		
+	}
+
+
+	/* (non-Javadoc)
+	 * @see interfaces.launcher.ILaucherDelegate#login(java.lang.String, java.lang.String, java.lang.String, java.lang.String)
+	 */
+	@Override
+	public void login(String pseudo, String addr_serveur, String port_serveur,
+			String password) throws Exception {
+		if(delegate!=null)
+			delegate.login(pseudo, addr_serveur, port_serveur, password);
 		
 	}
 

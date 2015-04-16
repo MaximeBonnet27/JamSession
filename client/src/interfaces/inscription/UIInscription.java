@@ -52,7 +52,7 @@ public class UIInscription extends JPanel implements ActionListener,IInscription
 		Object source=e.getSource();
 
 		if(source.equals(jbAnnuler))
-			annulerInscription();
+			annulerRegister();
 		else if(source.equals(jbValider))
 			valider();
 	}
@@ -62,7 +62,7 @@ public class UIInscription extends JPanel implements ActionListener,IInscription
 		jbValider.setEnabled(false);
 		if(verificationEntre()){
 			try{
-				inscription(jtfPseudo.getText(), new String(jpfPassW.getPassword()),jtfServeur.getText(),jtfPort.getText());
+				register(jtfPseudo.getText(), new String(jpfPassW.getPassword()),jtfServeur.getText(),jtfPort.getText());
 			}catch(Exception e){
 				show_error(e.getMessage());
 			}
@@ -191,15 +191,21 @@ public class UIInscription extends JPanel implements ActionListener,IInscription
 	/**************************IInscriptionDelegate********************/
 
 	@Override
-	public void inscription(String pseudo, String password,String addr_serveur, String port_serveur) throws Exception {
-		if(delegate!=null)
-			delegate.inscription(pseudo, password, addr_serveur, port_serveur);
+	public void register(String pseudo, String password,String addr_serveur, String port_serveur){
+		if(delegate!=null){
+			try {
+				delegate.register(pseudo, password, addr_serveur, port_serveur);
+			} catch (Exception e) {
+				show_error(e.getMessage());
+				jbValider.setEnabled(true);
+			}
+		}
 	}
 
 	@Override
-	public void annulerInscription() {
+	public void annulerRegister() {
 		if(delegate!=null)
-			delegate.annulerInscription();
+			delegate.annulerRegister();
 
 	}
 }

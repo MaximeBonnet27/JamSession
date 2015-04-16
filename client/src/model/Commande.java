@@ -24,7 +24,7 @@ public enum Commande {
 	TALK("TALK"),
 	LISTEN("LISTEN"),
 	REGISTER("REGISTER"),
-	ACCESSDENIED("ACCESSDENIED"),
+	ACCESS_DENIED("ACCESS_DENIED"),
 	LOGIN("LOGIN"),
 	LS("LS");
 
@@ -65,10 +65,10 @@ public enum Commande {
 			case SET_OPTIONS: handlerSetOptions(args, client); break;
 			case TALK : handlerTalk(client, args[0]); break;
 			case LISTEN : handlerListen(client, args[0], args[1]); break;
-			case REGISTER: handlerRegister(client, args[0], args[1]);
-			case ACCESSDENIED: handlerAccessDenied(client, args[0]);
-			case LOGIN: handlerLogin(client, args[0]);
-			case LS : handlerLS(client);
+			case REGISTER: handlerRegister(client, args[0], args[1]); break;
+			case ACCESS_DENIED: handlerAccessDenied(client, args[0]); break;
+			case LOGIN: handlerLogin(client, args[0]); break;
+			case LS : handlerLS(client); break;
 			default : System.out.println("Handler Commandes : Commande inconnue : " + this);
 
 		}
@@ -77,7 +77,7 @@ public enum Commande {
 	 * Envoi de CONNECT
 	 */ 
 	private void handlerConnect(Client client, String username) {
-		client.send("CONNECT/"+username+"/");
+		client.send(this+"/"+username+"/");
 		//manque des trucs!
 		//devrais attendre welcome!
 	}
@@ -138,14 +138,14 @@ public enum Commande {
 	 */
 	private void handlerEmptySession(Client client) {
 		String [] options = client.getOptionsSouhaitees();
-		handlerSetOptions(options, client);
+		SET_OPTIONS.handler(client, options);
 	}
 	
 	/**
 	 * Envoi de EXIT 
 	 */
 	private void handlerExit(Client client) {
-		client.send("EXIT/"+client.getNom()+"/");
+		client.send(this+"/"+client.getNom()+"/");
 		client.cleanUp();
 	}
 	
@@ -160,32 +160,32 @@ public enum Commande {
 	 * Reception de FULL_SESSION
 	 */
 	private void handlerFullSession(Client client) {
-		handlerExit(client);
+		EXIT.handler(client, (String[]) null);
 	}
 	
 	/**
 	 * Envoi de SET_OPTIONS
 	 */
 	private void handlerSetOptions(String[] options, Client client) {
-		client.send("SET_OPTIONS/"+options[0]+"/"+options[1]+"/");
+		client.send(this+"/"+options[0]+"/"+options[1]+"/");
 	}
 	
 	private void handlerLS(Client client){
-		client.send("LS/");
+		client.send(this+"/");
 	}
 	
 	/**
 	 * Envoi de TALK
 	 */
 	private void handlerTalk(Client client, String texte){
-		client.send("TALK/"+texte+"/");
+		client.send(this+"/"+texte+"/");
 	}
 	
 	/**
 	 * Reception de LISTEN
 	 */
 	private void handlerListen(Client client, String nomUtil, String texte){
-		client.receiveMessage(texte, nomUtil);
+		client.receiveChatMessage(texte, nomUtil);
 	}
 
 	/**
@@ -196,12 +196,13 @@ public enum Commande {
 	}
 	
 	private void handlerAccessDenied(Client client, String message){
-		//client.accessDenied(message);
-		//du coup client cleanup etc...
+		client.setErrorMessage(message);
+		client.setConnected(false);
+		client.cleanUp();
 	}
 	
 	private void handlerLogin(Client client, String password){
-		//client.connect avec password
+		client.send(this + "/" + client.getNom() + "/" + password + "/");
 	}
 	
 	public static String commandeNameFromCommandeReceived(String commande){

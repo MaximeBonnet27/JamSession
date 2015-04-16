@@ -14,7 +14,7 @@ import model.Client;
 import model.Commande;
 
 public class ControllerClient extends Thread implements IClientInterfaceDelegate{
-	
+
 	public static void main(String[] args) {
 		ControllerClient controller=new ControllerClient(new UIClient().init(600, 600));
 		controller.run();
@@ -46,11 +46,11 @@ public class ControllerClient extends Thread implements IClientInterfaceDelegate
 
 
 
-	public void initClient(String pseudo, String addr_serveur,String port_serveur) throws NumberFormatException, UnknownHostException, IOException{
+	public void initClient(String pseudo, String addr_serveur,String port_serveur) throws Exception{
 		modelClient=new Client(addr_serveur, Integer.parseInt(port_serveur), pseudo);
-
 		modelClient.setController(this);
 		modelClient.setOutPutStreamDebug(debugView.getOutputStream());
+		modelClient.mainLoop();
 	}
 
 	/**************controller to model methods
@@ -59,33 +59,46 @@ public class ControllerClient extends Thread implements IClientInterfaceDelegate
 	 * @throws  **********/
 
 	@Override
-	public void connexion(String pseudo, String addr_serveur,String port_serveur) throws  UnknownHostException, IOException {
+	public void connexion(String pseudo, String addr_serveur,String port_serveur) throws  Exception {
 		initClient(pseudo, addr_serveur, port_serveur);
 
 		if(modelClient.connect()){
-			modelClient.mainLoop();
 			view.showProfil();
 		}else{
-			//view.errorConnection()
+			throw new Exception(modelClient.getErrorMessage());
 		}
 	}
-	
+
 	@Override
 	public void sendMessage(String message) {
-		modelClient.sendMessage(message);
+		modelClient.sendChatMessage(message);
 		//view.receiveMessage(message, "moi");
 		//view.addContact(message);
 	}
 
 	@Override
-	public void inscription(String pseudo, String password,String addr_serveur,String port_serveur) throws Exception {
+	public void register(String pseudo, String password,String addr_serveur,String port_serveur) throws Exception {
 		initClient(pseudo, addr_serveur,port_serveur);
-		
-		modelClient.inscription(password);
-		throw new Exception("echec inscription");
+
+		if(modelClient.inscription(password)){
+			view.showProfil();
+		}else{
+			throw new Exception(modelClient.getErrorMessage());
+		}
 	}
 
 
+	@Override
+	public void login(String pseudo, String addr_serveur, String port_serveur,
+			String password) throws Exception {
+		initClient(pseudo, addr_serveur,port_serveur);
+
+		if(modelClient.login(password)){
+			view.showProfil();
+		}else{
+			throw new Exception(modelClient.getErrorMessage());
+		}		
+	}
 
 	/**************controller to view methods*******************/
 	@Override
@@ -102,7 +115,7 @@ public class ControllerClient extends Thread implements IClientInterfaceDelegate
 		debugView.setVisible(true);
 	}
 
-	
+
 
 	public void receiveMessage(String message, String from){
 		view.receiveMessage(message, from);
@@ -124,8 +137,10 @@ public class ControllerClient extends Thread implements IClientInterfaceDelegate
 	}
 
 	@Override
-	public void annulerInscription() {
+	public void annulerRegister() {
 		view.showLauncher();
 	}
+
+
 
 }

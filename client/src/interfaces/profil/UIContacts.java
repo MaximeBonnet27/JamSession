@@ -38,6 +38,7 @@ public class UIContacts extends JPanel{
 		}
 		
 		public void addContact(String name){
+			if(!contactModel.contains(name))
 			contactModel.addElement(name);
 		}
 		

@@ -18,6 +18,8 @@ import java.net.UnknownHostException;
 import java.util.Observable;
 import java.util.Scanner;
 
+import com.sun.org.apache.bcel.internal.generic.IfInstruction;
+
 import controller.ControllerClient;
 
 /**
@@ -42,30 +44,55 @@ public class Client{
 	private BufferedReader inputAudio;
 	private PrintWriter outputAudio;
 	private String nom;
-	private boolean connected;
+	private Boolean connected;
 	private boolean running;
 
+	private String errorMessage;
 
-
-	public Client(String adresse, int port, String nom) throws UnknownHostException, IOException{
+	public Client(String adresse, int port, String nom) throws Exception{
 		/* Mise en place de la socket et des I/O */
-		this.socket = new Socket(adresse, port);
-		this.input = new BufferedReader(
-				new InputStreamReader(socket.getInputStream()));
-		this.output = new PrintWriter(socket.getOutputStream());
+		try {
 
+			this.socket = new Socket(adresse, port);
+			this.input = new BufferedReader(
+					new InputStreamReader(socket.getInputStream()));
+			this.output = new PrintWriter(socket.getOutputStream());
+
+		} catch (UnknownHostException e) {
+			throw new Exception("Addresse serveur inconnue: "+e.getMessage());
+
+		} catch (IOException e) {
+			throw e;
+		}
 
 		this.nom = nom;
 		this.running = false;
 		this.connected=false;
 	}
 
-	public Client(String nom) throws UnknownHostException, IOException{
+	/**
+	 * @param errorMessage the errorMessage to set
+	 */
+	public void setErrorMessage(String errorMessage) {
+		this.errorMessage = errorMessage;
+	}
+
+	/**
+	 * @return the errorMessage
+	 */
+	public String getErrorMessage() {
+		return errorMessage;
+	}
+
+	public Client(String nom) throws Exception{
 		this("localhost",2015, nom);
 	}
 
 	public void setConnected(boolean b) {
-		connected=b;
+		synchronized (this) {
+			connected=b;
+			notifyAll();
+		}
 	}
 
 	public void setOutPutStreamDebug(OutputStream stream){
@@ -76,18 +103,29 @@ public class Client{
 		this.controller = controller;
 	}
 
-	public void sendMessage(String message) {
+	public void sendChatMessage(String message) {
 		Commande.TALK.handler(this, message);
 	}
 
-	public void receiveMessage(String texte, String nomUtil) {
+	public void receiveChatMessage(String texte, String nomUtil) {
 		controller.receiveMessage(texte, nomUtil);
 	}
 
 
 	public boolean connect(){
 		Commande.CONNECT.handler(this,nom);
-		return true;
+
+		try {
+			synchronized (this) {
+				if(!connected)
+					wait();
+			}
+		} catch (InterruptedException e) {
+			setErrorMessage(e.getMessage());
+			return false;
+		}	
+
+		return connected;
 	}
 
 	public boolean isRunning(){
@@ -99,7 +137,10 @@ public class Client{
 	}
 
 	public boolean exit(){
-		Commande.EXIT.handler(this, nom);
+		if(connected){
+			Commande.EXIT.handler(this, nom);
+		}
+		connected=false;
 		return true;
 	}
 
@@ -107,14 +148,21 @@ public class Client{
 		if(isRunning()){
 			running = false;
 			try{
-				socket.close();
-				input.close();
-				inputAudio.close();
-				socketAudio.close();
+				if(socket!=null)
+					socket.close();
+
+				if(input!=null)
+					input.close();
+
+				if(inputAudio!=null)
+					inputAudio.close();
+
+				if(socketAudio!=null)
+					socketAudio.close();
+
 			}catch(IOException e){
 				e.printStackTrace();
 			}
-
 		}
 	}
 
@@ -172,7 +220,7 @@ public class Client{
 			e.printStackTrace();
 		}
 	}
-	
+
 
 	public void removeContact(String nomUser) {
 		controller.removeContact(nomUser);
@@ -181,25 +229,56 @@ public class Client{
 	public void addContact(String nomUser) {
 		controller.addContact(nomUser);
 	}
-	
+
 	public void mainLoop(){
 		this.running = true;
 		ClientLoop loop = new ClientLoop(this);
 		loop.start();
 	}
-	
-	public static void main(String... args) throws UnknownHostException, IOException {
+
+	public static void main(String... args) throws Exception {
 		Client client = new Client(args[0]);
 		client.connect();
 		client.mainLoop();
 	}
 
-	
-	public void inscription(String password){
+
+	public boolean inscription(String password){
 		String[] args={nom,password};
 		Commande.REGISTER.handler(this, args);
+
+		try {
+
+			synchronized (this) {
+				if(!connected)
+					wait();	
+			}
+
+		} catch (InterruptedException e) {
+			setErrorMessage(e.getMessage());
+			return false;
+		}
+
+		return connected;
 	}
 
+	public boolean login(String password){
+		String[] args={nom,password};
+		Commande.LOGIN.handler(this, args);
 
+		try {
+
+			synchronized (this) {
+				if(!connected)
+					wait();	
+			}
+
+		} catch (InterruptedException e) {
+			setErrorMessage(e.getMessage());
+			return false;
+		}
+
+		return connected;
+	}
 
 }
