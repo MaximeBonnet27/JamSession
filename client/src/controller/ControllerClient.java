@@ -64,6 +64,7 @@ public class ControllerClient extends Thread implements IClientInterfaceDelegate
 
 		if(modelClient.connect()){
 			view.showProfil();
+			
 		}else{
 			throw new Exception(modelClient.getErrorMessage());
 		}

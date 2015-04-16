@@ -95,6 +95,10 @@ public class Client{
 		}
 	}
 
+	public Boolean isConnected() {
+		return connected;
+	}
+	
 	public void setOutPutStreamDebug(OutputStream stream){
 		System.setOut(new PrintStream(stream));
 	}

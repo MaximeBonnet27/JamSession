@@ -27,7 +27,9 @@ public class ClientLoop extends Thread {
 				e.printStackTrace();
 			}
 		}
-		client.exit();
+		//client.exit();
+		client.cleanUp();
+		client.setConnected(false);
 	}
 
 }
