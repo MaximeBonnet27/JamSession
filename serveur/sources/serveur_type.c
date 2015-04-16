@@ -173,3 +173,39 @@ void stopper_jam(){
 	log("La jam se stoppe");
 	pthread_mutex_unlock(&serveur.mutex);
 }
+
+int compte_existe(char * nom, char * mdp){
+	pthread_mutex_lock(&serveur.mutex_db);
+	char buffer_ligne[128];
+	log("Avant boucle");
+	while(read(serveur.fd_comptes, buffer_ligne, 128) > 0){
+		log("Boucle");
+		strtok(buffer_ligne, " ");
+		if(strcmp(buffer_ligne, nom) == 0){
+			return 1;
+		}	
+	}
+	log("Apres boucle");
+	// On se remet au debut du fichier
+	lseek(serveur.fd_comptes, 0, SEEK_SET);
+	pthread_mutex_unlock(&serveur.mutex_db);
+	return 0;
+}
+
+void enregistrer_nouveau_compte(char * nom, char * mdp){
+	pthread_mutex_lock(&serveur.mutex_db);
+	// On va a la fin du fichier
+	
+	lseek(serveur.fd_comptes, 0, SEEK_END);
+	
+	char ligne_a_ecrire[128];
+	sprintf(ligne_a_ecrire,"%s %s\n", nom, mdp);
+	log("Avant write");
+	if(write(serveur.fd_comptes, ligne_a_ecrire, strlen(ligne_a_ecrire) + 1) == -1){
+		perror("Write");
+	}
+	log("Apres write");
+	// Revenir au debut
+	lseek(serveur.fd_comptes, 0, SEEK_SET);
+	pthread_mutex_unlock(&serveur.mutex_db);
+}

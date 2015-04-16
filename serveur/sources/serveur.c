@@ -1,5 +1,18 @@
 #include "serveur.h"
 
+/*
+ * Fonction annexe pour adresse en string
+ */
+
+void *get_in_addr(struct sockaddr *sa)
+{
+	if (sa->sa_family == AF_INET) {
+		return &(((struct sockaddr_in*)sa)->sin_addr);
+	}
+	return &(((struct sockaddr_in6*)sa)->sin6_addr);
+}
+
+
 /**
  * Initialisation de la structure du serveur
  */
@@ -88,6 +101,27 @@ int init_serveur(int count, char ** args){
 		return -1;
 	}
 	creer_socket_audio();
+
+	// Création du fichier des comptes
+
+	// Creation du mutex
+	serveur.mutex_db=(pthread_mutex_t)PTHREAD_MUTEX_INITIALIZER;
+
+	int fd;
+	// Recuperer l'adresse sous forme de String
+	// et creer le nom du fichier
+	char nom_fichier[128];
+	char s[INET6_ADDRSTRLEN];
+	inet_ntop(resultat->ai_family, get_in_addr((struct sockaddr *)resultat->ai_addr),s, sizeof s);
+	//sprintf(nom_fichier,".%s_%s.db",s,serveur.port_string);
+	sprintf(nom_fichier,".localhost_%s.db",serveur.port_string);
+
+
+	fd = open(nom_fichier, O_CREAT | O_APPEND | O_SYNC, 0600);
+	if(fd == -1){
+		perror("Open");
+		return -1;
+	}	
 	return 0;
 }
 /**
@@ -114,7 +148,7 @@ void * loop(void * args){
 	struct sockaddr_storage addr_user;
 	socklen_t size_usr = sizeof(addr_user);
 	int socket_accept;
-	
+
 	while(1){
 		// On attend une nouvelle connexion sur la socket principale
 		socket_accept = accept(serveur.socket, (struct sockaddr *) &addr_user, &size_usr);
@@ -149,7 +183,7 @@ void * thread_handle_commandes(void * args){
 			check_client_deconnectes();
 			pthread_exit((void *)0);
 		}
-		
+
 		// Traitement de la commande recue
 		handle(commande,socket);
 	}

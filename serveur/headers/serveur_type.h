@@ -15,6 +15,9 @@
 #include <arpa/inet.h>
 #include <sys/wait.h>
 #include <signal.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+
 
 #ifndef DEBUG
 #define DEBUG 0
@@ -68,9 +71,12 @@ typedef struct {
 	int configure;
 	// Tableau des utilisateurs	
 	t_client** clients;
-
-
+	// Descripteur du fichier des comptes
+	int fd_comptes;
+	// Mutex d'acces au serveur
 	pthread_mutex_t mutex;
+	// Mutex d'acces au fichier db
+	pthread_mutex_t mutex_db;
 } t_serveur;
 
 // Instance unique du serveur
@@ -85,4 +91,7 @@ int creer_socket_audio();
 void set_options(char * style, char * tempo);
 void commencer_jam();
 void stopper_jam();
+int compte_existe(char * nom, char * mdp);
+void enregistrer_nouveau_compte(char * nom, char * mdp);
+
 #endif

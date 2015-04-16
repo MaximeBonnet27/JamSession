@@ -57,6 +57,15 @@ void init_commandes(){
 	tab_commandes[AUDIO_ACK].type           = AUDIO_ACK;
 	tab_commandes[AUDIO_ACK].handler        = handler_AUDIO_ACK;
 
+	tab_commandes[REGISTER].type            = REGISTER;
+	tab_commandes[REGISTER].handler         = handler_REGISTER;
+
+	tab_commandes[ACCESS_DENIED].type           = ACCESS_DENIED;
+	tab_commandes[ACCESS_DENIED].handler        = handler_ACCESS_DENIED;
+
+	tab_commandes[LOGIN].type           = LOGIN;
+	tab_commandes[LOGIN].handler        = handler_LOGIN;
+
 	tab_commandes[TALK].type = TALK;
 	tab_commandes[TALK].handler = handler_TALK;
 
@@ -119,6 +128,12 @@ t_commande string_to_commande(char * commande){
 		return tab_commandes[TALK];
 	}else if(strcmp(commande,"LS") == 0){
 		return tab_commandes[LS];
+	}else if(strcmp(commande,"REGISTER") == 0){
+		return tab_commandes[REGISTER];
+	}else if(strcmp(commande,"LOGIN") == 0){
+		return tab_commandes[LOGIN];
+	}else if(strcmp(commande,"ACCESS_DENIED") == 0){
+		return tab_commandes[ACCESS_DENIED];
 	}else {
 		return tab_commandes[UNKNOWN];
 	}	       
@@ -149,9 +164,12 @@ char * commande_to_string(t_commande commande){
 		case AUDIO_KO:          return "AUDIO_KO";
 		case AUDIO_MIX:         return "AUDIO_MIX";
 		case AUDIO_ACK:         return "AUDIO_ACK";
-		case LISTEN : return "LISTEN";
-		case TALK : return "TALK";
-		case LS : return "LS";
+		case LISTEN : 		return "LISTEN";
+		case TALK : 		return "TALK";
+		case REGISTER : 	return "REGISTER";
+		case LOGIN : 		return "LOGIN";
+		case ACCESS_DENIED : 	return "ACCESS_DENIED";
+		case LS : 		return "LS";
 		default:                return "UNKNOWN";
 	}
 
@@ -389,6 +407,12 @@ void handler_CURRENT_SESSION(char * args,int socket){
 	if(send(socket, current_session_cmd, strlen(current_session_cmd) + 1, 0) == -1){
 		perror("Send current_session");
 	}
+	int i;
+	for(i = 0; i < serveur.max_user; i++){
+		if(serveur.clients[i] != NULL){
+			handler_CONNECTED(serveur.clients[i]->name, socket);	
+		}
+	}
 	logf("<- %s", current_session_cmd);
 
 }
@@ -483,6 +507,54 @@ void handler_LISTEN(char * args, int socket){
 
 }
 
+
+/**
+ * Reception de REGISTER
+ * args : nom/mdp/ 
+ * socket : ctrl
+ */
+void handler_REGISTER(char * args, int socket){
+	
+	char* mdp;
+	char* nom=strtok_r(args,"/",&mdp);
+
+
+	if(!compte_existe(nom, mdp)){
+		enregistrer_nouveau_compte(nom, mdp);
+		log("Enregistré");
+	}else{
+		handler_ACCESS_DENIED("Nom deja pris!", socket);
+	}
+}
+
+/**
+ * Envoi de ACCESS_DENIED
+ * args : message d'erreur 
+ * socket : ctrl
+ */
+void handler_ACCESS_DENIED(char * args, int socket){
+	// Ecriture  de la commande
+	char access_denied_cmd[COMMAND_MAX_SIZE];
+	sprintf(access_denied_cmd,"ACCESS_DENIED/%s/\n", args);
+	if(send(socket, access_denied_cmd, strlen(access_denied_cmd) + 1, 0) == -1){
+		perror("Send Access Denied");
+	}
+	logf("<- %s", access_denied_cmd);
+}
+
+
+/**
+ * Reception de LOGIN
+ * args : nom/mdp/
+ * socket : ctrl
+ */
+void handler_LOGIN(char * args, int socket){
+	if(1){
+		handler_ACCESS_DENIED("Login pas implemente", socket);
+	}
+
+}
+
 /*
  * Reception de LS
  * Arguments inutiles.
@@ -522,5 +594,6 @@ void check_client_deconnectes(){
 			}
 		}
 	}
-
 }
+
+

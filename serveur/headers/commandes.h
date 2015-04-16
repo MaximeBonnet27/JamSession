@@ -3,7 +3,7 @@
 
 #include "serveur_type.h"
 
-#define NBCOMMANDES 20
+#define NBCOMMANDES 23
 #define COMMAND_MAX_SIZE 128
 typedef enum {
 
@@ -26,6 +26,9 @@ typedef enum {
 	AUDIO_ACK,
 	TALK,
 	LISTEN,
+	REGISTER,
+	LOGIN,
+	ACCESS_DENIED,
 	LS
 
 } e_commande;
@@ -72,6 +75,10 @@ void handler_AUDIO_ACK(char * args ,int socket);
 void handler_TALK(char * args, int socket);
 void handler_LISTEN(char * args, int socket);
 
+/* Compte utilisateurs */
+void handler_REGISTER(char * args, int socket);
+void handler_ACCESS_DENIED(char * args, int socket);
+void handler_LOGIN(char * args, int socket);
 /* Misc. */
 void handler_UNKNOWN(char * args ,int socket);
 void handler_LS(char * args, int socket);
