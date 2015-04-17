@@ -254,7 +254,7 @@ int compte_existe(char * nom, char * mdp){
 void enregistrer_nouveau_compte(char * nom, char * mdp){
 	pthread_mutex_lock(&serveur.mutex_db);
 	// On va a la fin du fichier
-
+	logf("Enregistré avec mdp : %s\n", mdp);
 	fseek(serveur.file_comptes, 0, SEEK_END);
 	log("Avant fprintf");
 	if(fprintf(serveur.file_comptes,"%s %s\n", nom, mdp) < 0){

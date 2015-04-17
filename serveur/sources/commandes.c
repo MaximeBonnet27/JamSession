@@ -517,7 +517,7 @@ void handler_LISTEN(char * args, int socket){
  * socket : ctrl
  */
 void handler_REGISTER(char * args, int socket){
-
+	char *args_clone = strdup(args);
 	char* mdp;
 	char* nom=strtok_r(args,"/",&mdp);
 
@@ -525,7 +525,7 @@ void handler_REGISTER(char * args, int socket){
 		enregistrer_nouveau_compte(nom, strtok(mdp, "/"));
 		// Maintenant que le client est enregistré, on peut lancer la procédure 
 		// de connexion
-		handler_LOGIN(args, socket);
+		handler_LOGIN(args_clone, socket);
 	}else{
 		handler_ACCESS_DENIED("Nom deja pris!", socket);
 	}
