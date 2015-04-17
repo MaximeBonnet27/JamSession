@@ -1,6 +1,6 @@
 #ifndef SERVEUR_TYPE_H_GUARD
 #define SERVEUR_TYPE_H_GUARD
-
+#define _XOPEN_SOURCE 700
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>

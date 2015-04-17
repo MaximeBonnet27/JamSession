@@ -514,17 +514,21 @@ void handler_LISTEN(char * args, int socket){
  * socket : ctrl
  */
 void handler_REGISTER(char * args, int socket){
-	
+
 	char* mdp;
 	char* nom=strtok_r(args,"/",&mdp);
 
 
 	if(!compte_existe(nom, mdp)){
-		enregistrer_nouveau_compte(nom, mdp);
+		enregistrer_nouveau_compte(nom, strtok(mdp, "/"));
 		log("Enregistré");
+		// Maintenant que le client est enregistré, on peut lancer la procédure 
+		// de connexion
+		handler_CONNECT(nom, socket);
 	}else{
 		handler_ACCESS_DENIED("Nom deja pris!", socket);
 	}
+
 }
 
 /**
@@ -536,6 +540,7 @@ void handler_ACCESS_DENIED(char * args, int socket){
 	// Ecriture  de la commande
 	char access_denied_cmd[COMMAND_MAX_SIZE];
 	sprintf(access_denied_cmd,"ACCESS_DENIED/%s/\n", args);
+	log("Avant send access denied");
 	if(send(socket, access_denied_cmd, strlen(access_denied_cmd) + 1, 0) == -1){
 		perror("Send Access Denied");
 	}

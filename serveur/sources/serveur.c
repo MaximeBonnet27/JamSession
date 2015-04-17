@@ -107,7 +107,6 @@ int init_serveur(int count, char ** args){
 	// Creation du mutex
 	serveur.mutex_db=(pthread_mutex_t)PTHREAD_MUTEX_INITIALIZER;
 
-	int fd;
 	// Recuperer l'adresse sous forme de String
 	// et creer le nom du fichier
 	char nom_fichier[128];
@@ -117,8 +116,8 @@ int init_serveur(int count, char ** args){
 	sprintf(nom_fichier,".localhost_%s.db",serveur.port_string);
 
 
-	fd = open(nom_fichier, O_CREAT | O_APPEND | O_SYNC, 0600);
-	if(fd == -1){
+	serveur.fd_comptes = open(nom_fichier, O_CREAT | O_RDWR, 0600);
+	if(serveur.fd_comptes == -1){
 		perror("Open");
 		return -1;
 	}	
@@ -191,6 +190,24 @@ void * thread_handle_commandes(void * args){
 	pthread_exit((void *)0);
 }
 
+/* Fonction de terminaison du programme */
+
+void serveur_shutdown(int signum){
+
+	int i;
+	log("Suppression des clients");
+	for(i = 0; i < serveur.max_user; i++){
+		if(serveur.clients[i] != NULL){
+			supprimer_client(serveur.clients[i]->name);
+		}
+		free(serveur.clients[i]);
+	}
+	free(serveur.clients);
+	log("Fermeture du fichier db");
+	close(serveur.fd_comptes);
+	log("Fin d'execution");
+}
+
 int main(int argc, char ** argv){
 
 	// Initialisation
@@ -199,6 +216,13 @@ int main(int argc, char ** argv){
 		return EXIT_FAILURE;
 	}
 	init_commandes();
+
+	// Gestion des signaux pour quitter proprement le programme
+	
+	struct sigaction action;
+	action.sa_handler = serveur_shutdown;
+	sigemptyset(&action.sa_mask);
+	//sigaction(SIGINT, &action, NULL);
 	// Création du thread gérant la boucle principale.
 	pthread_t main_thread;
 	if((pthread_create(&main_thread, NULL, loop, NULL)) != 0){

@@ -174,11 +174,40 @@ void stopper_jam(){
 	pthread_mutex_unlock(&serveur.mutex);
 }
 
+int read_line(int fd, char ** buffer, int buffer_size){
+	log("before memset");
+	memset(buffer, 0, sizeof(*buffer));
+	log("apres memset");
+	int i = 0;
+	char c;
+	int retour = -1;
+	while(1){
+		retour = read(fd, &c, 1);
+		if(retour < 0){
+			perror("Read");
+			log("retour < 0");
+		       	return retour;
+		}
+		else{
+			if(c == '\n' || c == '\0'){
+				return i;
+			}
+			logf("Caractere lu : (%c)\n", c);
+			(*buffer)[i++] = c;	
+		}
+	}
+}
+
+
 int compte_existe(char * nom, char * mdp){
 	pthread_mutex_lock(&serveur.mutex_db);
-	char buffer_ligne[128];
+	char * buffer_ligne;
+	buffer_ligne = malloc(128 * sizeof(char));
 	log("Avant boucle");
-	while(read(serveur.fd_comptes, buffer_ligne, 128) > 0){
+	// On se remet au debut du fichier
+	lseek(serveur.fd_comptes, 0, SEEK_SET);
+	while(read_line(serveur.fd_comptes, &buffer_ligne, 128) > 0){
+		logf("(%s)\n", buffer_ligne);
 		log("Boucle");
 		strtok(buffer_ligne, " ");
 		if(strcmp(buffer_ligne, nom) == 0){
