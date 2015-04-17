@@ -197,6 +197,9 @@ void handler_CONNECT(char * args,int socket){
 		return;
 	}
 	// Suite de la procédure de connexion.
+	
+	// On a peut etre change le nom dans add_client
+	args = strdup(serveur.clients[get_indice_from_socket(socket)]->name);
 	handler_WELCOME(args,socket);
 	handler_AUDIO_PORT(args,socket);
 	handler_CONNECTED(args, socket);

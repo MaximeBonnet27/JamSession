@@ -98,7 +98,7 @@ public class Client{
 	public Boolean isConnected() {
 		return connected;
 	}
-	
+
 	public void setOutPutStreamDebug(OutputStream stream){
 		System.setOut(new PrintStream(stream));
 	}
@@ -281,6 +281,12 @@ public class Client{
 		}
 
 		return connected;
+	}
+	/**
+	 * @param nom the nom to set
+	 */
+	public void setNom(String nom) {
+		this.nom = nom;
 	}
 
 }

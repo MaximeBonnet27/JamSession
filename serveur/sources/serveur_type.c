@@ -7,7 +7,7 @@ int add_client(char* name, int socket){
 	pthread_mutex_lock(&(serveur.mutex));
 	// On ne peut pas se connecter si le serveur est plein
 	if(serveur.nb_user >= serveur.max_user){
-		fprintf(stderr,"bug\n");
+		fprintf(stderr,"Serveur plein\n");
 		return -1;
 	}
 	// Si le serveur n'est pas plein, on recherche une place pour
@@ -18,7 +18,7 @@ int add_client(char* name, int socket){
 	for(i=0;i<serveur.max_user && place;i++){
 		if(serveur.clients[i]==NULL){
 			// Creation du client a la place trouvee.
-			serveur.clients[i]=creer_client(name,socket);
+			serveur.clients[i]=creer_client(nom_valide(name),socket);
 			serveur.nb_user++;
 			place=0;
 			break;
@@ -28,7 +28,53 @@ int add_client(char* name, int socket){
 	return 0;
 }
 /**
- * Fonctionde suppression d'un client lors de sa deconnexion.
+ * Retourne un nom valable pour ce client à partir du nom passé en argument
+ */
+
+char * nom_valide(char * nom){
+
+	int i;
+	// + 3 car \0 + On va rajouté au pire 1 _ + 2 chiffres (tres peu probable)
+	char * nom_modifie = malloc((strlen(nom) + 4) * sizeof(char));
+	log("Avant sprintf");
+	sprintf(nom_modifie,"%s", nom);
+	log("Apres sprintf");
+	int modifie = 0;
+	int cpt = 1;
+
+	if(compte_existe(nom_modifie, NULL)){
+		log("compte existe");
+		modifie = 1;
+		i = -1;
+	}
+	if(modifie){
+		log("modif, avant");
+		sprintf(nom_modifie,"%s_%d", nom, cpt++);
+		log("modif, apres");
+		modifie = 0;			
+	}
+
+	for(i = 0; i < serveur.max_user; ++i){
+		if(serveur.clients[i] != NULL){
+			if(modifie){
+				log("modif, avant");
+				sprintf(nom_modifie,"%s_%d", nom, cpt++);
+				log("modif, apres");
+				modifie = 0;			
+			}
+			if(strcmp(serveur.clients[i]->name, nom_modifie) == 0){
+				modifie = 1;		
+				i = -1;
+			}	
+		}
+	}
+	logf("fin nom valide = %s\n", nom_modifie);
+	return nom_modifie;
+
+}
+
+/**
+ * Fonction de suppression d'un client lors de sa deconnexion.
  */
 void supprimer_client(char *name){
 	pthread_mutex_lock(&serveur.mutex);
@@ -59,6 +105,7 @@ void supprimer_client(char *name){
  * passes en parametres.
  */
 t_client* creer_client(char* name, int socket){
+	logf("Creer client avec %s\n", name);
 	t_client* c=malloc(sizeof(t_client));
 	c->name=strdup(name);
 	logf("Socket = %d\n", socket);
@@ -188,10 +235,12 @@ int compte_existe(char * nom, char * mdp){
 		logf("(%s)\n", buffer_ligne);
 
 		if(strcmp(buffer_ligne, nom) == 0){
+			log("OK");
 			free(buffer_ligne);
 			pthread_mutex_unlock(&serveur.mutex_db);
 			return 1;
 		}	
+		log("NOK");
 	}
 	log("Apres boucle");
 	// On se remet au debut du fichier

@@ -94,5 +94,5 @@ void stopper_jam();
 int compte_existe(char * nom, char * mdp);
 void enregistrer_nouveau_compte(char * nom, char * mdp);
 int check_authentification(char * nom, char * mdp);
-
+char * nom_valide(char * nom);
 #endif
