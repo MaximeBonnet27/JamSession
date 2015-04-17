@@ -271,8 +271,7 @@ public class Client{
 		if(password.contains(" "))
 			throw new Exception("Le mot de passe de doit pas contenir d'espace");
 
-		String[] args={nom,password};
-		Commande.LOGIN.handler(this, args);
+		Commande.LOGIN.handler(this, password);
 		return waitConnexion();
 	}
 

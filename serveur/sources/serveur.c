@@ -141,7 +141,7 @@ void handle(char* message,int socket){
  *
  */
 void * loop(void * args){
-	log("Lancement du serveur ...");
+	log("Serveur lancé !");
 
 	struct sockaddr_storage addr_user;
 	socklen_t size_usr = sizeof(addr_user);
