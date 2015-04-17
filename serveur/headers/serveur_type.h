@@ -72,7 +72,7 @@ typedef struct {
 	// Tableau des utilisateurs	
 	t_client** clients;
 	// Descripteur du fichier des comptes
-	int fd_comptes;
+	FILE * file_comptes;
 	// Mutex d'acces au serveur
 	pthread_mutex_t mutex;
 	// Mutex d'acces au fichier db
@@ -93,5 +93,6 @@ void commencer_jam();
 void stopper_jam();
 int compte_existe(char * nom, char * mdp);
 void enregistrer_nouveau_compte(char * nom, char * mdp);
+int check_authentification(char * nom, char * mdp);
 
 #endif

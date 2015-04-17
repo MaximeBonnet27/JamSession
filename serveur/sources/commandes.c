@@ -518,13 +518,16 @@ void handler_REGISTER(char * args, int socket){
 	char* mdp;
 	char* nom=strtok_r(args,"/",&mdp);
 
-
+	log("Juste avant IF");
 	if(!compte_existe(nom, mdp)){
+		log("IF 1");
 		enregistrer_nouveau_compte(nom, strtok(mdp, "/"));
+		log("IF 2");
 		log("Enregistré");
 		// Maintenant que le client est enregistré, on peut lancer la procédure 
 		// de connexion
 		handler_CONNECT(nom, socket);
+		log("IF 3");
 	}else{
 		handler_ACCESS_DENIED("Nom deja pris!", socket);
 	}
@@ -554,8 +557,14 @@ void handler_ACCESS_DENIED(char * args, int socket){
  * socket : ctrl
  */
 void handler_LOGIN(char * args, int socket){
-	if(1){
-		handler_ACCESS_DENIED("Login pas implemente", socket);
+
+	char * mdp;
+	char * nom = strtok_r(args, "/", &mdp);
+	if(check_authentification(nom, strtok(mdp, "/"))){
+		handler_CONNECT(nom, socket);
+	}
+	else{
+		handler_ACCESS_DENIED("Mauvais login ou mot de passe!", socket);
 	}
 
 }

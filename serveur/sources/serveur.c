@@ -115,12 +115,11 @@ int init_serveur(int count, char ** args){
 	//sprintf(nom_fichier,".%s_%s.db",s,serveur.port_string);
 	sprintf(nom_fichier,".localhost_%s.db",serveur.port_string);
 
-
-	serveur.fd_comptes = open(nom_fichier, O_CREAT | O_RDWR, 0600);
-	if(serveur.fd_comptes == -1){
-		perror("Open");
+	serveur.file_comptes = fopen(nom_fichier, "a+");
+	if(serveur.file_comptes == NULL){
+		perror("Open file_comptes");
 		return -1;
-	}	
+	}
 	return 0;
 }
 /**
@@ -204,7 +203,7 @@ void serveur_shutdown(int signum){
 	}
 	free(serveur.clients);
 	log("Fermeture du fichier db");
-	close(serveur.fd_comptes);
+	fclose(serveur.file_comptes);
 	log("Fin d'execution");
 }
 

@@ -174,49 +174,29 @@ void stopper_jam(){
 	pthread_mutex_unlock(&serveur.mutex);
 }
 
-int read_line(int fd, char ** buffer, int buffer_size){
-	log("before memset");
-	memset(buffer, 0, sizeof(*buffer));
-	log("apres memset");
-	int i = 0;
-	char c;
-	int retour = -1;
-	while(1){
-		retour = read(fd, &c, 1);
-		if(retour < 0){
-			perror("Read");
-			log("retour < 0");
-		       	return retour;
-		}
-		else{
-			if(c == '\n' || c == '\0'){
-				return i;
-			}
-			logf("Caractere lu : (%c)\n", c);
-			(*buffer)[i++] = c;	
-		}
-	}
-}
-
-
 int compte_existe(char * nom, char * mdp){
 	pthread_mutex_lock(&serveur.mutex_db);
 	char * buffer_ligne;
 	buffer_ligne = malloc(128 * sizeof(char));
 	log("Avant boucle");
 	// On se remet au debut du fichier
-	lseek(serveur.fd_comptes, 0, SEEK_SET);
-	while(read_line(serveur.fd_comptes, &buffer_ligne, 128) > 0){
-		logf("(%s)\n", buffer_ligne);
+	fseek(serveur.file_comptes, 0, SEEK_SET);
+	size_t len = 0;
+	while(getline(&buffer_ligne, &len, serveur.file_comptes) != -1){	
 		log("Boucle");
 		strtok(buffer_ligne, " ");
+		logf("(%s)\n", buffer_ligne);
+
 		if(strcmp(buffer_ligne, nom) == 0){
+			free(buffer_ligne);
+			pthread_mutex_unlock(&serveur.mutex_db);
 			return 1;
 		}	
 	}
 	log("Apres boucle");
 	// On se remet au debut du fichier
-	lseek(serveur.fd_comptes, 0, SEEK_SET);
+	fseek(serveur.file_comptes, 0, SEEK_SET);
+	free(buffer_ligne);
 	pthread_mutex_unlock(&serveur.mutex_db);
 	return 0;
 }
@@ -224,17 +204,41 @@ int compte_existe(char * nom, char * mdp){
 void enregistrer_nouveau_compte(char * nom, char * mdp){
 	pthread_mutex_lock(&serveur.mutex_db);
 	// On va a la fin du fichier
-	
-	lseek(serveur.fd_comptes, 0, SEEK_END);
-	
-	char ligne_a_ecrire[128];
-	sprintf(ligne_a_ecrire,"%s %s\n", nom, mdp);
-	log("Avant write");
-	if(write(serveur.fd_comptes, ligne_a_ecrire, strlen(ligne_a_ecrire) + 1) == -1){
-		perror("Write");
+
+	fseek(serveur.file_comptes, 0, SEEK_END);
+	log("Avant fprintf");
+	if(fprintf(serveur.file_comptes,"%s %s\n", nom, mdp) < 0){
+		perror("Fprintf");
 	}
-	log("Apres write");
+	log("apres fprintf");
 	// Revenir au debut
-	lseek(serveur.fd_comptes, 0, SEEK_SET);
+	fseek(serveur.file_comptes, 0, SEEK_SET);
 	pthread_mutex_unlock(&serveur.mutex_db);
+}
+
+int check_authentification(char * nom, char * mdp){
+	pthread_mutex_lock(&serveur.mutex_db);
+	char * buffer_ligne;
+	buffer_ligne = malloc(128 * sizeof(char));
+	// On se remet au debut du fichier
+	fseek(serveur.file_comptes, 0, SEEK_SET);
+	size_t len = 0;
+	log2f("Check = (%s) (%s)\n", nom, mdp);
+	while(getline(&buffer_ligne, &len, serveur.file_comptes) != -1){	
+		char * mdp_ligne;
+
+		char * nom_ligne = strtok_r(buffer_ligne, " ", &mdp_ligne);
+		log2f("LIGNE = (%s) (%s)\n", nom_ligne, mdp_ligne);
+		if(strcmp(nom_ligne, nom) == 0 && strcmp(strtok(mdp_ligne,"\n"), mdp) == 0){
+			pthread_mutex_unlock(&serveur.mutex_db);
+			return 1;
+		}	
+	}
+	// On se remet au debut du fichier
+	fseek(serveur.file_comptes, 0, SEEK_SET);
+	free(buffer_ligne);
+	pthread_mutex_unlock(&serveur.mutex_db);
+	return 0;
+
+
 }

@@ -267,9 +267,7 @@ public class Client{
 	}
 
 	public boolean login(String password){
-		String[] args={nom,password};
-		Commande.LOGIN.handler(this, args);
-
+		Commande.LOGIN.handler(this, password);
 		try {
 
 			synchronized (this) {
