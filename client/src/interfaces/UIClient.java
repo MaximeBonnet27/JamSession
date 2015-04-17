@@ -9,6 +9,7 @@ import java.net.UnknownHostException;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
+import javax.swing.text.StyledEditorKit.BoldAction;
 
 import interfaces.inscription.UIInscription;
 import interfaces.launcher.UILauncher;
@@ -23,6 +24,8 @@ public class UIClient extends JFrame implements IClientInterface,IClientInterfac
 	
 	private JProgressBar progressbar;
 	
+	private Boolean initialized;
+
 	public UIClient(){
 		super();
 		this.launcher=new UILauncher();
@@ -37,6 +40,7 @@ public class UIClient extends JFrame implements IClientInterface,IClientInterfac
 		progressbar=new JProgressBar(JProgressBar.HORIZONTAL);
 		progressbar.setIndeterminate(true);
 		progressbar.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+		initialized=false;
 	}
 
 
@@ -45,6 +49,19 @@ public class UIClient extends JFrame implements IClientInterface,IClientInterfac
 		this.delegate=delegate;
 	}
 
+	public void setInitialized(Boolean val) {
+		synchronized (this) {
+			this.initialized = val;
+			if(initialized)
+				notifyAll();
+		}
+		
+	}
+	
+	public Boolean isInitialized() {
+		return initialized;
+	}
+	
 	@Override
 	public IClientInterface init(int width, int height) {
 		this.setSize(width, height);
@@ -53,7 +70,6 @@ public class UIClient extends JFrame implements IClientInterface,IClientInterfac
 		this.profil.init(this.getWidth(),this.getHeight());
 		this.inscription.init(this.getWidth(),this.getHeight());
 		this.progressbar.setSize(this.getWidth()/2,50);
-		System.out.println(progressbar.getSize());
 		this.setLocationRelativeTo(null);
 		
 		//this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);//send deconnexion
@@ -65,6 +81,7 @@ public class UIClient extends JFrame implements IClientInterface,IClientInterfac
 				System.exit(0);
 			}
 		});
+		
 		return this;
 	}
 
@@ -115,6 +132,16 @@ public class UIClient extends JFrame implements IClientInterface,IClientInterfac
 	}
 
 	@Override
+	public void showInscription(String message) {
+		clean();
+		setTitle("JamSession-Inscription");
+		inscription.reset();
+		getContentPane().add(inscription);
+		refresh();
+		inscription.show_error(message);
+	}
+	
+	@Override
 	public void showConnexionEnCours() {
 		clean();
 		setTitle("JamSession-Connexion");
@@ -143,9 +170,11 @@ public class UIClient extends JFrame implements IClientInterface,IClientInterfac
 		this.getContentPane().repaint();
 		pack();
 		this.setVisible(true);
+		setInitialized(true);
 	}
 	
 	private void clean(){
+		setInitialized(false);
 		this.getContentPane().removeAll();
 		if(getJMenuBar()!=null)
 			getJMenuBar().setVisible(false);
@@ -211,5 +240,7 @@ public class UIClient extends JFrame implements IClientInterface,IClientInterfac
 			delegate.login(pseudo, addr_serveur, port_serveur, password);
 		
 	}
+
+
 
 }

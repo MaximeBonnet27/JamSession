@@ -2,6 +2,7 @@ package interfaces.profil;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
+
 import javax.swing.DefaultListModel;
 import javax.swing.JLabel;
 import javax.swing.JList;
@@ -51,4 +52,17 @@ public class UIContacts extends JPanel{
 		public void reset(){
 			contactModel.removeAllElements();
 		}
+
+		@Override
+		public void setName(String name) {
+			super.setName(name);
+			int index=contactModel.indexOf(name);
+			if(index!=-1){
+				contactModel.remove(index);
+				addContact(name);
+			}
+			
+		}
+		
+		
 }

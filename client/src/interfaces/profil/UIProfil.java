@@ -11,6 +11,8 @@ import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
+import javax.swing.SwingWorker;
+
 import interfaces.profil.tchat.UITchat;
 
 public class UIProfil extends JPanel implements IProfil,ActionListener,IProfilDelegate{
@@ -25,6 +27,8 @@ public class UIProfil extends JPanel implements IProfil,ActionListener,IProfilDe
 
 	private UITchat tchatView;
 	private UIContacts contactsView;
+
+	//private Boolean initialized;
 
 	public UIProfil(JFrame parent){
 		super();
@@ -63,7 +67,9 @@ public class UIProfil extends JPanel implements IProfil,ActionListener,IProfilDe
 				init(getWidth(), getHeight());
 			}
 		});
+
 	}
+
 
 	@Override
 	public IProfil init(int width, int height) {
@@ -113,27 +119,27 @@ public class UIProfil extends JPanel implements IProfil,ActionListener,IProfilDe
 	public void sendMessage(String message) {
 		if(delegate!=null)
 			delegate.sendMessage(message);
-
 	}
 
 	@Override
-	public void receiveMessage(String message, String from) {
+	public void receiveMessage(final String message,final String from) {
 		tchatView.receiveMessage(message, from);
 	}
 
 	@Override
-	public void addContact(String name) {
+	public void addContact(final String name) {
 		contactsView.addContact(name);
 	}
-	
+
 	@Override
-	public void removeContact(String name){
-	  contactsView.removeContact(name);
+	public void removeContact(final String name){
+		contactsView.removeContact(name);
 	}
 
-	public void setName(String name){
+	public void setName(final String name){
 		super.setName(name);
-		this.tchatView.setName(name);
-		this.contactsView.setName(name);
+		tchatView.setName(name);
+		contactsView.setName(name);
 	}
 }
+

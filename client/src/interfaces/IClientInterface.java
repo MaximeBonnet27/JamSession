@@ -9,5 +9,7 @@ public interface IClientInterface extends IProfil {
 	public void showLauncher();
 	public void showLauncher(String message); /*pour retoure sur Launcher avec erreur message*/
 	public void showInscription();
+	public void showInscription(String message);
 	public void showConnexionEnCours();
+	public Boolean isInitialized();
 }

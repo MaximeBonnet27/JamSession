@@ -82,7 +82,7 @@ public class UIInscription extends JPanel implements ActionListener,IInscription
 			return true;
 	}
 	
-	private void show_error(String message){
+	public void show_error(String message){
 		JOptionPane.showMessageDialog(this, message,"inscription error",JOptionPane.ERROR_MESSAGE);
 	}
 
