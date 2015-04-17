@@ -219,9 +219,12 @@ public class Client{
 	}
 
 	public void setSocketAudio(int port){
-		System.out.println("Mise en place de la socket audio");
 		try{
 			String addr = socket.getRemoteSocketAddress().toString().split("/")[0];
+			if(addr.isEmpty()){
+				 addr = socket.getRemoteSocketAddress().toString().split("/")[1];
+				 addr = addr.split(":")[0];
+			}
 			this.socketAudio = new Socket(addr, port);
 			this.inputAudio = new BufferedReader(
 					new InputStreamReader(socketAudio.getInputStream()));

@@ -5,15 +5,7 @@ import interfaces.IClientInterfaceDelegate;
 import interfaces.UIClient;
 import interfaces.UIClientDebug;
 
-import java.io.IOException;
-import java.net.ConnectException;
-import java.net.UnknownHostException;
-
-import javax.swing.SwingWorker;
-
-import sun.org.mozilla.javascript.internal.ast.ThrowStatement;
 import model.Client;
-import model.Commande;
 
 public class ControllerClient extends Thread implements IClientInterfaceDelegate{
 
