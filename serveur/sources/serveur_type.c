@@ -3,7 +3,7 @@
  * Fonction d'ajout d'un nouveau client dans la structure 
  * du serveur
  */
-int add_client(char* name, int socket){
+int add_client(char* name, int socket, int login){
 	pthread_mutex_lock(&(serveur.mutex));
 	// On ne peut pas se connecter si le serveur est plein
 	if(serveur.nb_user >= serveur.max_user){
@@ -18,7 +18,8 @@ int add_client(char* name, int socket){
 	for(i=0;i<serveur.max_user && place;i++){
 		if(serveur.clients[i]==NULL){
 			// Creation du client a la place trouvee.
-			serveur.clients[i]=creer_client(nom_valide(name),socket);
+			if(!login)serveur.clients[i]=creer_client(nom_valide(name),socket);
+			else serveur.clients[i] = creer_client(name, socket);
 			serveur.nb_user++;
 			place=0;
 			break;

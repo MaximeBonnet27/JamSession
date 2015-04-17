@@ -82,7 +82,7 @@ typedef struct {
 // Instance unique du serveur
 t_serveur serveur;
 
-int add_client(char* name, int socket);
+int add_client(char* name, int socket, int login);
 void supprimer_client(char * name);
 t_client* creer_client(char* name, int socket);
 int get_indice_client(char * name);
