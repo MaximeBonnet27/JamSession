@@ -190,13 +190,16 @@ void handler_CONNECT(char * args,int socket){
 	// On récupère juste la première partie qui correspond au nom de l'utilisateur
 	strtok(args,"/");	
 	// Ajout de cet user.
-	if(add_client(args,socket) == -1){
+	if(add_client(args,socket,0) == -1){
 		fprintf(stderr,"Serveur complet");
 		// Si le serveur est complet, on le signale au client
 		handler_FULL_SESSION(args, socket);
 		return;
 	}
 	// Suite de la procédure de connexion.
+
+	// On a peut etre change le nom dans add_client
+	args = strdup(serveur.clients[get_indice_from_socket(socket)]->name);
 	handler_WELCOME(args,socket);
 	handler_AUDIO_PORT(args,socket);
 	handler_CONNECTED(args, socket);
@@ -514,17 +517,19 @@ void handler_LISTEN(char * args, int socket){
  * socket : ctrl
  */
 void handler_REGISTER(char * args, int socket){
-	
+
 	char* mdp;
 	char* nom=strtok_r(args,"/",&mdp);
 
-
 	if(!compte_existe(nom, mdp)){
-		enregistrer_nouveau_compte(nom, mdp);
-		log("Enregistré");
+		enregistrer_nouveau_compte(nom, strtok(mdp, "/"));
+		// Maintenant que le client est enregistré, on peut lancer la procédure 
+		// de connexion
+		handler_LOGIN(args, socket);
 	}else{
 		handler_ACCESS_DENIED("Nom deja pris!", socket);
 	}
+
 }
 
 /**
@@ -536,6 +541,7 @@ void handler_ACCESS_DENIED(char * args, int socket){
 	// Ecriture  de la commande
 	char access_denied_cmd[COMMAND_MAX_SIZE];
 	sprintf(access_denied_cmd,"ACCESS_DENIED/%s/\n", args);
+	log("Avant send access denied");
 	if(send(socket, access_denied_cmd, strlen(access_denied_cmd) + 1, 0) == -1){
 		perror("Send Access Denied");
 	}
@@ -549,10 +555,39 @@ void handler_ACCESS_DENIED(char * args, int socket){
  * socket : ctrl
  */
 void handler_LOGIN(char * args, int socket){
-	if(1){
-		handler_ACCESS_DENIED("Login pas implemente", socket);
+
+	char * mdp;
+	char * nom = strtok_r(args, "/", &mdp);
+	if(check_authentification(nom, strtok(mdp, "/"))){
+		// Ajout de cet user.
+		if(add_client(nom,socket, 1) == -1){
+			fprintf(stderr,"Serveur complet");
+			// Si le serveur est complet, on le signale au client
+			handler_FULL_SESSION(nom, socket);
+			return;
+		}
+		// Suite de la procédure de connexion.
+
+		// On a peut etre change le nom dans add_client
+		args = strdup(serveur.clients[get_indice_from_socket(socket)]->name);
+		handler_WELCOME(nom,socket);
+		handler_AUDIO_PORT(nom,socket);
+		handler_CONNECTED(nom, socket);
+		// Mise en place des parametres
+		if(serveur.nb_user == 1){
+			handler_EMPTY_SESSION(nom, socket);
+		}else{
+			handler_CURRENT_SESSION(nom, socket);
+			// On peut lancer la jam si elle n'avait pas encore commence
+			commencer_jam();
+		}
+
 	}
 
+	else{
+		handler_ACCESS_DENIED("Mauvais login ou mot de passe!", socket);
+		return;
+	}
 }
 
 /*

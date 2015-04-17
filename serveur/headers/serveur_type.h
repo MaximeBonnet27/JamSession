@@ -1,6 +1,6 @@
 #ifndef SERVEUR_TYPE_H_GUARD
 #define SERVEUR_TYPE_H_GUARD
-
+#define _XOPEN_SOURCE 700
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -72,7 +72,7 @@ typedef struct {
 	// Tableau des utilisateurs	
 	t_client** clients;
 	// Descripteur du fichier des comptes
-	int fd_comptes;
+	FILE * file_comptes;
 	// Mutex d'acces au serveur
 	pthread_mutex_t mutex;
 	// Mutex d'acces au fichier db
@@ -82,7 +82,7 @@ typedef struct {
 // Instance unique du serveur
 t_serveur serveur;
 
-int add_client(char* name, int socket);
+int add_client(char* name, int socket, int login);
 void supprimer_client(char * name);
 t_client* creer_client(char* name, int socket);
 int get_indice_client(char * name);
@@ -93,5 +93,6 @@ void commencer_jam();
 void stopper_jam();
 int compte_existe(char * nom, char * mdp);
 void enregistrer_nouveau_compte(char * nom, char * mdp);
-
+int check_authentification(char * nom, char * mdp);
+char * nom_valide(char * nom);
 #endif

@@ -48,7 +48,7 @@ public enum Commande {
 	public void handler(Client client,String... args){
 		switch(this){
 			case CONNECT : handlerConnect(client,args[0]); break;
-			case WELCOME : handlerWelcome(client); break;
+			case WELCOME : handlerWelcome(client,args[0]); break;
 			case ACK_OPTS: handlerAckOpts(client); break;
 			case AUDIO_ACK: handlerAudioAck(args, client); break;
 			case AUDIO_CHUNK: handlerAudioChunk(args, client); break;
@@ -84,10 +84,11 @@ public enum Commande {
 	/**
 	 * Reception de WELCOME
 	 */
-	private void handlerWelcome(Client client) {
+	private void handlerWelcome(Client client, String nouveauNom) {
 		/*
 		 * doit attendre la reception de welcome
 		 */
+		client.setNom(nouveauNom);
 		client.setConnected(true);
 	}
 

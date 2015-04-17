@@ -287,5 +287,11 @@ public class Client{
 		}
 		return isConnected();
 	}
+	/**
+	 * @param nom the nom to set
+	 */
+	public void setNom(String nom) {
+		this.nom = nom;
+	}
 
 }
