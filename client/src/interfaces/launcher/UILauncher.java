@@ -48,42 +48,39 @@ public class UILauncher extends JPanel implements ActionListener,ILauncher,ILauc
 		jbLogin=new JButton("Mode Anonyme");
 
 		anonymous=false;
-
 	}
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		Object source=e.getSource();
+
 		if(source.equals(jbConnexion)){
-			//if(anonymous)
-				connectionAction();
-			//else
-				//changeStatus();
+			connectionAction();
+
 		}else if(source.equals(jbcreerCompte)){
 			creerCompte();
+
 		}else if(source.equals(jbLogin)){
-			//if(anonymous)
-				changeStatus();
-			//else
-			//	connectionAction();
+			changeStatus();
 		}
-			
+
 	}
 
 
 	private void changeStatus() {
-		
+
 		if(anonymous){
 			jlPassW.setVisible(true);
 			jpfPassW.setVisible(true);
 			jbLogin.setText("Mode Anonyme");
+
 		}else{
 			jlPassW.setVisible(false);
 			jpfPassW.setVisible(false);
 			jbLogin.setText("Mon Compte");
 		}
 		anonymous=!anonymous;
-		
+
 	}
 
 	/********************ILauncher*************************/
@@ -128,13 +125,12 @@ public class UILauncher extends JPanel implements ActionListener,ILauncher,ILauc
 		this.add(jtfPseudo);
 		this.add(Box.createRigidArea(dimension));
 
-		//if(!anonymous){
-			this.add(jlPassW);
-			this.add(Box.createRigidArea(dimension));
+		this.add(jlPassW);
+		this.add(Box.createRigidArea(dimension));
 
-			this.add(jpfPassW);
-			this.add(Box.createRigidArea(dimension));
-		//}
+		this.add(jpfPassW);
+		this.add(Box.createRigidArea(dimension));
+
 		this.add(jlServeur);
 		this.add(Box.createRigidArea(dimension));
 
@@ -173,11 +169,12 @@ public class UILauncher extends JPanel implements ActionListener,ILauncher,ILauc
 	/*****************ILauncherDelegate**********************/
 
 	@Override
-	public void connexion(String pseudo, String addr_serveur,
-			String port_serveur) {
+	public void connexion(String pseudo, String addr_serveur,String port_serveur) {
+
 		if(delegate!=null){
 			try {
 				delegate.connexion(pseudo,addr_serveur,port_serveur);
+
 			} catch (Exception e) {
 				show_error(e.getMessage());
 				jbConnexion.setEnabled(true);
@@ -185,19 +182,37 @@ public class UILauncher extends JPanel implements ActionListener,ILauncher,ILauc
 		}
 	}
 
+	@Override
+	public void creerCompte() {
+		if(delegate!=null)
+			delegate.creerCompte();
+
+	}
+
+	@Override
+	public void login(String pseudo, String addr_serveur, String port_serveur,
+			String password){
+		if(delegate!=null){
+			try{
+				delegate.login(pseudo, addr_serveur, port_serveur, password);
+			}catch(Exception e){
+				show_error(e.getMessage());
+				jbConnexion.setEnabled(true);
+			}
+		}
+
+	}
 
 	private void connectionAction(){
 		jbConnexion.setEnabled(false);
-		if(verificationEntre()){
-			if(anonymous)
+		if(anonymous)
 			connexion(jtfPseudo.getText(),jtfServeur.getText(),jtfPort.getText());
-			else
+		else
 			login(jtfPseudo.getText(),jtfServeur.getText(),jtfPort.getText(),new String(jpfPassW.getPassword()));
-		}else
-			jbConnexion.setEnabled(true);
+		jbConnexion.setEnabled(true);
 	}
 
-	private void show_error(String message){
+	public void show_error(String message){
 		JOptionPane.showMessageDialog(this, message,"connection error",JOptionPane.ERROR_MESSAGE);
 	}
 
@@ -224,30 +239,4 @@ public class UILauncher extends JPanel implements ActionListener,ILauncher,ILauc
 		return true;
 
 	}
-
-	@Override
-	public void creerCompte() {
-		if(delegate!=null)
-			delegate.creerCompte();
-
-	}
-
-	/* (non-Javadoc)
-	 * @see interfaces.launcher.ILaucherDelegate#login(java.lang.String, java.lang.String, java.lang.String, java.lang.String)
-	 */
-	@Override
-	public void login(String pseudo, String addr_serveur, String port_serveur,
-			String password){
-		if(delegate!=null){
-			try{
-			delegate.login(pseudo, addr_serveur, port_serveur, password);
-			}catch(Exception e){
-				show_error(e.getMessage());
-				jbConnexion.setEnabled(true);
-			}
-		}
-		
-	}
-
-
 }

@@ -18,6 +18,8 @@ import java.net.UnknownHostException;
 import java.util.Observable;
 import java.util.Scanner;
 
+import javax.swing.SwingWorker;
+
 import com.sun.org.apache.bcel.internal.generic.IfInstruction;
 
 import controller.ControllerClient;
@@ -50,6 +52,15 @@ public class Client{
 	private String errorMessage;
 
 	public Client(String adresse, int port, String nom) throws Exception{
+		if(nom.isEmpty()){
+			throw new Exception("pseudo ne doit pas etre vide");
+		}
+		if(nom.contains(" ")){
+			throw new Exception("pseudone doit pas contenir d'espaces");
+		}
+		if(adresse.isEmpty()){
+			throw new Exception("addresse serveur ne doit pas etre vide");
+		}
 		/* Mise en place de la socket et des I/O */
 		try {
 
@@ -98,7 +109,7 @@ public class Client{
 	public Boolean isConnected() {
 		return connected;
 	}
-	
+
 	public void setOutPutStreamDebug(OutputStream stream){
 		System.setOut(new PrintStream(stream));
 	}
@@ -118,18 +129,7 @@ public class Client{
 
 	public boolean connect(){
 		Commande.CONNECT.handler(this,nom);
-
-		try {
-			synchronized (this) {
-				if(!connected)
-					wait();
-			}
-		} catch (InterruptedException e) {
-			setErrorMessage(e.getMessage());
-			return false;
-		}	
-
-		return connected;
+		return waitConnexion();
 	}
 
 	public boolean isRunning(){
@@ -144,7 +144,7 @@ public class Client{
 		if(connected){
 			Commande.EXIT.handler(this, nom);
 		}
-		connected=false;
+		setConnected(false);
 		return true;
 	}
 
@@ -168,6 +168,13 @@ public class Client{
 				e.printStackTrace();
 			}
 		}
+
+		if(isConnected()){
+			setConnected(false);
+			setErrorMessage("connexion perdu");
+			controller.connexion_perdu();
+		}
+
 	}
 
 	public void send(String commande){
@@ -247,42 +254,38 @@ public class Client{
 	}
 
 
-	public boolean inscription(String password){
+	public boolean inscription(String password) throws Exception{
+		if(password.isEmpty())
+			throw new Exception("Le mot de passe de doit pas être vide");
+		if(password.contains(" "))
+			throw new Exception("Le mot de passe de doit pas contenir d'espace");
+
 		String[] args={nom,password};
 		Commande.REGISTER.handler(this, args);
-
-		try {
-
-			synchronized (this) {
-				if(!connected)
-					wait();	
-			}
-
-		} catch (InterruptedException e) {
-			setErrorMessage(e.getMessage());
-			return false;
-		}
-
-		return connected;
+		return waitConnexion();
 	}
 
-	public boolean login(String password){
+	public boolean login(String password) throws Exception{
+		if(password.isEmpty())
+			throw new Exception("Le mot de passe de doit pas être vide");
+		if(password.contains(" "))
+			throw new Exception("Le mot de passe de doit pas contenir d'espace");
+
 		String[] args={nom,password};
 		Commande.LOGIN.handler(this, args);
+		return waitConnexion();
+	}
 
+	public boolean waitConnexion(){
 		try {
-
 			synchronized (this) {
 				if(!connected)
-					wait();	
+					wait();
 			}
-
 		} catch (InterruptedException e) {
 			setErrorMessage(e.getMessage());
-			return false;
 		}
-
-		return connected;
+		return isConnected();
 	}
 
 }

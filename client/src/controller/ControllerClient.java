@@ -9,6 +9,8 @@ import java.io.IOException;
 import java.net.ConnectException;
 import java.net.UnknownHostException;
 
+import javax.swing.SwingWorker;
+
 import sun.org.mozilla.javascript.internal.ast.ThrowStatement;
 import model.Client;
 import model.Commande;
@@ -53,55 +55,67 @@ public class ControllerClient extends Thread implements IClientInterfaceDelegate
 		modelClient.mainLoop();
 	}
 
-	/**************controller to model methods
-	 * @throws IOException 
-	 * @throws UnknownHostException 
-	 * @throws  **********/
 
+	/**
+	 * Connexion mode anonyme
+	 */
 	@Override
 	public void connexion(String pseudo, String addr_serveur,String port_serveur) throws  Exception {
 		initClient(pseudo, addr_serveur, port_serveur);
-
+		
 		if(modelClient.connect()){
-			view.showProfil();
-			
+			view.showProfil(modelClient.getNom());
 		}else{
 			throw new Exception(modelClient.getErrorMessage());
 		}
 	}
 
-	@Override
-	public void sendMessage(String message) {
-		modelClient.sendChatMessage(message);
-		//view.receiveMessage(message, "moi");
-		//view.addContact(message);
-	}
-
+	/**
+	 * Creeation compte et login
+	 */
 	@Override
 	public void register(String pseudo, String password,String addr_serveur,String port_serveur) throws Exception {
 		initClient(pseudo, addr_serveur,port_serveur);
 
 		if(modelClient.inscription(password)){
-			view.showProfil();
+			view.showProfil(modelClient.getNom());
 		}else{
 			throw new Exception(modelClient.getErrorMessage());
 		}
 	}
 
 
+	/**
+	 * Connexion privilégié
+	 */
 	@Override
-	public void login(String pseudo, String addr_serveur, String port_serveur,
-			String password) throws Exception {
+	public void login(String pseudo, String addr_serveur, String port_serveur,String password) throws Exception {
 		initClient(pseudo, addr_serveur,port_serveur);
 
-		if(modelClient.login(password)){
-			view.showProfil();
-		}else{
+		if(modelClient.login(password))
+			view.showProfil(modelClient.getNom());
+		else{
 			throw new Exception(modelClient.getErrorMessage());
-		}		
+		}
+	}
+	
+	@Override
+	public void sendMessage(String message) {
+		modelClient.sendChatMessage(message);
 	}
 
+	
+
 	/**************controller to view methods*******************/
+	
+	public void connexionEnCours(){
+		view.showConnexionEnCours();
+	}
+	
+	public void connexion_perdu(){
+		view.showLauncher(modelClient.getErrorMessage());
+	}
+	
 	@Override
 	public void deconnexion() {
 		view.showLauncher();
@@ -124,7 +138,6 @@ public class ControllerClient extends Thread implements IClientInterfaceDelegate
 
 	public void removeContact(String nom){
 		view.removeContact(nom);
-
 	}
 
 	public void addContact(String nom) {
@@ -134,7 +147,6 @@ public class ControllerClient extends Thread implements IClientInterfaceDelegate
 	@Override
 	public void creerCompte() {
 		view.showInscription();
-
 	}
 
 	@Override

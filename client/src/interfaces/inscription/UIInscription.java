@@ -75,28 +75,13 @@ public class UIInscription extends JPanel implements ActionListener,IInscription
 		String pass1=new String(jpfPassW.getPassword());
 		String pass2=new String(jpfPassWC.getPassword());
 		
-		if(jtfPseudo.getText().isEmpty()){
-			show_error("pseudo vide");
-			return false;
-		}
-		if(jtfServeur.getText().isEmpty()){
-			show_error("addresse du serveur vide");
-			return false;
-		}
-		if(jtfPort.getText().isEmpty()){
-			show_error("port du serveur vide");
-			return false;
-		}
-		if(pass1.isEmpty()){
-			show_error("mot de passe vide");
-			return false;
-		}
 		if(!pass1.equals(pass2)){
 			show_error("Confirmation du mot de  passe incorrect");
 			return false;
 		}else
 			return true;
 	}
+	
 	private void show_error(String message){
 		JOptionPane.showMessageDialog(this, message,"inscription error",JOptionPane.ERROR_MESSAGE);
 	}

@@ -1,11 +1,14 @@
 package interfaces;
 
+import java.awt.Cursor;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.IOException;
 import java.net.UnknownHostException;
 
 import javax.swing.JFrame;
+import javax.swing.JPanel;
+import javax.swing.JProgressBar;
 
 import interfaces.inscription.UIInscription;
 import interfaces.launcher.UILauncher;
@@ -18,6 +21,8 @@ public class UIClient extends JFrame implements IClientInterface,IClientInterfac
 	private UIProfil profil;
 	private UIInscription inscription;
 	
+	private JProgressBar progressbar;
+	
 	public UIClient(){
 		super();
 		this.launcher=new UILauncher();
@@ -28,6 +33,10 @@ public class UIClient extends JFrame implements IClientInterface,IClientInterfac
 		
 		this.inscription=new UIInscription();
 		this.inscription.setDelegate(this);
+		
+		progressbar=new JProgressBar(JProgressBar.HORIZONTAL);
+		progressbar.setIndeterminate(true);
+		progressbar.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 	}
 
 
@@ -39,11 +48,12 @@ public class UIClient extends JFrame implements IClientInterface,IClientInterfac
 	@Override
 	public IClientInterface init(int width, int height) {
 		this.setSize(width, height);
-		
+		//this.getContentPane().setSize(this.getSize());
 		this.launcher.init(this.getWidth(),this.getHeight());
 		this.profil.init(this.getWidth(),this.getHeight());
 		this.inscription.init(this.getWidth(),this.getHeight());
-		
+		this.progressbar.setSize(this.getWidth()/2,50);
+		System.out.println(progressbar.getSize());
 		this.setLocationRelativeTo(null);
 		
 		//this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);//send deconnexion
@@ -75,12 +85,22 @@ public class UIClient extends JFrame implements IClientInterface,IClientInterfac
 		refresh();
 	}
 
+	@Override
+	public void showLauncher(String message) {
+		clean();
+		setTitle("JamSession-Launcher");
+		launcher.reset();
+		getContentPane().add(launcher);
+		refresh();
+		launcher.show_error(message);
+	}
 
 	@Override
-	public void showProfil() {
+	public void showProfil(String name) {
 		clean();
-		setTitle("JamSession-Profil");
+		setTitle("JamSession-Profil-"+name);
 		profil.reset();
+		profil.setName(name);
 		getContentPane().add(profil);
 		refresh();
 	}
@@ -94,6 +114,18 @@ public class UIClient extends JFrame implements IClientInterface,IClientInterfac
 		refresh();
 	}
 
+	@Override
+	public void showConnexionEnCours() {
+		clean();
+		setTitle("JamSession-Connexion");
+		JPanel panel= new JPanel();
+		panel.setSize(getSize());
+		panel.add(progressbar);
+		getContentPane().add(progressbar);
+		//getContentPane().add(panel);
+		refresh();
+	}
+	
 	@Override
 	public void deconnexion() {
 		if(delegate!=null)
@@ -179,10 +211,5 @@ public class UIClient extends JFrame implements IClientInterface,IClientInterfac
 			delegate.login(pseudo, addr_serveur, port_serveur, password);
 		
 	}
-
-
-	
-
-
 
 }

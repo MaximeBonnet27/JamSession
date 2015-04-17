@@ -74,6 +74,8 @@ public class UITchat extends JPanel implements ITchat, ITchatDelegate,ActionList
 
 	@Override
 	public void receiveMessage(String message, String from) {
+		if(from.equals(getName()))
+			from="moi";
 		messageReceiver.append(from+" : "+message+"\n");
 	}
 
@@ -90,5 +92,9 @@ public class UITchat extends JPanel implements ITchat, ITchatDelegate,ActionList
 			messageSender.setText("");
 		}
 	}
-
+	
+	public void reset(){
+		this.messageReceiver.setText("");
+		this.messageSender.setText("");
+	}
 }

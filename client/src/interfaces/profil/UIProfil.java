@@ -105,6 +105,8 @@ public class UIProfil extends JPanel implements IProfil,ActionListener,IProfilDe
 
 	public void reset() {
 		parent.getJMenuBar().setVisible(true);
+		contactsView.reset();
+		tchatView.reset();
 	}
 
 	@Override
@@ -129,4 +131,9 @@ public class UIProfil extends JPanel implements IProfil,ActionListener,IProfilDe
 	  contactsView.removeContact(name);
 	}
 
+	public void setName(String name){
+		super.setName(name);
+		this.tchatView.setName(name);
+		this.contactsView.setName(name);
+	}
 }

@@ -38,11 +38,17 @@ public class UIContacts extends JPanel{
 		}
 		
 		public void addContact(String name){
+			if(name.equals(getName()))
+				name+=" (moi)";
 			if(!contactModel.contains(name))
 			contactModel.addElement(name);
 		}
 		
 		public void removeContact(String name){
 		  contactModel.removeElement(name);
+		}
+		
+		public void reset(){
+			contactModel.removeAllElements();
 		}
 }

@@ -146,6 +146,7 @@ public enum Commande {
 	 */
 	private void handlerExit(Client client) {
 		client.send(this+"/"+client.getNom()+"/");
+		client.setConnected(false);
 		client.cleanUp();
 	}
 	
