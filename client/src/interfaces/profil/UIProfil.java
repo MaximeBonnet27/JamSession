@@ -11,7 +11,6 @@ import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
-import javax.swing.SwingWorker;
 
 import interfaces.profil.tchat.UITchat;
 
@@ -27,8 +26,6 @@ public class UIProfil extends JPanel implements IProfil,ActionListener,IProfilDe
 
 	private UITchat tchatView;
 	private UIContacts contactsView;
-
-	//private Boolean initialized;
 
 	public UIProfil(JFrame parent){
 		super();

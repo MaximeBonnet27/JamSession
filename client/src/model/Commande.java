@@ -1,6 +1,7 @@
 package model;
 
 
+import java.util.ArrayList;
 import java.util.Arrays;
 
 public enum Commande {
@@ -213,8 +214,31 @@ public enum Commande {
 	}
 
 	public static String[] argumentsFromCommande(String commande){
-		String [] res = commande.split("/");
-		return Arrays.copyOfRange(res, 1, res.length);
+		ArrayList<String> res=new ArrayList<String>();
+		String[] split=new String[0];
+		
+		while(commande.contains("/")){
+			split=commande.split("/", 2);
+			commande=split[1];
+			res.add(split[0]);
+		}
+		
+		//res.add(commande);
+		//System.out.println(res);
+		for(int i=0;i<res.size()-1;i++){
+			StringBuilder mot=new StringBuilder(res.get(i));
+			
+			if(mot.toString().endsWith("\\")){
+				mot.replace(mot.length()-1, mot.length(), "/");
+				res.add(i,mot.toString().concat(res.get(i+1)));
+				res.remove(i+1);
+				res.remove(i+1);
+				i--;
+			}
+		}
+		//System.out.println(res);
+		split=res.toArray(split);
+		return Arrays.copyOfRange(split, 1, split.length);
 	}
 
 }

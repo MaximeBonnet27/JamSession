@@ -92,9 +92,7 @@ int init_serveur(int count, char ** args){
 		perror("Bind socket");
 		return -1;
 	}
-	// On libere la structure resultat, plus utile
-	freeaddrinfo(resultat);
-
+	
 	// Listen
 	if(listen(serveur.socket,LISTEN_QUEUE_SIZE) == -1){
 		perror("Listen");
@@ -112,6 +110,9 @@ int init_serveur(int count, char ** args){
 	char nom_fichier[128];
 	char s[INET6_ADDRSTRLEN];
 	inet_ntop(resultat->ai_family, get_in_addr((struct sockaddr *)resultat->ai_addr),s, sizeof s);
+	// On libere la structure resultat, plus utile
+	freeaddrinfo(resultat);
+
 	//sprintf(nom_fichier,".%s_%s.db",s,serveur.port_string);
 	sprintf(nom_fichier,".localhost_%s.db",serveur.port_string);
 

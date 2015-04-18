@@ -112,11 +112,36 @@ public class Client extends Observable{
 	}
 
 	public void sendChatMessage(String message) {
+		System.out.println(message);
+		
+		message=message.replace("\\", "\\\\");
+		System.out.println(message);
+		
+		message=message.replace("\n", "\\n");
+		System.out.println(message);
+		
+		message=message.replace("/", "\\/");
+		System.out.println(message);
+		
 		Commande.TALK.handler(this, message);
 	}
 
-	public void receiveChatMessage(String texte, String nomUtil) {
-		controller.receiveMessage(texte, nomUtil);
+	public void receiveChatMessage(String message, String nomUtil) {
+		System.out.println(message);
+		
+		message=message.replace("\\/", "/");
+		System.out.println(message);
+		
+		message=message.replace("\\n", "\n");
+		System.out.println(message);
+		
+		message=message.replace("\\\\", "\\");
+		System.out.println(message);
+		
+		message=message.replace("\\\n", "\\n");
+		System.out.println(message);
+		
+		controller.receiveMessage(message, nomUtil);
 	}
 
 
