@@ -236,8 +236,11 @@ public enum Commande {
 				i--;
 			}
 		}
-		//System.out.println(res);
+		System.out.println("**"+res+"**");
 		split=res.toArray(split);
+		for(int i=0;i<split.length;i++)
+			System.out.print(split[i]);
+		System.out.println("\n**");
 		return Arrays.copyOfRange(split, 1, split.length);
 	}
 

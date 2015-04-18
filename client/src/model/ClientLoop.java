@@ -23,6 +23,7 @@ public class ClientLoop extends Thread {
 		}
 		catch(Exception e){
 			if(client.isRunning()){
+				e.printStackTrace();
 				client.cleanUp();
 				client.setConnected(false);
 			}

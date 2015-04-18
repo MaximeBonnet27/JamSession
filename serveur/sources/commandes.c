@@ -349,6 +349,7 @@ void handler_EXITED(char * args,int socket){
 			// deconnecte
 			if(serveur.clients[i]->is_admin){
 				admin_deco = 0;
+				log("admin deco\n");
 			}
 			if(send(serveur.clients[i]->socket, exited_cmd, strlen(exited_cmd) + 1, 0) == -1){
 				perror("Send exited_cmd");
@@ -367,7 +368,7 @@ void handler_EXITED(char * args,int socket){
 	if(admin_deco){
 		// On arrete la jam en attendant que les parametres soient retablis
 		stopper_jam();
-		if(i != serveur.max_user){
+		if(premier_index != serveur.max_user){
 			// Empty_session car permet de mettre les parametres de la jam a jour
 			handler_EMPTY_SESSION(serveur.clients[premier_index]->name, serveur.clients[premier_index]->socket);
 		}
@@ -391,6 +392,7 @@ void handler_EMPTY_SESSION(char * args,int socket){
 	}	
 	// Cet utilisateur devient l'admin
 	serveur.clients[get_indice_client(args)]->is_admin = 1;
+	logf("index admin %d",get_indice_client(args));
 	serveur.configure = 1;
 
 	logf("<- %s", empty_session_cmd);
@@ -618,7 +620,7 @@ void handler_LS(char * args, int socket){
 void check_client_deconnectes(){
 	// Broadcast d'un PING
 	int i;
-	char ping_msg[] = "PING\n";
+	char ping_msg[] = "PING/\n";
 	for(i = 0; i < serveur.max_user; i++){
 		if(serveur.clients[i] != NULL){
 			// On supprime ceux dont la socket est fermée
