@@ -13,7 +13,7 @@ all: dirs $(TARGETS)
 
 debug : CFLAGS += -DDEBUG=1
 debug : clean all
-$(BIN)/serveur : $(OBJ)/serveur.o $(OBJ)/commandes.o $(OBJ)/serveur_type.o
+$(BIN)/serveur : $(OBJ)/serveur.o $(OBJ)/commandes.o $(OBJ)/serveur_type.o $(OBJ)/audio.o
 	$(CC) -o $@ $^ $(LIBS) 
 
 

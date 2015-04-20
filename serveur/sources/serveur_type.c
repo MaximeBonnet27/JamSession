@@ -1,4 +1,5 @@
 #include "serveur_type.h"
+#include "audio.h"
 /**
  * Fonction d'ajout d'un nouveau client dans la structure 
  * du serveur

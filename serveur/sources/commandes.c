@@ -1,5 +1,5 @@
 #include "commandes.h"
-
+#include "audio.h"
 /**
  * Initialisation du tableau des commandes.
  * On associe à chaque commande son type et sa fonction de handler.
@@ -571,8 +571,13 @@ void * thread_handle_commandes_audio(void * args){
  	log("Appel de OK");
  	char * buffer;
  	char * tick = strtok_r(args, "/", &buffer);
- 	add_queue(&(serveur.clients[i]->queue), create_audio_buffer(tick, buffer));
+ 	t_audio_buffer res;
+ 	log("create");
+ 	create_audio_buffer(tick, buffer, &res);
+ 	log("add");
+ 	add_queue(&(serveur.clients[get_indice_from_socket_audio(socket)]->queue), res);
  	handler_AUDIO_OK(NULL,socket_ctrl);
+ 	log("mix");
  	handler_AUDIO_MIX(NULL, socket);
 
  }
@@ -583,7 +588,30 @@ void * thread_handle_commandes_audio(void * args){
   * socket : audio
   */
  void handler_AUDIO_MIX(char * args,int socket){
- 	//TODO
+ 	printf("qsd\n");
+ 	int indice = get_indice_from_socket_audio(socket);
+ 	printf("%d\n", indice);
+ 	t_client* c=serveur.clients[indice];
+ 	printf("qsd2\n");
+ 	t_audio_buffer buffer;
+ 	printf("pop\n");
+ 	int v = pop(&(c->queue), &buffer);
+ 	if(!v){
+ 		log("Bug audio Mix")
+ 	}
+ 	else {
+ 		char audio_mix_cmd[AUDIO_BUFFER_SIZE + COMMAND_MAX_SIZE];
+ 		char * res;
+ 		printf("convert\n");
+ 		convertAudioToString(buffer.buffer, &res);
+ 		printf("convert end\n");
+ 		sprintf(audio_mix_cmd, "AUDIO_MIX/%s/\n", res);
+ 		 if(send(socket, audio_mix_cmd, strlen(audio_mix_cmd) + 1, 0) == -1){
+ 		perror("Send audio mix");
+ 	}
+ 	logf("<- %s", audio_mix_cmd);
+
+ 	}
  }
  /*
   * Reception de AUDIO_ACK
