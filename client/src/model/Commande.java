@@ -52,7 +52,7 @@ public enum Commande {
 			case WELCOME : handlerWelcome(client,args[0]); break;
 			case ACK_OPTS: handlerAckOpts(client); break;
 			case AUDIO_ACK: handlerAudioAck(args, client); break;
-			case AUDIO_CHUNK: handlerAudioChunk(args, client); break;
+			case AUDIO_CHUNK: handlerAudioChunk(client, args[0], args[1]); break;
 			case AUDIO_KO: handlerAudioKo(args, client); break;
 			case AUDIO_MIX: handlerAudioMix(args, client); break;
 			case AUDIO_OK: handlerAudioOk(args, client); break;
@@ -106,7 +106,8 @@ public enum Commande {
 	private void handlerAudioAck(String[] args2, Client client) {
 	}
 	
-	private void handlerAudioChunk(String[] args2, Client client) {
+	private void handlerAudioChunk(Client client, String tick, String buffer) {
+		client.sendAudio(this+"/"+tick+"/"+buffer+"/");
 	}
 	
 	private void handlerAudioKo(String[] args2, Client client) {

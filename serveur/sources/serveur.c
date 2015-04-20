@@ -1,5 +1,5 @@
 #include "serveur.h"
-
+#include "commandes.h"
 /*
  * Fonction annexe pour adresse en string
  */
@@ -123,20 +123,7 @@ int init_serveur(int count, char ** args){
 	}
 	return 0;
 }
-/**
- * Traitement d'une commande venant du client
- */
-void handle(char* message,int socket){
-	char* args;
-	logf("CLIENT -> %s\n", message);
-	// On recupere les arguments de la commande
-	char* commande_name=strtok_r(message,"/",&args);
-	// On recupere la t_commande correspondant a la commande recue
-	t_commande commande=string_to_commande(commande_name);
-	// Et on appelle la fonction correspondant a cette commande
-	// avec les arguments
-	commande.handler(args,socket);
-}
+
 /**
  * Boucle principale du serveur, attente de nouvelles connexions.
  *
@@ -165,30 +152,7 @@ void * loop(void * args){
 	}
 
 }
-/*
- * Thread de traitement d'un client, boucle en attente de commandes. 
- */
-void * thread_handle_commandes(void * args){
-	// Recupere la socket passee en argument.
-	int *ptr_socket = (int *) args;
-	int socket = *ptr_socket;
-	char commande[COMMAND_MAX_SIZE];
-	while(1){
-		// Reset de la commande
-		memset(commande, 0, COMMAND_MAX_SIZE);
-		// On recoit la commande.
-		if(recv(socket, commande, sizeof(commande), 0) <= 0){
-			log("Socket client fermée");
-			check_client_deconnectes();
-			pthread_exit((void *)0);
-		}
 
-		// Traitement de la commande recue
-		handle(commande,socket);
-	}
-	// Normalement, ne devrait pas arriver.
-	pthread_exit((void *)0);
-}
 
 /* Fonction de terminaison du programme */
 

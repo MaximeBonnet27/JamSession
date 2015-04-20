@@ -15,6 +15,7 @@ import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.util.Observable;
 
+import model.audio.CaptureAudio;
 import controller.ControllerClient;
 
 /**
@@ -41,7 +42,8 @@ public class Client extends Observable{
 	private String nom;
 	private Boolean connected;
 	private boolean running;
-
+	private boolean recording;
+	
 	private String errorMessage;
 
 	public Client(String adresse, int port, String nom) throws Exception{
@@ -97,6 +99,8 @@ public class Client extends Observable{
 			connected=b;
 			notifyAll();
 		}
+		if(b)
+			captureAudio();
 	}
 
 	public Boolean isConnected() {
@@ -202,11 +206,15 @@ public class Client extends Observable{
 	}
 
 	public void sendAudio(String commande){
-		System.out.println("CANAL AUDIO : " + commande + " -> ");
+		System.out.println("CANAL AUDIO : " + commande.length() + " -> ");
 		outputAudio.write(commande);
 		outputAudio.flush();
 	}
 
+	public void sendRecording(int tick, String buffer){
+		Commande.AUDIO_CHUNK.handler(this, tick +"", buffer);
+	}
+	
 	public String receive() throws SocketException{
 		String val = null;
 		try{
@@ -267,6 +275,12 @@ public class Client extends Observable{
 		ClientLoop loop = new ClientLoop(this);
 		loop.start();
 	}
+	
+	public void captureAudio(){
+		this.recording = true;
+		CaptureAudio capture = new CaptureAudio(this);
+		capture.start();
+	}
 
 	public static void main(String... args) throws Exception {
 		Client client = new Client(args[0]);
@@ -308,11 +322,11 @@ public class Client extends Observable{
 		return isConnected();
 	}
 	/**
+	
 	 * @param nom the nom to set
 	 */
 	public void setNom(String nom) {
 		this.nom = nom;
 	}
-
 	
 }

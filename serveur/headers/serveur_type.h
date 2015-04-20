@@ -18,6 +18,8 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 
+#include "audio.h"
+
 #ifndef DEBUG
 #define DEBUG 0
 #endif
@@ -44,6 +46,8 @@ typedef struct
 	int socket_audio;
 	// Booleen, indique si le client est l'admin
 	int is_admin;
+	// Liste des buffers
+	t_buffer_queue queue;
 } t_client;
 
 typedef struct {
@@ -86,6 +90,7 @@ void supprimer_client(char * name);
 t_client* creer_client(char* name, int socket);
 int get_indice_client(char * name);
 int get_indice_from_socket(int socket);
+int get_indice_from_socket_audio(int socket_audio);
 int creer_socket_audio();
 void set_options(char * style, char * tempo);
 void commencer_jam();

@@ -12,10 +12,7 @@
 
 // Initialisation du serveur
 int init_serveur(int count, char ** args);
-// Handler de commandes
-void handle(char* commande,int socket);
 // Boucle d'accept du serveur
 void * loop(void * args);
-// Fonction d'accueil des clients
-void * thread_handle_commandes(void * args);
+
 #endif
