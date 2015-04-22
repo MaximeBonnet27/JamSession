@@ -36,7 +36,7 @@ public class ControllerClient implements IClientInterfaceDelegate{
 
 
 
-	public void initClient(String pseudo, String addr_serveur,String port_serveur) throws Exception{
+	public void initClient(String pseudo, String addr_serveur,String port_serveur){
 		modelClient=new Client(addr_serveur, Integer.parseInt(port_serveur), pseudo);
 		modelClient.setController(this);
 		modelClient.setOutPutStreamDebug(debugView.getOutputStream());
@@ -48,7 +48,7 @@ public class ControllerClient implements IClientInterfaceDelegate{
 	 * Connexion mode anonyme
 	 */
 	@Override
-	public void connexion(String pseudo, String addr_serveur,String port_serveur) throws  Exception {
+	public void connexion(String pseudo, String addr_serveur,String port_serveur){
 		initClient(pseudo, addr_serveur, port_serveur);
 
 		SwingWorker sw= new SwingWorker(){
@@ -75,7 +75,7 @@ public class ControllerClient implements IClientInterfaceDelegate{
 	 * Creeation compte et login
 	 */
 	@Override
-	public void register(String pseudo, final String password,String addr_serveur,String port_serveur) throws Exception {
+	public void register(String pseudo, final String password,String addr_serveur,String port_serveur){
 		initClient(pseudo, addr_serveur,port_serveur);
 		SwingWorker sw= new SwingWorker(){
 
@@ -102,7 +102,7 @@ public class ControllerClient implements IClientInterfaceDelegate{
 	 * Connexion privilégié
 	 */
 	@Override
-	public void login(String pseudo, String addr_serveur, String port_serveur,final String password) throws Exception {
+	public void login(String pseudo, String addr_serveur, String port_serveur,final String password){
 		initClient(pseudo, addr_serveur,port_serveur);
 		SwingWorker sw= new SwingWorker(){
 

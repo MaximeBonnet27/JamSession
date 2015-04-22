@@ -43,37 +43,45 @@ public class Client extends Observable{
 	private Boolean connected;
 	private boolean running;
 	private boolean recording;
-	
+	private boolean ready;
+
 	private String errorMessage;
 
-	public Client(String adresse, int port, String nom) throws Exception{
+	public Client(String adresse, int port, String nom){
+		ready=true;
+		running = false;
+		connected=false;
+		
 		if(nom.isEmpty()){
-			throw new Exception("pseudo ne doit pas etre vide");
+			ready=false;
+			setErrorMessage("pseudo ne doit pas etre vide");
 		}
 		if(nom.contains(" ")){
-			throw new Exception("pseudone doit pas contenir d'espaces");
+			ready=false;
+			setErrorMessage("pseudone doit pas contenir d'espaces");
 		}
 		if(adresse.isEmpty()){
-			throw new Exception("addresse serveur ne doit pas etre vide");
+			ready=false;
+			setErrorMessage("addresse serveur ne doit pas etre vide");
 		}
 		/* Mise en place de la socket et des I/O */
-		try {
+		if(isReady()){
+			try {
 
-			this.socket = new Socket(adresse, port);
-			this.input = new BufferedReader(
-					new InputStreamReader(socket.getInputStream()));
-			this.output = new PrintWriter(socket.getOutputStream());
+				this.socket = new Socket(adresse, port);
+				this.input = new BufferedReader(
+						new InputStreamReader(socket.getInputStream()));
+				this.output = new PrintWriter(socket.getOutputStream());
+				this.nom = nom;
 
-		} catch (UnknownHostException e) {
-			throw new Exception("Addresse serveur inconnue: "+e.getMessage());
-
-		} catch (IOException e) {
-			throw e;
+			} catch (UnknownHostException e) {
+				ready=false;
+				setErrorMessage("Addresse serveur inconnue: "+e.getMessage());
+			} catch (IOException e) {
+				ready=false;
+				setErrorMessage(e.getMessage());
+			}
 		}
-
-		this.nom = nom;
-		this.running = false;
-		this.connected=false;
 	}
 
 	/**
@@ -88,6 +96,10 @@ public class Client extends Observable{
 	 */
 	public String getErrorMessage() {
 		return errorMessage;
+	}
+
+	public boolean isReady() {
+		return ready;
 	}
 
 	public Client(String nom) throws Exception{
@@ -117,41 +129,44 @@ public class Client extends Observable{
 
 	public void sendChatMessage(String message) {
 		System.out.println(message);
-		
+
 		message=message.replace("\\", "\\\\");
 		System.out.println(message);
-		
+
 		message=message.replace("\n", "\\n");
 		System.out.println(message);
-		
+
 		message=message.replace("/", "\\/");
 		System.out.println(message);
-		
+
 		Commande.TALK.handler(this, message);
 	}
 
 	public void receiveChatMessage(String message, String nomUtil) {
 		System.out.println(message);
-		
+
 		message=message.replace("\\/", "/");
 		System.out.println(message);
-		
+
 		message=message.replace("\\n", "\n");
 		System.out.println(message);
-		
+
 		message=message.replace("\\\\", "\\");
 		System.out.println(message);
-		
+
 		message=message.replace("\\\n", "\\n");
 		System.out.println(message);
-		
+
 		controller.receiveMessage(message, nomUtil);
 	}
 
 
 	public boolean connect(){
-		Commande.CONNECT.handler(this,nom);
-		return waitConnexion();
+		if(ready){
+			Commande.CONNECT.handler(this,nom);
+			return waitConnexion();
+		}
+		return false;
 	}
 
 	public boolean isRunning(){
@@ -214,7 +229,7 @@ public class Client extends Observable{
 	public void sendRecording(int tick, String buffer){
 		Commande.AUDIO_CHUNK.handler(this, tick +"", buffer);
 	}
-	
+
 	public String receive() throws SocketException{
 		String val = null;
 		try{
@@ -248,8 +263,8 @@ public class Client extends Observable{
 		try{
 			String addr = socket.getRemoteSocketAddress().toString().split("/")[0];
 			if(addr.isEmpty()){
-				 addr = socket.getRemoteSocketAddress().toString().split("/")[1];
-				 addr = addr.split(":")[0];
+				addr = socket.getRemoteSocketAddress().toString().split("/")[1];
+				addr = addr.split(":")[0];
 			}
 			this.socketAudio = new Socket(addr, port);
 			this.inputAudio = new BufferedReader(
@@ -271,11 +286,13 @@ public class Client extends Observable{
 	}
 
 	public void mainLoop(){
-		this.running = true;
-		ClientLoop loop = new ClientLoop(this);
-		loop.start();
+		if(ready){
+			this.running = true;
+			ClientLoop loop = new ClientLoop(this);
+			loop.start();
+		}
 	}
-	
+
 	public void captureAudio(){
 		this.recording = true;
 		CaptureAudio capture = new CaptureAudio(this);
@@ -290,24 +307,38 @@ public class Client extends Observable{
 
 
 	public boolean inscription(String password) throws Exception{
-		if(password.isEmpty())
-			throw new Exception("Le mot de passe de doit pas être vide");
-		if(password.contains(" "))
-			throw new Exception("Le mot de passe de doit pas contenir d'espace");
+		if(password.isEmpty()){
+			ready=false;
+			setErrorMessage("Le mot de passe de doit pas être vide");
+		}
+		if(password.contains(" ")){
+			ready=false;
+			setErrorMessage("Le mot de passe de doit pas contenir d'espace");
+		}
 
-		String[] args={nom,password};
-		Commande.REGISTER.handler(this, args);
-		return waitConnexion();
+		if(ready){
+			String[] args={nom,password};
+			Commande.REGISTER.handler(this, args);
+			return waitConnexion();
+		}
+		return false;
 	}
 
-	public boolean login(String password) throws Exception{
-		if(password.isEmpty())
-			throw new Exception("Le mot de passe de doit pas être vide");
-		if(password.contains(" "))
-			throw new Exception("Le mot de passe de doit pas contenir d'espace");
+	public boolean login(String password){
+		if(password.isEmpty()){
+			ready=false;
+			setErrorMessage("Le mot de passe de doit pas être vide");
+		}
+		if(password.contains(" ")){
+			ready=false;
+			setErrorMessage("Le mot de passe de doit pas contenir d'espace");
+		}
 
-		Commande.LOGIN.handler(this, password);
-		return waitConnexion();
+		if(ready){
+			Commande.LOGIN.handler(this, password);
+			return waitConnexion();
+		}
+		return false;
 	}
 
 	public boolean waitConnexion(){
@@ -322,11 +353,11 @@ public class Client extends Observable{
 		return isConnected();
 	}
 	/**
-	
+
 	 * @param nom the nom to set
 	 */
 	public void setNom(String nom) {
 		this.nom = nom;
 	}
-	
+
 }
