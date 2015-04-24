@@ -1,6 +1,5 @@
 package model;
 
-import java.net.SocketException;
 
 public class ClientLoop extends Thread {
 
@@ -22,9 +21,11 @@ public class ClientLoop extends Thread {
 
 			}
 		}
-		catch(SocketException e){
+		catch(Exception e){
 			if(client.isRunning()){
 				e.printStackTrace();
+				client.cleanUp();
+				client.setConnected(false);
 			}
 		}
 		//client.exit();

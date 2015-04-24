@@ -1,8 +1,6 @@
 package controller;
 
-import java.util.Observable;
-import java.util.Observer;
-
+import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
 
 import interfaces.IClientInterface;
@@ -11,13 +9,12 @@ import interfaces.UIClient;
 import interfaces.UIClientDebug;
 import model.Client;
 
-public class ControllerClient implements IClientInterfaceDelegate,Observer{
+public class ControllerClient implements IClientInterfaceDelegate{
 
 	public static void main(String[] args) {
 		ControllerClient controller=new ControllerClient(new UIClient().init(600, 600));
 		controller.show_communication();
 		controller.view.showLauncher();
-		//controller.run();
 	}
 
 
@@ -39,9 +36,8 @@ public class ControllerClient implements IClientInterfaceDelegate,Observer{
 
 
 
-	public void initClient(String pseudo, String addr_serveur,String port_serveur) throws Exception{
+	public void initClient(String pseudo, String addr_serveur,String port_serveur){
 		modelClient=new Client(addr_serveur, Integer.parseInt(port_serveur), pseudo);
-		//modelClient.addObserver(this);
 		modelClient.setController(this);
 		modelClient.setOutPutStreamDebug(debugView.getOutputStream());
 		modelClient.mainLoop();
@@ -52,9 +48,9 @@ public class ControllerClient implements IClientInterfaceDelegate,Observer{
 	 * Connexion mode anonyme
 	 */
 	@Override
-	public void connexion(String pseudo, String addr_serveur,String port_serveur) throws  Exception {
+	public void connexion(String pseudo, String addr_serveur,String port_serveur){
 		initClient(pseudo, addr_serveur, port_serveur);
-		
+
 		SwingWorker sw= new SwingWorker(){
 
 			@Override
@@ -79,7 +75,7 @@ public class ControllerClient implements IClientInterfaceDelegate,Observer{
 	 * Creeation compte et login
 	 */
 	@Override
-	public void register(String pseudo, final String password,String addr_serveur,String port_serveur) throws Exception {
+	public void register(String pseudo, final String password,String addr_serveur,String port_serveur){
 		initClient(pseudo, addr_serveur,port_serveur);
 		SwingWorker sw= new SwingWorker(){
 
@@ -106,7 +102,7 @@ public class ControllerClient implements IClientInterfaceDelegate,Observer{
 	 * Connexion privilégié
 	 */
 	@Override
-	public void login(String pseudo, String addr_serveur, String port_serveur,final String password) throws Exception {
+	public void login(String pseudo, String addr_serveur, String port_serveur,final String password){
 		initClient(pseudo, addr_serveur,port_serveur);
 		SwingWorker sw= new SwingWorker(){
 
@@ -126,26 +122,36 @@ public class ControllerClient implements IClientInterfaceDelegate,Observer{
 			}
 		};
 		sw.execute();
-	
-	}
-	
-	@Override
-	public void sendMessage(String message) {
-		modelClient.sendChatMessage(message);
+
 	}
 
-	
+	@Override
+	public void sendMessage(final String message) {
+
+		SwingWorker sw= new SwingWorker(){
+
+			@Override
+			protected Object doInBackground() throws Exception {
+				modelClient.sendChatMessage(message);
+				return null;
+			}
+
+		};
+		sw.execute();
+	}
+
+
 
 	/**************controller to view methods*******************/
-	
+
 	public void connexionEnCours(){
 		view.showConnexionEnCours();
 	}
-	
+
 	public void connexion_perdu(){
 		view.showLauncher(modelClient.getErrorMessage());
 	}
-	
+
 	@Override
 	public void deconnexion() {
 		view.showLauncher();
@@ -162,12 +168,46 @@ public class ControllerClient implements IClientInterfaceDelegate,Observer{
 
 
 
-	public void receiveMessage(String message, String from){
-		view.receiveMessage(message, from);
+	public void receiveMessage(final String message, final String from){
+		SwingWorker sw=new SwingWorker(){
+
+			@Override
+			protected Object doInBackground() throws Exception {
+				waitViewInitialisation();
+				return null;
+			}
+
+			@Override
+			protected void done() {
+				SwingUtilities.invokeLater(new Runnable() {
+					public void run() {
+						view.receiveMessage(message, from);
+					}
+				});
+			}
+		};
+		sw.execute();
 	}
 
-	public void removeContact(String nom){
-		view.removeContact(nom);
+	public void removeContact(final String nom){
+		SwingWorker sw=new SwingWorker(){
+
+			@Override
+			protected Object doInBackground() throws Exception {
+				waitViewInitialisation();
+				return null;
+			}
+
+			@Override
+			protected void done() {
+				SwingUtilities.invokeLater(new Runnable() {
+					public void run() {
+						view.removeContact(nom);
+					}
+				});
+			}
+		};
+		sw.execute();
 	}
 
 	public void addContact(final String nom) {
@@ -175,21 +215,21 @@ public class ControllerClient implements IClientInterfaceDelegate,Observer{
 
 			@Override
 			protected Object doInBackground() throws Exception {
-				synchronized (view) {
-					if(!view.isInitialized())
-						view.wait();
-				}
+				waitViewInitialisation();
 				return null;
 			}
 
 			@Override
 			protected void done() {
-				view.addContact(nom);
+				SwingUtilities.invokeLater(new Runnable() {
+					public void run() {
+						view.addContact(nom);
+					}
+				});
 			}
-			
 		};
 		sw.execute();
-		
+
 	}
 
 	@Override
@@ -197,22 +237,22 @@ public class ControllerClient implements IClientInterfaceDelegate,Observer{
 		view.showInscription();
 	}
 
+	
 	@Override
 	public void annulerRegister() {
 		view.showLauncher();
 	}
 
-	
-	@Override
-	public void update(Observable o, Object arg) {
-		if(modelClient.isConnected()){
-			view.showProfil(modelClient.getNom());
-		}else{
-			view.showLauncher(modelClient.getErrorMessage());
+	private void waitViewInitialisation(){
+		try{
+			synchronized (view) {
+				if(!view.isInitialized())
+					view.wait();
+			}
+		}catch(Exception e){
+			e.printStackTrace();
 		}
-		
 	}
-
 
 
 }

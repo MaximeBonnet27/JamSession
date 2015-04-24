@@ -1,4 +1,5 @@
 #include "serveur_type.h"
+#include "audio.h"
 /**
  * Fonction d'ajout d'un nouveau client dans la structure 
  * du serveur
@@ -37,30 +38,30 @@ char * nom_valide(char * nom){
 	int i;
 	// + 3 car \0 + On va rajouté au pire 1 _ + 2 chiffres (tres peu probable)
 	char * nom_modifie = malloc((strlen(nom) + 4) * sizeof(char));
-	log("Avant sprintf");
+
 	sprintf(nom_modifie,"%s", nom);
-	log("Apres sprintf");
+
 	int modifie = 0;
 	int cpt = 1;
 
 	if(compte_existe(nom_modifie, NULL)){
-		log("compte existe");
+
 		modifie = 1;
 		i = -1;
 	}
 	if(modifie){
-		log("modif, avant");
+
 		sprintf(nom_modifie,"%s_%d", nom, cpt++);
-		log("modif, apres");
+
 		modifie = 0;			
 	}
 
 	for(i = 0; i < serveur.max_user; ++i){
 		if(serveur.clients[i] != NULL){
 			if(modifie){
-				log("modif, avant");
+
 				sprintf(nom_modifie,"%s_%d", nom, cpt++);
-				log("modif, apres");
+
 				modifie = 0;			
 			}
 			if(strcmp(serveur.clients[i]->name, nom_modifie) == 0){
@@ -69,7 +70,7 @@ char * nom_valide(char * nom){
 			}	
 		}
 	}
-	logf("fin nom valide = %s\n", nom_modifie);
+
 	return nom_modifie;
 
 }
@@ -112,6 +113,7 @@ t_client* creer_client(char* name, int socket){
 	logf("Socket = %d\n", socket);
 	c->socket=socket;
 	c->is_admin = 0;
+	init_queue(&(c->queue));
 	return c;
 }
 /**
@@ -142,15 +144,27 @@ int get_indice_from_socket(int socket){
 	}
 	return i;
 }
+/**
+ * Renvoie l'indice du client dans le tableau des utilisateurs 
+ * a partir de sa socket audio
+ */
+
+int get_indice_from_socket_audio(int socket_audio){
+	int i;
+	for(i = 0; i < serveur.max_user; i++){
+		if(serveur.clients[i] != NULL && serveur.clients[i]->socket_audio == socket_audio){
+			break;
+		}
+	}
+	return i;
+}
 
 /**
  * Creation de la socket audio du serveur
  */
 
 int creer_socket_audio(){
-	// Le numero du port sous forme de chaine de caratere
-	// Chaque client a son port, qui correspond a 
-	// PORT_AUDIO_INIT + son indice dans le tableau des utilisateurs
+	// Le numero du port sous forme de chaine de caratere 
 	char port_to_string[6]; 
 	sprintf(port_to_string,"%d",PORT_AUDIO_INIT);
 
@@ -166,8 +180,7 @@ int creer_socket_audio(){
 
 	// Recuperer les infos 
 	if (getaddrinfo(NULL, port_to_string, &hints, &resultat) != 0) {
-		return -1;
-	}
+		return -1;	}
 	// Création socket
 	if((serveur.socket_audio = socket(resultat->ai_family, resultat->ai_socktype, resultat->ai_protocol)) == -1){
 		perror("Création socket audio");
@@ -226,24 +239,22 @@ int compte_existe(char * nom, char * mdp){
 	pthread_mutex_lock(&serveur.mutex_db);
 	char * buffer_ligne;
 	buffer_ligne = malloc(128 * sizeof(char));
-	log("Avant boucle");
+
 	// On se remet au debut du fichier
 	fseek(serveur.file_comptes, 0, SEEK_SET);
 	size_t len = 0;
 	while(getline(&buffer_ligne, &len, serveur.file_comptes) != -1){	
-		log("Boucle");
+
 		strtok(buffer_ligne, " ");
 		logf("(%s)\n", buffer_ligne);
 
 		if(strcmp(buffer_ligne, nom) == 0){
-			log("OK");
 			free(buffer_ligne);
 			pthread_mutex_unlock(&serveur.mutex_db);
 			return 1;
 		}	
-		log("NOK");
 	}
-	log("Apres boucle");
+
 	// On se remet au debut du fichier
 	fseek(serveur.file_comptes, 0, SEEK_SET);
 	free(buffer_ligne);
@@ -254,13 +265,13 @@ int compte_existe(char * nom, char * mdp){
 void enregistrer_nouveau_compte(char * nom, char * mdp){
 	pthread_mutex_lock(&serveur.mutex_db);
 	// On va a la fin du fichier
-	logf("Enregistré avec mdp : %s\n", mdp);
+
 	fseek(serveur.file_comptes, 0, SEEK_END);
-	log("Avant fprintf");
+
 	if(fprintf(serveur.file_comptes,"%s %s\n", nom, mdp) < 0){
 		perror("Fprintf");
 	}
-	log("apres fprintf");
+
 	// Revenir au debut
 	fseek(serveur.file_comptes, 0, SEEK_SET);
 	pthread_mutex_unlock(&serveur.mutex_db);

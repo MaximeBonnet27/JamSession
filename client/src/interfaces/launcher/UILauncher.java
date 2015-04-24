@@ -4,9 +4,6 @@ import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.IOException;
-import java.net.UnknownHostException;
-
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
@@ -214,29 +211,5 @@ public class UILauncher extends JPanel implements ActionListener,ILauncher,ILauc
 
 	public void show_error(String message){
 		JOptionPane.showMessageDialog(this, message,"connection error",JOptionPane.ERROR_MESSAGE);
-	}
-
-	private boolean verificationEntre(){
-		if(jtfPseudo.getText().isEmpty()){
-			show_error("pseudo vide");
-			return false;
-		}
-		if(jtfServeur.getText().isEmpty()){
-			show_error("addresse serveur vide");
-			return false;
-		}
-		if(jtfPort.getText().isEmpty()){
-			show_error("port du serveur vide");
-			return false;
-		}else{// TODO Auto-generated method stub
-			if(!anonymous){
-				if(jpfPassW.getPassword().length==0){
-					show_error("mot de passe vide");
-					return false;
-				}
-			}
-		}
-		return true;
-
 	}
 }

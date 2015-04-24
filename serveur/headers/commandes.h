@@ -2,7 +2,7 @@
 #define COMMANDS_H_GUARD
 
 #include "serveur_type.h"
-
+#include "audio.h"
 #define NBCOMMANDES 23
 #define COMMAND_MAX_SIZE 128
 typedef enum {
@@ -39,6 +39,12 @@ typedef struct {
 } t_commande; 
 
 t_commande tab_commandes[NBCOMMANDES];
+
+/* HANDLERS */
+// Handler de commandes
+void handle(char* commande,int socket);
+// Fonction d'accueil des clients
+void * thread_handle_commandes(void * args);
 
 /* INIT */
 

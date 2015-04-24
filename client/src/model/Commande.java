@@ -1,6 +1,7 @@
 package model;
 
 
+import java.util.ArrayList;
 import java.util.Arrays;
 
 public enum Commande {
@@ -51,7 +52,7 @@ public enum Commande {
 			case WELCOME : handlerWelcome(client,args[0]); break;
 			case ACK_OPTS: handlerAckOpts(client); break;
 			case AUDIO_ACK: handlerAudioAck(args, client); break;
-			case AUDIO_CHUNK: handlerAudioChunk(args, client); break;
+			case AUDIO_CHUNK: handlerAudioChunk(client, args[0], args[1]); break;
 			case AUDIO_KO: handlerAudioKo(args, client); break;
 			case AUDIO_MIX: handlerAudioMix(args, client); break;
 			case AUDIO_OK: handlerAudioOk(args, client); break;
@@ -105,7 +106,8 @@ public enum Commande {
 	private void handlerAudioAck(String[] args2, Client client) {
 	}
 	
-	private void handlerAudioChunk(String[] args2, Client client) {
+	private void handlerAudioChunk(Client client, String tick, String buffer) {
+		client.sendAudio(this+"/"+tick+"/"+buffer+"/");
 	}
 	
 	private void handlerAudioKo(String[] args2, Client client) {
@@ -213,8 +215,34 @@ public enum Commande {
 	}
 
 	public static String[] argumentsFromCommande(String commande){
-		String [] res = commande.split("/");
-		return Arrays.copyOfRange(res, 1, res.length);
+		ArrayList<String> res=new ArrayList<String>();
+		String[] split=new String[0];
+		
+		while(commande.contains("/")){
+			split=commande.split("/", 2);
+			commande=split[1];
+			res.add(split[0]);
+		}
+		
+		//res.add(commande);
+		//System.out.println(res);
+		for(int i=0;i<res.size()-1;i++){
+			StringBuilder mot=new StringBuilder(res.get(i));
+			
+			if(mot.toString().endsWith("\\")){
+				mot.replace(mot.length()-1, mot.length(), "/");
+				res.add(i,mot.toString().concat(res.get(i+1)));
+				res.remove(i+1);
+				res.remove(i+1);
+				i--;
+			}
+		}
+		System.out.println("**"+res+"**");
+		split=res.toArray(split);
+		for(int i=0;i<split.length;i++)
+			System.out.print(split[i]);
+		System.out.println("\n**");
+		return Arrays.copyOfRange(split, 1, split.length);
 	}
 
 }

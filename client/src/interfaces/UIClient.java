@@ -3,13 +3,9 @@ package interfaces;
 import java.awt.Cursor;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.io.IOException;
-import java.net.UnknownHostException;
-
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
-import javax.swing.text.StyledEditorKit.BoldAction;
 
 import interfaces.inscription.UIInscription;
 import interfaces.launcher.UILauncher;
@@ -229,10 +225,6 @@ public class UIClient extends JFrame implements IClientInterface,IClientInterfac
 		
 	}
 
-
-	/* (non-Javadoc)
-	 * @see interfaces.launcher.ILaucherDelegate#login(java.lang.String, java.lang.String, java.lang.String, java.lang.String)
-	 */
 	@Override
 	public void login(String pseudo, String addr_serveur, String port_serveur,
 			String password) throws Exception {

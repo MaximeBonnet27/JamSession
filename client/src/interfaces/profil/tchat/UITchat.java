@@ -7,7 +7,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.logging.SimpleFormatter;
 
 import javax.swing.Box;
 import javax.swing.BoxLayout;
@@ -23,7 +22,6 @@ import javax.swing.text.BadLocationException;
 import javax.swing.text.SimpleAttributeSet;
 import javax.swing.text.StyleConstants;
 import javax.swing.text.StyleContext;
-import javax.swing.text.StyledDocument;
 
 public class UITchat extends JPanel implements ITchat, ITchatDelegate,ActionListener{
 
@@ -86,7 +84,6 @@ public class UITchat extends JPanel implements ITchat, ITchatDelegate,ActionList
 	
 	@Override
 	public void sendMessage(String message) {
-		message=message.replaceAll("\n", "\\\\n");
 		
 		if(delegate!=null)
 			delegate.sendMessage(message);
@@ -96,7 +93,6 @@ public class UITchat extends JPanel implements ITchat, ITchatDelegate,ActionList
 	
 	@Override
 	public void receiveMessage(String message, String from) {
-		message=message.replaceAll("\\\\n", "\n");
 		
 		Color color=color_autres;
 		if(from.equals(getName())){
