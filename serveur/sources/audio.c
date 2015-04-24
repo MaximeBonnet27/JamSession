@@ -1,13 +1,19 @@
 #include "audio.h"
 
-int add_queue(t_buffer_queue * queue, t_audio_buffer buffer){
-	int good=0;
+int add_queue(t_buffer_queue * queue, t_audio_buffer* buffer){
 	int i=0;
 
-	while(!good && i < QUEUE_SIZE){
-		if(queue->next_tick_to_send > queue->tab[i].tick){
+	while(i < QUEUE_MAX_SIZE){
+		if(queue->tab[i]==NULL){
 			queue->tab[i]=buffer;
-			good=1;
+			printf("insert at %d\n",i);
+			return 0;
+		}
+
+		if(queue->next_tick_to_send > queue->tab[i]->tick){
+			destroy_audio_buffer(queue->tab[i]);
+			queue->tab[i]=buffer;
+			printf("insert at %d\n",i);
 			return 0;
 		}
 		else
@@ -16,69 +22,106 @@ int add_queue(t_buffer_queue * queue, t_audio_buffer buffer){
 	return -1;
 }
 
-int pop(t_buffer_queue* queue, t_audio_buffer * res){
+void destroy_audio_buffer(t_audio_buffer* buffer){
+	free(buffer->buffer);
+	free(buffer);
+}
+
+t_audio_buffer* pop(t_buffer_queue* queue){
 	int found=0;
 	int i=0;
-	while(!found && i<QUEUE_SIZE){
-		printf("%d\n", i);
-		if(queue->tab[i].tick == queue->next_tick_to_send){
-			printf("dans if \n");
+	t_audio_buffer* res=NULL;
+
+	while(!found && i<QUEUE_MAX_SIZE){
+		if(queue->tab[i]->tick == queue->next_tick_to_send){
 			found = 1;
 			queue->next_tick_to_send++;
 		}
 		else
 			i++;
 	}
+
 	if(found){
-		printf("Avant \n");
-		res->tick = queue->tab[i].tick;
-		int j;
-		for(j = 0; j < AUDIO_BUFFER_SIZE; j++){
-		res->buffer[i] = queue->tab[i].buffer[i];	
-		}
+		//res->tick = queue->tab[i]->tick;
 		
-		printf("Apres \n");
-		return 1;
+		/*for(j = 0; j < AUDIO_BUFFER_SIZE; j++){
+			res->buffer[i] = queue->tab[i]->buffer[i];	
+			printf("%d/",queue->tab[i]->buffer[i]);
+		}*/
+		
+		res=queue->tab[i];
+		queue->tab[i]=NULL;
+		printf("find at %d\n",i);
 	}
 	
-	return 0;
+	return res;
 }
 
 void init_queue(t_buffer_queue * queue){
 	int i;
-	for (i = 0; i < QUEUE_SIZE; ++i)
+	for (i = 0; i < QUEUE_MAX_SIZE; ++i)
 	{
-		queue->tab[i].tick=-1;
+		queue->tab[i]=NULL;
+		//queue->tab[i].tick=-1;
 	}
-	queue->next_tick_to_send = 0;
+	//queue->next_tick_to_send = 0;
 
 }
 
-void create_audio_buffer(char * tick, char * buffer, t_audio_buffer * res){
+t_audio_buffer* create_audio_buffer(char* tick, char* buffer){
+	t_audio_buffer* res=malloc(sizeof(t_audio_buffer));
+	res->buffer=malloc(sizeof(int)*AUDIO_BUFFER_MAX_SIZE);
 	res->tick=atoi(tick);
-	printf("conver\n");
-	convertStringToAudio(buffer, &(res->buffer));
+
+	printf(">create_audio_buffer call convertStringToAudio\n");
+	convertStringToAudio(buffer, res);
+	printf("%d<create_audio_buffer call convertStringToAudio\n",res->size);
+
+	return res;
 }
 
-void convertStringToAudio(char* str, int res[][AUDIO_BUFFER_SIZE]){
+void convertStringToAudio(char* str, t_audio_buffer* buffer){
 	int i;
 	printf("in\n");
-	for(i = 0; i < AUDIO_BUFFER_SIZE; ++i){
-		if(strcmp("", str) == 0){
+	str[strlen(str)-1]='\0'; //enleve le '/' a la fin
+	//if(str[strlen(str)-1]==',')
+	//	str[strlen(str)-1]='\0';
+	printf("[%lu]\n", strlen(str));
+	int val;
+	char* val_str;
+
+	for(i = 0; i < AUDIO_BUFFER_MAX_SIZE && str!=NULL && strcmp("",str)!=0; ++i){
+		/*if(strcmp("", str) == 0){
 			printf("Pas assez grand !\n");
 			return;
-		}
-		(*res)[i] = atoi(strtok(str, ","));
+		}*/
+		val_str=strtok_r(str, ",",&str);
+		val=atoi(val_str);
+		//printf("%s",val_str);
+		//printf("[str(%s) val(%d)]",val_str,val );
+		//printf("size(%d),i(%d),val(%d)\n",size,i,val);
+		//(*res)[i] = atoi(strtok(str, ","));
+		
+		buffer->buffer[i]=val;
+		//printf("%d", (*res)[i]);
+
 	}
-	if(strcmp("", str) != 0){
-		printf("Trop grand !\n");
-	}
+	buffer->size=i;
+	//if(strlen(str)>1){
+	//if(strcmp("", str) != 0){
+	//	printf("Trop grand ! [%lu->%s]\n",strlen(str),str);
+	//}
+
+	/*printf("affiche res\n");
+	for(int i=0;i<AUDIO_BUFFER_SIZE;i++){
+		printf("%d",res[0][i]);
+	}*/
 }
 
-void convertAudioToString(int audio_code[], char ** res){
+void convertAudioToString(t_audio_buffer* buffer, char ** res){
 
-	int *data=audio_code;
-	int data_length= AUDIO_BUFFER_SIZE;
+	int *data=buffer->buffer;
+	int data_length= buffer->size;
 
 	*res ="";
 	int output_length=0;
