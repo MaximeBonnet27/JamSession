@@ -215,6 +215,7 @@ public enum Commande {
 	}
 
 	public static String[] argumentsFromCommande(String commande){
+		System.out.println(commande);
 		ArrayList<String> res=new ArrayList<String>();
 		String[] split=new String[0];
 		
@@ -242,7 +243,9 @@ public enum Commande {
 		for(int i=0;i<split.length;i++)
 			System.out.print(split[i]);
 		System.out.println("\n**");
-		return Arrays.copyOfRange(split, 1, split.length);
+		if(split.length>1)
+			return Arrays.copyOfRange(split, 1, split.length);
+		return new String[0];
 	}
 
 }

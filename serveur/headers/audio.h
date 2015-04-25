@@ -6,24 +6,27 @@
 #include <string.h>
 
 
-#define AUDIO_BUFFER_SIZE 44100
-#define QUEUE_SIZE 10
+#define AUDIO_BUFFER_MAX_SIZE 44100
+#define QUEUE_MAX_SIZE 10
+
 typedef struct
 {
-	int buffer[AUDIO_BUFFER_SIZE];
+	int* buffer;
+	int size;
 	int tick;
 } t_audio_buffer;
 
 typedef struct
 {
-	t_audio_buffer tab[QUEUE_SIZE];
+	t_audio_buffer* tab[QUEUE_MAX_SIZE];
 	int next_tick_to_send;
 } t_buffer_queue;
 
-void create_audio_buffer(char * tick, char * buffer, t_audio_buffer * res);
-int add_queue(t_buffer_queue * queue, t_audio_buffer buffer);
-int pop(t_buffer_queue* queue, t_audio_buffer * res);
-void init_queue(t_buffer_queue * queue);
-void convertStringToAudio(char* str, int res[][AUDIO_BUFFER_SIZE]);
-void convertAudioToString(int audio_code[], char ** res);
+t_audio_buffer* create_audio_buffer(char* tick, char* buffer);
+void destroy_audio_buffer(t_audio_buffer* buffer);
+int add_queue(t_buffer_queue* queue, t_audio_buffer* buffer);
+t_audio_buffer* pop(t_buffer_queue* queue);
+void init_queue(t_buffer_queue* queue);
+void convertStringToAudio(char* str, t_audio_buffer* buffer);
+void convertAudioToString(t_audio_buffer* buffer, char** res);
 #endif

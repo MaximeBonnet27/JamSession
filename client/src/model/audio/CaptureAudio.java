@@ -60,7 +60,7 @@ public class CaptureAudio extends Thread{
 
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		int frameSizeInBytes = format.getFrameSize();
-		int bufferLengthInFrames = line.getBufferSize() / 8;
+		int bufferLengthInFrames = line.getBufferSize() / 32;//16;//8;
 		int bufferLengthInBytes = bufferLengthInFrames * frameSizeInBytes;
 		byte[] data = new byte[bufferLengthInBytes];
 		int numBytesRead;
@@ -75,7 +75,7 @@ public class CaptureAudio extends Thread{
 		line = null;
 		String bufferString = Arrays.toString(data).substring(1, data.length - 1);
 		client.sendRecording(0,bufferString);
-		
+		System.out.println("bufferString.length():"+bufferString.length()+"\n**"+bufferString);
 		// stop and close the output stream
 		try {
 			out.flush();

@@ -1,5 +1,7 @@
 #include "commandes.h"
 #include "audio.h"
+#include <string.h>
+
 /**
  * Initialisation du tableau des commandes.
  * On associe à chaque commande son type et sa fonction de handler.
@@ -178,67 +180,67 @@
  /**
  * Traitement d'une commande venant du client
  */
-void handle(char* message,int socket){
-	char* args;
-	logf("CLIENT -> %s\n", message);
+ void handle(char* message,int socket){
+ 	char* args;
+ 	logf("CLIENT -> %s\n", message);
 	// On recupere les arguments de la commande
-	char* commande_name=strtok_r(message,"/",&args);
+ 	char* commande_name=strtok_r(message,"/",&args);
 	// On recupere la t_commande correspondant a la commande recue
-	t_commande commande=string_to_commande(commande_name);
+ 	t_commande commande=string_to_commande(commande_name);
 	// Et on appelle la fonction correspondant a cette commande
 	// avec les arguments
-	commande.handler(args,socket);
-}
+ 	commande.handler(args,socket);
+ }
 
 /*
  * Thread de traitement d'un client, boucle en attente de commandes. 
  */
-void * thread_handle_commandes(void * args){
+ void * thread_handle_commandes(void * args){
 	// Recupere la socket passee en argument.
-	int *ptr_socket = (int *) args;
-	int socket = *ptr_socket;
-	char commande[COMMAND_MAX_SIZE];
-	while(1){
+ 	int *ptr_socket = (int *) args;
+ 	int socket = *ptr_socket;
+ 	char commande[COMMAND_MAX_SIZE];
+ 	while(1){
 		// Reset de la commande
-		memset(commande, 0, COMMAND_MAX_SIZE);
+ 		memset(commande, 0, COMMAND_MAX_SIZE);
 		// On recoit la commande.
-		if(recv(socket, commande, sizeof(commande), 0) <= 0){
-			log("(Ctrl) Socket client fermée");
-			check_client_deconnectes();
-			pthread_exit((void *)0);
-		}
+ 		if(recv(socket, commande, sizeof(commande), 0) <= 0){
+ 			log("(Ctrl) Socket client fermée");
+ 			check_client_deconnectes();
+ 			pthread_exit((void *)0);
+ 		}
 
 		// Traitement de la commande recue
-		handle(commande,socket);
-	}
+ 		handle(commande,socket);
+ 	}
 	// Normalement, ne devrait pas arriver.
-	pthread_exit((void *)0);
-}
+ 	pthread_exit((void *)0);
+ }
 
-void * thread_handle_commandes_audio(void * args){
+ void * thread_handle_commandes_audio(void * args){
 	// Recupere la socket passee en argument.
-	int *ptr_socket = (int *) args;
-	int socket_audio = *ptr_socket;
-	free(args);
-	logf("handle audio %d\n", socket_audio);
-	char commande[AUDIO_BUFFER_SIZE + COMMAND_MAX_SIZE];
-	while(1){
+ 	int *ptr_socket = (int *) args;
+ 	int socket_audio = *ptr_socket;
+ 	free(args);
+ 	logf("handle audio %d\n", socket_audio);
+ 	char commande[AUDIO_BUFFER_MAX_SIZE + COMMAND_MAX_SIZE];
+ 	while(1){
 		// Reset de la commande
-		memset(commande, 0, COMMAND_MAX_SIZE);
+ 		memset(commande, 0, COMMAND_MAX_SIZE);
 		// On recoit la commande.
-		if(recv(socket_audio, commande, sizeof(commande), 0) <= 0){
-			log("(Audio) Socket client fermée");
+ 		if(recv(socket_audio, commande, sizeof(commande), 0) <= 0){
+ 			log("(Audio) Socket client fermée");
 			//check_client_deconnectes();
 			// send audio KO
-			pthread_exit((void *)0);
-		}
+ 			pthread_exit((void *)0);
+ 		}
 
 		// Traitement de la commande recue
-		handle(commande,socket_audio);
-	}
+ 		handle(commande,socket_audio);
+ 	}
 	// Normalement, ne devrait pas arriver.
-	pthread_exit((void *)0);
-}
+ 	pthread_exit((void *)0);
+ }
 
 
 /**
@@ -329,7 +331,7 @@ void * thread_handle_commandes_audio(void * args){
 	// Si on n'a pas d'argument, c'est la confirmation de 
 	// la réception d'un buffer audio.
  	if(args == NULL){
-		if(send(socket, audio_ok_cmd, strlen(audio_ok_cmd) + 1, 0) == -1){
+ 		if(send(socket, audio_ok_cmd, strlen(audio_ok_cmd) + 1, 0) == -1){
  			perror("Send audio ok");
  		}
  		logf("<- %s", audio_ok_cmd); 
@@ -348,13 +350,13 @@ void * thread_handle_commandes_audio(void * args){
  			perror("Accept nouvelle connexion audio");
  			return;
  		}
-	
+
 	// La connexion s'est bien passee, on peut effectivement associer
 	// la socket audio au client.
  		pthread_mutex_lock(&serveur.mutex);
  		serveur.clients[get_indice_client(args)]->socket_audio = *socket_accept;	
  		pthread_mutex_unlock(&serveur.mutex);
-	
+
 	// Envoi de la confirmation
  		if(send(serveur.clients[get_indice_client(args)]->socket, audio_ok_cmd, strlen(audio_ok_cmd) + 1, 0) == -1){
  			perror("Send audio ok");
@@ -367,10 +369,10 @@ void * thread_handle_commandes_audio(void * args){
  		logf("socket dans client %d\n", serveur.clients[get_indice_client(args)]->socket_audio);
 
  		pthread_t handle_commandes_audio_thread;
-		if((pthread_create(&handle_commandes_audio_thread, NULL, thread_handle_commandes_audio, socket_accept)) != 0){
-			perror("Création du thread d'accueil");
-			exit(-1);
-		}
+ 		if((pthread_create(&handle_commandes_audio_thread, NULL, thread_handle_commandes_audio, socket_accept)) != 0){
+ 			perror("Création du thread d'accueil");
+ 			exit(-1);
+ 		}
 	// Le handler de CONNECTED est ensuite appele par la handler de CONNECT
  	}
  }
@@ -568,17 +570,29 @@ void * thread_handle_commandes_audio(void * args){
  void handler_AUDIO_CHUNK(char * args,int socket){
 
  	int socket_ctrl = serveur.clients[get_indice_from_socket_audio(socket)]->socket;
- 	log("Appel de OK");
+ 	//log("Appel de OK");
  	char * buffer;
  	char * tick = strtok_r(args, "/", &buffer);
- 	t_audio_buffer res;
- 	log("create");
- 	create_audio_buffer(tick, buffer, &res);
- 	log("add");
+ 	t_audio_buffer* res;
+
+ 	log(">create");
+ 	res=create_audio_buffer(tick, buffer);
+ 	log("<create");
+
+ 	log("buffer creer:");
+ 	int i;
+	for(i=0;i<res->size;i++)
+		logf("%d/",res->buffer[i]);
+
+ 	log("\n>add");
  	add_queue(&(serveur.clients[get_indice_from_socket_audio(socket)]->queue), res);
+ 	log("<add");
+
  	handler_AUDIO_OK(NULL,socket_ctrl);
- 	log("mix");
+ 	
+ 	log(">mix");
  	handler_AUDIO_MIX(NULL, socket);
+ 	log("<mix");
 
  }
  void handler_AUDIO_KO(char * args,int socket){}
@@ -587,38 +601,54 @@ void * thread_handle_commandes_audio(void * args){
   * args : NULL
   * socket : audio
   */
- void handler_AUDIO_MIX(char * args,int socket){
- 	printf("qsd\n");
- 	int indice = get_indice_from_socket_audio(socket);
- 	printf("%d\n", indice);
- 	t_client* c=serveur.clients[indice];
- 	printf("qsd2\n");
- 	t_audio_buffer buffer;
- 	printf("pop\n");
- 	int v = pop(&(c->queue), &buffer);
- 	if(!v){
- 		log("Bug audio Mix")
- 	}
- 	else {
- 		char audio_mix_cmd[AUDIO_BUFFER_SIZE + COMMAND_MAX_SIZE];
- 		char * res;
- 		printf("convert\n");
- 		convertAudioToString(buffer.buffer, &res);
- 		printf("convert end\n");
- 		sprintf(audio_mix_cmd, "AUDIO_MIX/%s/\n", res);
- 		 if(send(socket, audio_mix_cmd, strlen(audio_mix_cmd) + 1, 0) == -1){
- 		perror("Send audio mix");
- 	}
- 	logf("<- %s", audio_mix_cmd);
+  void handler_AUDIO_MIX(char * args,int socket){
+  	int indice = get_indice_from_socket_audio(socket);
+  	t_client* c=serveur.clients[indice];
+  	t_audio_buffer* buffer;
 
- 	}
- }
+  	log(">pop");
+  	buffer= pop(&(c->queue));
+  	logf("size(%d)",buffer->size);
+  	log("<pop");
+	/*int i;
+
+  	for(i=0;i<AUDIO_BUFFER_MAX_SIZE;i++)
+  		printf("%d",buffer.buffer[i]);*/
+  	if(buffer==NULL){
+  		log("Bug audio Mix")
+  	
+  	}else {
+  		char audio_mix_cmd[AUDIO_BUFFER_MAX_SIZE + COMMAND_MAX_SIZE];
+  		char* res=malloc(sizeof(char)*AUDIO_BUFFER_MAX_SIZE);
+  		strcpy(res,"");
+
+ 		log(">convertAudioToString");
+ 		log("buffer a convertir en string ('/'->','):");
+ 		int i;
+		for(i=0;i<buffer->size;i++)
+			logf("%d/",buffer->buffer[i]);
+
+  		convertAudioToString(buffer, &res);
+
+  		logf("\nconvertion: %s",res);
+ 		log("\n<convertAudioToString");
+
+  		sprintf(audio_mix_cmd, "AUDIO_MIX/%s/\n", res);
+  		free(res);
+  		if(send(socket, audio_mix_cmd, strlen(audio_mix_cmd) + 1, 0) == -1){
+  			perror("Send audio mix");
+  		}
+  		logf("<- %s", audio_mix_cmd);
+  	}
+
+  	destroy_audio_buffer(buffer);
+  }
  /*
   * Reception de AUDIO_ACK
   * args : 
   * socket : ctrl
   */
- void handler_AUDIO_ACK(char * args,int socket){}
+  void handler_AUDIO_ACK(char * args,int socket){}
 /*
  * Reception de TALK
  * args : texte/
@@ -685,7 +715,7 @@ void * thread_handle_commandes_audio(void * args){
 	// Ecriture  de la commande
  	char access_denied_cmd[COMMAND_MAX_SIZE];
  	sprintf(access_denied_cmd,"ACCESS_DENIED/%s/\n", args);
- 	log("Avant send access denied");
+ 	//log("Avant send access denied");
  	if(send(socket, access_denied_cmd, strlen(access_denied_cmd) + 1, 0) == -1){
  		perror("Send Access Denied");
  	}

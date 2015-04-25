@@ -246,7 +246,7 @@ int compte_existe(char * nom, char * mdp){
 	while(getline(&buffer_ligne, &len, serveur.file_comptes) != -1){	
 
 		strtok(buffer_ligne, " ");
-		logf("(%s)\n", buffer_ligne);
+		//logf("(%s)\n", buffer_ligne);
 
 		if(strcmp(buffer_ligne, nom) == 0){
 			free(buffer_ligne);
@@ -284,12 +284,12 @@ int check_authentification(char * nom, char * mdp){
 	// On se remet au debut du fichier
 	fseek(serveur.file_comptes, 0, SEEK_SET);
 	size_t len = 0;
-	log2f("Check = (%s) (%s)\n", nom, mdp);
+	//log2f("Check = (%s) (%s)\n", nom, mdp);
 	while(getline(&buffer_ligne, &len, serveur.file_comptes) != -1){	
 		char * mdp_ligne;
 
 		char * nom_ligne = strtok_r(buffer_ligne, " ", &mdp_ligne);
-		log2f("LIGNE = (%s) (%s)\n", nom_ligne, mdp_ligne);
+		//log2f("LIGNE = (%s) (%s)\n", nom_ligne, mdp_ligne);
 		if(strcmp(nom_ligne, nom) == 0 && strcmp(strtok(mdp_ligne,"\n"), mdp) == 0){
 			pthread_mutex_unlock(&serveur.mutex_db);
 			return 1;
