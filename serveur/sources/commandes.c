@@ -1,5 +1,7 @@
 #include "commandes.h"
 #include "audio.h"
+#include <string.h>
+
 /**
  * Initialisation du tableau des commandes.
  * On associe à chaque commande son type et sa fonction de handler.
@@ -617,7 +619,8 @@
   	
   	}else {
   		char audio_mix_cmd[AUDIO_BUFFER_MAX_SIZE + COMMAND_MAX_SIZE];
-  		char * res;
+  		char* res=malloc(sizeof(char)*AUDIO_BUFFER_MAX_SIZE);
+  		strcpy(res,"");
 
  		log(">convertAudioToString");
  		log("buffer a convertir en string ('/'->','):");
@@ -631,6 +634,7 @@
  		log("\n<convertAudioToString");
 
   		sprintf(audio_mix_cmd, "AUDIO_MIX/%s/\n", res);
+  		free(res);
   		if(send(socket, audio_mix_cmd, strlen(audio_mix_cmd) + 1, 0) == -1){
   			perror("Send audio mix");
   		}

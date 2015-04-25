@@ -250,7 +250,9 @@ public class Client extends Observable{
 	public String receiveAudio(){
 		String val = null;
 		try{
+			System.out.println("attente audio");
 			val = inputAudio.readLine();
+			System.out.println("receive audio");
 			System.out.println("CANAL AUDIO : <- " + val);
 		}
 		catch(IOException e){

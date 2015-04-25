@@ -1,4 +1,5 @@
 #include "audio.h"
+#include <string.h>
 
 int add_queue(t_buffer_queue * queue, t_audio_buffer* buffer){
 	int i=0;
@@ -119,7 +120,18 @@ void convertStringToAudio(char* str, t_audio_buffer* buffer){
 }
 
 void convertAudioToString(t_audio_buffer* buffer, char ** res){
+	char val[10];
+	//char res[AUDIO_BUFFER_MAX_SIZE];
+	strcpy(*res,"");
+	int i;
+	for (i = 0; i < buffer->size; ++i){
+		sprintf(val,"%d,",buffer->buffer[i]);
+		//printf("%s\n", val);
+		strcat(*res,val);
+	}
+	printf("%s\n", *res);
 
+/*
 	int *data=buffer->buffer;
 	int data_length= buffer->size;
 
@@ -134,5 +146,5 @@ void convertAudioToString(t_audio_buffer* buffer, char ** res){
 		*res += length;
 		output_length -= length;
 	}
-
+*/
 }
