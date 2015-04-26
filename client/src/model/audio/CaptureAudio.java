@@ -71,7 +71,7 @@ public class CaptureAudio extends Thread{
         out.write(data, 0, numBytesRead);
         String bufferString = Arrays.toString(data).substring(1, data.length - 1);
         client.sendRecording((tick++) % 4,bufferString);
-        System.out.println("bufferString.length():"+bufferString.length()+"\n**"+bufferString);
+        //System.out.println("bufferString.length():"+bufferString.length()+"\n**"+bufferString);
       }
     }
     catch(Exception e){

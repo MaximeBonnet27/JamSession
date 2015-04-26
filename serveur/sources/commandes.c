@@ -579,11 +579,11 @@
  	res=create_audio_buffer(tick, buffer);
  	log("<create");
 
- 	log("buffer creer:");
+ 	/*log("buffer creer:");
  	int i;
 	for(i=0;i<res->size;i++)
 		logf("%d/",res->buffer[i]);
-
+	*/
  	log("\n>add");
  	add_queue(&(serveur.clients[get_indice_from_socket_audio(socket)]->queue), res);
  	log("<add");
@@ -608,8 +608,9 @@
 
   	log(">pop");
   	buffer= pop(&(c->queue));
-  	logf("size(%d)",buffer->size);
   	log("<pop");
+  	logf("size(%d)",buffer->size);
+  	
 	/*int i;
 
   	for(i=0;i<AUDIO_BUFFER_MAX_SIZE;i++)
@@ -622,7 +623,9 @@
   		char* res=malloc(sizeof(char)*AUDIO_BUFFER_MAX_SIZE);
   		strcpy(res,"");
  		int i;
+ 		log(">convertAudioToString");
   		convertAudioToString(buffer, &res);
+  		log("<convertAudioToString");
   		sprintf(audio_mix_cmd, "AUDIO_MIX/%s/\n", res);
   		free(res);
   		if(send(socket, audio_mix_cmd, strlen(audio_mix_cmd) + 1, 0) == -1){

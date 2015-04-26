@@ -36,7 +36,7 @@ public enum Commande {
 		this.nom = nom;
 	}
 
-	
+
 	public static Commande getCommande(String nom){
 		for(Commande c : Commande.values()){
 			// Black Magic ?!
@@ -50,30 +50,29 @@ public enum Commande {
 
 	public void handler(Client client,String... args){
 		switch(this){
-			case CONNECT : handlerConnect(client,args[0]); break;
-			case WELCOME : handlerWelcome(client,args[0]); break;
-			case ACK_OPTS: handlerAckOpts(client); break;
-			case AUDIO_ACK: handlerAudioAck(args, client); break;
-			case AUDIO_CHUNK: handlerAudioChunk(client, args[0], args[1]); break;
-			case AUDIO_KO: handlerAudioKo(args, client); break;
-			case AUDIO_MIX: handlerAudioMix(client, args[0]); break;
-			case AUDIO_OK: handlerAudioOk(args, client); break;
-			case AUDIO_PORT: handlerAudioPort(client, args[0]); break;
-			case CONNECTED: handlerConnected(client, args[0]); break;
-			case CURRENT_SESSION: handlerCurrentSession(args, client); break;
-			case EMPTY_SESSION: handlerEmptySession(client); break;
-			case EXIT: handlerExit(client); break;
-			case EXITED: handlerExited(client, args[0]); break;
-			case FULL_SESSION: handlerFullSession(client); break;
-			case SET_OPTIONS: handlerSetOptions(args, client); break;
-			case TALK : handlerTalk(client, args[0]); break;
-			case LISTEN : handlerListen(client, args[0], args[1]); break;
-			case REGISTER: handlerRegister(client, args[0], args[1]); break;
-			case ACCESS_DENIED: handlerAccessDenied(client, args[0]); break;
-			case LOGIN: handlerLogin(client, args[0]); break;
-			case LS : handlerLS(client); break;
-			default : System.out.println("Handler Commandes : Commande inconnue : " + this);
-
+		case CONNECT : handlerConnect(client,args[0]); break;
+		case WELCOME : handlerWelcome(client,args[0]); break;
+		case ACK_OPTS: handlerAckOpts(client); break;
+		case AUDIO_ACK: handlerAudioAck(args, client); break;
+		case AUDIO_CHUNK: handlerAudioChunk(client, args[0], args[1]); break;
+		case AUDIO_KO: handlerAudioKo(args, client); break;
+		case AUDIO_MIX: handlerAudioMix(client, args[0]); break;
+		case AUDIO_OK: handlerAudioOk(args, client); break;
+		case AUDIO_PORT: handlerAudioPort(client, args[0]); break;
+		case CONNECTED: handlerConnected(client, args[0]); break;
+		case CURRENT_SESSION: handlerCurrentSession(args, client); break;
+		case EMPTY_SESSION: handlerEmptySession(client); break;
+		case EXIT: handlerExit(client); break;
+		case EXITED: handlerExited(client, args[0]); break;
+		case FULL_SESSION: handlerFullSession(client); break;
+		case SET_OPTIONS: handlerSetOptions(args, client); break;
+		case TALK : handlerTalk(client, args[0]); break;
+		case LISTEN : handlerListen(client, args[0], args[1]); break;
+		case REGISTER: handlerRegister(client, args[0], args[1]); break;
+		case ACCESS_DENIED: handlerAccessDenied(client, args[0]); break;
+		case LOGIN: handlerLogin(client, args[0]); break;
+		case LS : handlerLS(client); break;
+		default : System.out.println("Handler Commandes : Commande inconnue : " + this);
 		}
 	}
 	/**
@@ -104,44 +103,54 @@ public enum Commande {
 		 * Rien a faire
 		 */
 	}
-	
+
 	private void handlerAudioAck(String[] args2, Client client) {
 	}
-	
+
 	private void handlerAudioChunk(Client client, String tick, String buffer) {
 		client.sendAudio(this+"/"+tick+"/"+buffer+"/");
 	}
-	
+
 	private void handlerAudioKo(String[] args2, Client client) {
 	}
-	
+
 	private void handlerAudioMix(Client client, String buffer) {
-	  client.playSoundFromBuffer(buffer);
+		client.playSoundFromBuffer(buffer);
 	}
-	
+
 	private void handlerAudioOk(String[] args2, Client client) {
+		if(client.isConnected()){
+			if(!client.isRecording())
+				client.captureAudio();
+			else{
+				//synchronized (this) {
+					client.setCurrent_window_audio(client.getCurrent_window_audio()-1);
+					//notifyAll();
+				//}
+			}
+		}
 	}
-	
+
 	/**
 	 * Reception de AUDIO_PORT
 	 */
 	private void handlerAudioPort(Client client, String port) {
 		client.setSocketAudio(Integer.parseInt(port));
 	}
-	
+
 	/**
 	 * Reception de CONNECTED 
 	 */
 	private void handlerConnected(Client client, String nomUser) {
-	  client.addContact(nomUser);
+		client.addContact(nomUser);
 	}
-	
+
 	private void handlerCurrentSession(String[] args2, Client client) {
-	  if(!client.isPlaying()){
-	    client.lectureAudio();
-	  }
+		if(!client.isPlaying()){
+			client.lectureAudio();
+		}
 	}
-	
+
 	/**
 	 * Reception de EMPTY_SESSION
 	 */
@@ -150,11 +159,11 @@ public enum Commande {
 		SET_OPTIONS.handler(client, options);
 		//TODO
 		// temporaire !
-	   if(!client.isPlaying()){
-       client.lectureAudio();
-     }
+		if(!client.isPlaying()){
+			client.lectureAudio();
+		}
 	}
-	
+
 	/**
 	 * Envoi de EXIT 
 	 */
@@ -163,39 +172,39 @@ public enum Commande {
 		client.setConnected(false);
 		client.cleanUp();
 	}
-	
+
 	/**
 	 * Reception de EXITED 
 	 */
 	private void handlerExited(Client client, String nomUser) {
-	  client.removeContact(nomUser);
+		client.removeContact(nomUser);
 	}
-	
+
 	/**
 	 * Reception de FULL_SESSION
 	 */
 	private void handlerFullSession(Client client) {
 		EXIT.handler(client, (String[]) null);
 	}
-	
+
 	/**
 	 * Envoi de SET_OPTIONS
 	 */
 	private void handlerSetOptions(String[] options, Client client) {
 		client.send(this+"/"+options[0]+"/"+options[1]+"/");
 	}
-	
+
 	private void handlerLS(Client client){
 		client.send(this+"/");
 	}
-	
+
 	/**
 	 * Envoi de TALK
 	 */
 	private void handlerTalk(Client client, String texte){
 		client.send(this+"/"+texte+"/");
 	}
-	
+
 	/**
 	 * Reception de LISTEN
 	 */
@@ -209,38 +218,38 @@ public enum Commande {
 	private void handlerRegister(Client client,String name,String password){
 		client.send(this+"/"+name+"/"+password+"/");
 	}
-	
+
 	private void handlerAccessDenied(Client client, String message){
 		client.setErrorMessage(message);
 		client.setConnected(false);
 		client.cleanUp();
 	}
-	
+
 	private void handlerLogin(Client client, String password){
 		client.send(this + "/" + client.getNom() + "/" + password + "/");
 	}
-	
+
 	public static String commandeNameFromCommandeReceived(String commande){
 		String [] res = commande.split("/");
 		return res[0];
 	}
 
 	public static String[] argumentsFromCommande(String commande){
-		System.out.println(commande);
+		//System.out.println(commande);
 		ArrayList<String> res=new ArrayList<String>();
 		String[] split=new String[0];
-		
+
 		while(commande.contains("/")){
 			split=commande.split("/", 2);
 			commande=split[1];
 			res.add(split[0]);
 		}
-		
+
 		//res.add(commande);
 		//System.out.println(res);
 		for(int i=0;i<res.size()-1;i++){
 			StringBuilder mot=new StringBuilder(res.get(i));
-			
+
 			if(mot.toString().endsWith("\\")){
 				mot.replace(mot.length()-1, mot.length(), "/");
 				res.add(i,mot.toString().concat(res.get(i+1)));
@@ -249,11 +258,11 @@ public enum Commande {
 				i--;
 			}
 		}
-		System.out.println("**"+res+"**");
+		//System.out.println("**"+res+"**");
 		split=res.toArray(split);
-		for(int i=0;i<split.length;i++)
-			System.out.print(split[i]);
-		System.out.println("\n**");
+		//for(int i=0;i<split.length;i++)
+		//System.out.print(split[i]);
+		//System.out.println("\n**");
 		if(split.length>1)
 			return Arrays.copyOfRange(split, 1, split.length);
 		return new String[0];

@@ -34,6 +34,7 @@ t_audio_buffer* pop(t_buffer_queue* queue){
 	t_audio_buffer* res=NULL;
 
 	while(!found && i<QUEUE_MAX_SIZE){
+		printf("cherche a lindice %d\n",i);
 		if(queue->tab[i]->tick == queue->next_tick_to_send){
 			found = 1;
 			queue->next_tick_to_send = (queue->next_tick_to_send + 1) % 4;
@@ -49,10 +50,13 @@ t_audio_buffer* pop(t_buffer_queue* queue){
 			res->buffer[i] = queue->tab[i]->buffer[i];	
 			printf("%d/",queue->tab[i]->buffer[i]);
 		}*/
-		
-		res=queue->tab[i];
-		queue->tab[i]=NULL;
 		printf("find at %d\n",i);
+		res=queue->tab[i];
+		printf("recuperer\n");
+		queue->tab[i]=NULL;
+		if(res==NULL)
+			printf("res==null\n");
+		
 	}
 	
 	return res;
@@ -83,11 +87,11 @@ t_audio_buffer* create_audio_buffer(char* tick, char* buffer){
 
 void convertStringToAudio(char* str, t_audio_buffer* buffer){
 	int i;
-	printf("in\n");
+	//printf("in\n");
 	str[strlen(str)-1]='\0'; //enleve le '/' a la fin
 	//if(str[strlen(str)-1]==',')
 	//	str[strlen(str)-1]='\0';
-	printf("[%lu]\n", strlen(str));
+	//printf("[%lu]\n", strlen(str));
 	int val;
 	char* val_str;
 
@@ -129,7 +133,7 @@ void convertAudioToString(t_audio_buffer* buffer, char ** res){
 		//printf("%s\n", val);
 		strcat(*res,val);
 	}
-	printf("%s\n", *res);
+	//printf("%s\n", *res);
 
 /*
 	int *data=buffer->buffer;
