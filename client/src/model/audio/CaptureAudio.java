@@ -64,16 +64,28 @@ public class CaptureAudio extends Thread{
     int numBytesRead;
 
     line.start();
+    int tick = 0;
+    try{
+      while(client.isRecording()){
+        numBytesRead = line.read(data, 0, bufferLengthInBytes);
+        out.write(data, 0, numBytesRead);
+        String bufferString = Arrays.toString(data).substring(1, data.length - 1);
+        client.sendRecording((tick++) % 4,bufferString);
+        System.out.println("bufferString.length():"+bufferString.length()+"\n**"+bufferString);
+      }
+    }
+    catch(Exception e){
+      if(client.isRecording()){
+        e.printStackTrace();
+        client.cleanUp();
+      }
+    }
 
-    numBytesRead = line.read(data, 0, bufferLengthInBytes);
-    out.write(data, 0, numBytesRead);
 
     line.stop();
     line.close();
     line = null;
-    String bufferString = Arrays.toString(data).substring(1, data.length - 1);
-    client.sendRecording(0,bufferString);
-    System.out.println("bufferString.length():"+bufferString.length()+"\n**"+bufferString);
+
     // stop and close the output stream
     try {
       out.flush();

@@ -36,7 +36,7 @@ t_audio_buffer* pop(t_buffer_queue* queue){
 	while(!found && i<QUEUE_MAX_SIZE){
 		if(queue->tab[i]->tick == queue->next_tick_to_send){
 			found = 1;
-			queue->next_tick_to_send++;
+			queue->next_tick_to_send = (queue->next_tick_to_send + 1) % 4;
 		}
 		else
 			i++;

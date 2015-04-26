@@ -40,12 +40,10 @@ public class LectureAudio extends Thread {
       if(client.isRunning()){
         e.printStackTrace();
         client.cleanUp();
-        client.setConnected(false);
       }
     }
     //client.exit();
     client.cleanUp();
-    client.setConnected(false);
 
   }
 

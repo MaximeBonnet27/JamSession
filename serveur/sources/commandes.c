@@ -621,18 +621,8 @@
   		char audio_mix_cmd[AUDIO_BUFFER_MAX_SIZE + COMMAND_MAX_SIZE];
   		char* res=malloc(sizeof(char)*AUDIO_BUFFER_MAX_SIZE);
   		strcpy(res,"");
-
- 		log(">convertAudioToString");
- 		log("buffer a convertir en string ('/'->','):");
  		int i;
-		for(i=0;i<buffer->size;i++)
-			logf("%d/",buffer->buffer[i]);
-
   		convertAudioToString(buffer, &res);
-
-  		logf("\nconvertion: %s",res);
- 		log("\n<convertAudioToString");
-
   		sprintf(audio_mix_cmd, "AUDIO_MIX/%s/\n", res);
   		free(res);
   		if(send(socket, audio_mix_cmd, strlen(audio_mix_cmd) + 1, 0) == -1){

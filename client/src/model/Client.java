@@ -220,7 +220,6 @@ public class Client extends Observable{
       setErrorMessage("connexion perdu");
       controller.connexion_perdu();
     }
-
   }
 
   public void send(String commande){
@@ -264,7 +263,6 @@ public class Client extends Observable{
       System.out.println("CANAL AUDIO : <- " + val);
     }
     catch(IOException e){
-      e.printStackTrace();
     }
     return val;
   }
@@ -371,6 +369,10 @@ public class Client extends Observable{
 
   public void playSoundFromBuffer(String buffer) {
     lectureAudio.playSoundFromBuffer(buffer);
+  }
+
+  public boolean isRecording() {
+    return recording;
   }
 
 }
