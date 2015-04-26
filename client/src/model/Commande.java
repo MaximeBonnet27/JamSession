@@ -4,6 +4,8 @@ package model;
 import java.util.ArrayList;
 import java.util.Arrays;
 
+import model.audio.LectureAudio;
+
 public enum Commande {
 	UNKNOWN("UNKNOWN"),
 	CONNECT("CONNECT"),
@@ -54,7 +56,7 @@ public enum Commande {
 			case AUDIO_ACK: handlerAudioAck(args, client); break;
 			case AUDIO_CHUNK: handlerAudioChunk(client, args[0], args[1]); break;
 			case AUDIO_KO: handlerAudioKo(args, client); break;
-			case AUDIO_MIX: handlerAudioMix(args, client); break;
+			case AUDIO_MIX: handlerAudioMix(client, args[0]); break;
 			case AUDIO_OK: handlerAudioOk(args, client); break;
 			case AUDIO_PORT: handlerAudioPort(client, args[0]); break;
 			case CONNECTED: handlerConnected(client, args[0]); break;
@@ -113,7 +115,8 @@ public enum Commande {
 	private void handlerAudioKo(String[] args2, Client client) {
 	}
 	
-	private void handlerAudioMix(String[] args2, Client client) {
+	private void handlerAudioMix(Client client, String buffer) {
+	  client.playSoundFromBuffer(buffer);
 	}
 	
 	private void handlerAudioOk(String[] args2, Client client) {
@@ -134,6 +137,9 @@ public enum Commande {
 	}
 	
 	private void handlerCurrentSession(String[] args2, Client client) {
+	  if(!client.isPlaying()){
+	    client.lectureAudio();
+	  }
 	}
 	
 	/**
@@ -142,6 +148,11 @@ public enum Commande {
 	private void handlerEmptySession(Client client) {
 		String [] options = client.getOptionsSouhaitees();
 		SET_OPTIONS.handler(client, options);
+		//TODO
+		// temporaire !
+	   if(!client.isPlaying()){
+       client.lectureAudio();
+     }
 	}
 	
 	/**
