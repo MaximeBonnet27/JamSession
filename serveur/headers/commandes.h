@@ -43,18 +43,13 @@ t_commande tab_commandes[NBCOMMANDES];
 /* HANDLERS */
 // Handler de commandes
 void handle(char* commande,int socket);
-// Fonction d'accueil des clients
+
+// boucle des commandes de CTRL des clients
 void * thread_handle_commandes(void * args);
-
-/* MIX */
-void * envoi_mixs(void * args);
-
-/* INIT */
-
-void init_commandes();
+// boucle des commandes AUDIO des clients
+void * thread_handle_commandes_audio(void * args);
 
 /* PARSE */
-
 t_commande string_to_commande(char * commande);
 char * commande_to_string(t_commande commande);
 
@@ -95,5 +90,12 @@ void handler_LS(char * args, int socket);
 /* Fonctions annexes */
 void check_client_deconnectes();
 t_audio_buffer* getMix(t_client * client);
+
+/* MIX */
+void * envoi_mixs(void * args);
+
+/* INIT */
+
+void init_commandes();
 #endif
 

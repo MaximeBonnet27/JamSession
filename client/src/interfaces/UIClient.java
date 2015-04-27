@@ -68,7 +68,6 @@ public class UIClient extends JFrame implements IClientInterface,IClientInterfac
 		this.progressbar.setSize(this.getWidth()/2,50);
 		this.setLocationRelativeTo(null);
 		
-		//this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);//send deconnexion
 		this.addWindowListener(new WindowAdapter() {
 			@Override
 			public void windowClosing(WindowEvent e) {

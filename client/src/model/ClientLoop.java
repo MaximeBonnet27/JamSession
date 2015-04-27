@@ -28,7 +28,6 @@ public class ClientLoop extends Thread {
 				client.setConnected(false);
 			}
 		}
-		//client.exit();
 		client.cleanUp();
 		client.setConnected(false);
 	}

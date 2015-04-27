@@ -44,7 +44,6 @@ public class LectureAudio extends Thread implements LineListener {
         client.cleanUp();
       }
     }
-    //client.exit();
     client.cleanUp();
 
   }
@@ -56,7 +55,6 @@ public class LectureAudio extends Thread implements LineListener {
       try{
         audio[i] = Byte.parseByte(tokens[i]);
       }catch(NumberFormatException e){
-        System.err.println("erroor format " + i);
       }
     }
     ByteArrayInputStream bais = new ByteArrayInputStream(audio);
@@ -88,7 +86,7 @@ public class LectureAudio extends Thread implements LineListener {
     int bufferLengthInBytes = bufferLengthInFrames * frameSizeInBytes;
     byte[] data = new byte[bufferLengthInBytes];
     int numBytesRead = 0;
-    System.out.println("Lecture commence");
+ 
     line.start();
     try {
       numBytesRead = playbackInputStream.read(data);
@@ -104,7 +102,6 @@ public class LectureAudio extends Thread implements LineListener {
     line.stop();
     line.close();
     line = null;
-    System.out.println("Lecture finie");
   }
 
   @Override

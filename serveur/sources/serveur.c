@@ -1,9 +1,9 @@
 #include "serveur.h"
 #include "commandes.h"
+
 /*
  * Fonction annexe pour adresse en string
  */
-
 void *get_in_addr(struct sockaddr *sa)
 {
 	if (sa->sa_family == AF_INET) {
@@ -29,6 +29,7 @@ int init_serveur(int count, char ** args){
 	serveur.nb_user=0;
 	serveur.timeout = DEFAULT_TIMEOUT;
 	serveur.port = DEFAULT_PORT;
+	
 	// On recupere les valeurs passes en arguments, si specifiees.
 	int i;
 	for(i = 0; i < count; i += 2){
@@ -143,6 +144,7 @@ void * loop(void * args){
 			perror("Accept nouvelle connexion");
 			continue;
 		}
+
 		// On lance un nouveau thread qui va s'occuper de traiter le nouveau client
 		pthread_t handle_commandes_thread;
 		if((pthread_create(&handle_commandes_thread, NULL, thread_handle_commandes, &socket_accept)) != 0){
@@ -151,7 +153,6 @@ void * loop(void * args){
 			return NULL;
 		}
 	}
-
 }
 
 

@@ -39,7 +39,6 @@ public class CaptureAudio extends Thread{
       return;
     }
 
-    // get and open the target data line for capture.
 
     try {
       line = (TargetDataLine) AudioSystem.getLine(info);
@@ -49,7 +48,6 @@ public class CaptureAudio extends Thread{
       return;
     } catch (SecurityException ex) {
       System.out.println(ex.toString());
-      //JavaSound.showInfoDialog();
       return;
     } catch (Exception ex) {
       System.out.println(ex.toString());
@@ -80,8 +78,6 @@ public class CaptureAudio extends Thread{
 				client.sendRecording(tick_s,bufferString_s);
 			}
 		}).start();
-        
-        //System.out.println("bufferString.length():"+bufferString.length()+"\n**"+bufferString);
       }
     }
     catch(Exception e){
@@ -96,7 +92,6 @@ public class CaptureAudio extends Thread{
     line.close();
     line = null;
 
-    // stop and close the output stream
     try {
       out.flush();
       out.close();
@@ -105,7 +100,4 @@ public class CaptureAudio extends Thread{
     }
 
   }
-
-
-
 }

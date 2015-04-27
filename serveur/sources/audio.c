@@ -2,24 +2,38 @@
 #include "serveur_type.h"
 #include <string.h>
 
+/**
+ * ajout a sa place dans la 'queue' le buffer audio
+ */
 int add_queue(t_buffer_queue * queue, t_audio_buffer* buffer){
+	if(queue->tab[buffer->tick]!=NULL){
+		destroy_audio_buffer(queue->tab[buffer->tick]);
+	}
 	queue->tab[buffer->tick] = buffer;
 	return 0;
 }
 
+/**
+ * libere la mémoire du buffer audio
+ */
 void destroy_audio_buffer(t_audio_buffer* buffer){
 	free(buffer->buffer);
 	free(buffer);
 }
 
+/**
+ * renvoie le buffer du tick attendu et passe au prochain tick
+ */
 t_audio_buffer* pop(t_buffer_queue* queue){
 	t_audio_buffer * res;
 	res=queue->tab[queue->next_tick_to_send];
-	queue->tab[queue->next_tick_to_send]=NULL;
 	queue->next_tick_to_send = (queue->next_tick_to_send + 1) % 4;
 	return res;
 }
 
+/**
+ * initialise la 'queue' avec des cases NULL
+ */
 void init_queue(t_buffer_queue * queue){
 	int i;
 	for (i = 0; i < QUEUE_MAX_SIZE; ++i)
@@ -28,6 +42,9 @@ void init_queue(t_buffer_queue * queue){
 	}
 }
 
+/**
+ * creer un buffer audio 
+ */
 t_audio_buffer* create_audio_buffer(char* tick, char* buffer){
 	t_audio_buffer* res=malloc(sizeof(t_audio_buffer));
 	res->buffer=malloc(sizeof(int)*AUDIO_BUFFER_MAX_SIZE);
@@ -36,6 +53,9 @@ t_audio_buffer* create_audio_buffer(char* tick, char* buffer){
 	return res;
 }
 
+/**
+ * converti un string en buffer audio (int)
+ */
 void convertStringToAudio(char* str, t_audio_buffer* buffer){
 	int i;
 
@@ -51,6 +71,9 @@ void convertStringToAudio(char* str, t_audio_buffer* buffer){
 	buffer->size=i;
 }
 
+/**
+ * converti un buffer audio (int) en string
+ */
 void convertAudioToString(t_audio_buffer* buffer, char ** res){
 	char val[10];
 	

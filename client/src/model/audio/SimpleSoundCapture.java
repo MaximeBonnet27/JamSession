@@ -24,13 +24,7 @@ import javax.swing.JTextField;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.SoftBevelBorder;
 
-/**
- * SimpleSoundCapture Example. This is a simple program to record sounds and
- * play them back. It uses some methods from the CapturePlayback program in the
- * JavaSoundDemo. For licensizing reasons the disclaimer above is included.
- * 
- * @author Steve Potts
- */
+
 public class SimpleSoundCapture extends JPanel implements ActionListener {
 
   final int bufSize = 16384;
@@ -154,12 +148,12 @@ public class SimpleSoundCapture extends JPanel implements ActionListener {
 
     public void run() {
 
-      // make sure we have something to play
       if (audioInputStream == null) {
         shutDown("No loaded audio to play back");
         return;
       }
-      // reset to the beginnning of the stream
+
+      
       try {
         audioInputStream.reset();
       } catch (Exception e) {
@@ -167,7 +161,6 @@ public class SimpleSoundCapture extends JPanel implements ActionListener {
         return;
       }
 
-      // get an AudioInputStream of the desired format for playback
 
       AudioFormat.Encoding encoding = AudioFormat.Encoding.PCM_SIGNED;
       float rate = 44100.0f;
@@ -187,8 +180,6 @@ public class SimpleSoundCapture extends JPanel implements ActionListener {
         return;
       }
 
-      // define the required attributes for our line,
-      // and make sure a compatible line is supported.
 
       DataLine.Info info = new DataLine.Info(SourceDataLine.class, format);
       if (!AudioSystem.isLineSupported(info)) {
@@ -196,7 +187,6 @@ public class SimpleSoundCapture extends JPanel implements ActionListener {
         return;
       }
 
-      // get and open the source data line for playback.
 
       try {
         line = (SourceDataLine) AudioSystem.getLine(info);
@@ -206,7 +196,6 @@ public class SimpleSoundCapture extends JPanel implements ActionListener {
         return;
       }
 
-      // play back the captured audio data
 
       int frameSizeInBytes = format.getFrameSize();
       int bufferLengthInFrames = line.getBufferSize() / 8;
@@ -214,7 +203,6 @@ public class SimpleSoundCapture extends JPanel implements ActionListener {
       byte[] data = new byte[bufferLengthInBytes];
       int numBytesRead = 0;
 
-      // start the source data line
       line.start();
 
       while (thread != null) {
@@ -231,9 +219,8 @@ public class SimpleSoundCapture extends JPanel implements ActionListener {
           break;
         }
       }
-      // we reached the end of the stream.
-      // let the data play out, then
-      // stop and close the line.
+
+
       if (thread != null) {
         line.drain();
       }
@@ -242,11 +229,9 @@ public class SimpleSoundCapture extends JPanel implements ActionListener {
       line = null;
       shutDown(null);
     }
-  } // End class Playback
+  } 
 
-  /**
-   * Reads data from the input channel and writes to the output stream
-   */
+
   class Capture implements Runnable {
 
     private int nombreEnvoisParMesure;
@@ -301,8 +286,6 @@ public class SimpleSoundCapture extends JPanel implements ActionListener {
       duration = 0;
       audioInputStream = null;
 
-      // define the required attributes for our line,
-      // and make sure a compatible line is supported.
       AudioFormat.Encoding encoding = AudioFormat.Encoding.PCM_SIGNED;
       float rate = SAMPLE_RATE;
       int channels = CHANNELS;
@@ -352,7 +335,6 @@ public class SimpleSoundCapture extends JPanel implements ActionListener {
         ex.printStackTrace();
       }
 
-      // load bytes into the audio input stream for playback
 
       byte audioBytes[] = out.toByteArray();
       ByteArrayInputStream bais = new ByteArrayInputStream(audioBytes);
@@ -370,7 +352,7 @@ public class SimpleSoundCapture extends JPanel implements ActionListener {
       }
 
     }
-  } // End class Capture
+  }
 
   public static void main(String s[]) {
     SimpleSoundCapture ssc = new SimpleSoundCapture();

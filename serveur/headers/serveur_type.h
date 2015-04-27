@@ -38,6 +38,7 @@
 #ifndef MSG_NOSIGNAL
 #define MSG_NOSIGNAL SO_NOSIGPIPE
 #endif
+
 typedef struct 
 {
 	// Nom du client
@@ -51,6 +52,7 @@ typedef struct
 	// Liste des buffers
 	t_buffer_queue queue;
 
+	//Pour tester la synchro du client
 	int next_tick_to_send;
 	int next_tick_to_receive;
 
@@ -93,19 +95,81 @@ typedef struct {
 // Instance unique du serveur
 t_serveur serveur;
 
-int add_client(char* name, int socket, int login);
-void supprimer_client(char * name);
-t_client* creer_client(char* name, int socket);
-int get_indice_client(char * name);
-int get_indice_from_socket(int socket);
-int get_indice_from_socket_audio(int socket_audio);
-int creer_socket_audio();
-void set_options(char * style, char * tempo);
-void commencer_jam();
-void stopper_jam();
-int compte_existe(char * nom, char * mdp);
-void enregistrer_nouveau_compte(char * nom, char * mdp);
-int check_authentification(char * nom, char * mdp);
-char * nom_valide(char * nom);
+
+/**
+ * Fonction d'ajout d'un nouveau client dans la structure 
+ * du serveur
+ */
+ int add_client(char* name, int socket, int login);
+
+/**
+ * Retourne un nom valable pour ce client à partir du nom passé en argument
+ */
+ char * nom_valide(char * nom);
+
+/**
+ * Fonction de suppression d'un client lors de sa deconnexion.
+ */
+ void supprimer_client(char * name);
+
+/**
+ * Creation d'une structure client correspondant au nom et a la socket
+ * passes en parametres.
+ */
+ t_client* creer_client(char* name, int socket);
+
+/**
+ * Renvoie l'indice du client dans le tableau des utilisateurs
+ * a partir de son nom
+ */
+ int get_indice_client(char * name);
+
+/**
+ * Renvoie l'indice du client dans le tableau des utilisateurs 
+ * a partir de sa socket
+ */
+ int get_indice_from_socket(int socket);
+
+/**
+ * Renvoie l'indice du client dans le tableau des utilisateurs 
+ * a partir de sa socket audio
+ */
+ int get_indice_from_socket_audio(int socket_audio);
+
+/**
+ * Creation de la socket audio du serveur
+ */
+ int creer_socket_audio();
+
+/**
+ * Configure la session
+ */
+ void set_options(char * style, char * tempo);
+
+/**
+ * Indique le lancement de la jam
+ */
+ void commencer_jam();
+
+/**
+ * Indique la fin de la jam
+ */
+ void stopper_jam();
+
+/**
+ * Verifie si le pseudo 'nom' existe dans la BD
+ */
+ int compte_existe(char * nom, char * mdp);
+
+/**
+ * Enregistre un nouveau compte
+ */
+ void enregistrer_nouveau_compte(char * nom, char * mdp);
+
+/**
+ * Verifie le mot de passe 'mdp' du compte 'nom'
+ */
+ int check_authentification(char * nom, char * mdp);
+
 
 #endif

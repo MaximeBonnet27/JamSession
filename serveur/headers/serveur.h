@@ -12,6 +12,7 @@
 
 // Initialisation du serveur
 int init_serveur(int count, char ** args);
+
 // Boucle d'accept du serveur
 void * loop(void * args);
 

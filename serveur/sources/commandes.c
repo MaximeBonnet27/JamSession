@@ -182,7 +182,7 @@
  */
  void handle(char* message,int socket){
  	char* args;
-	//logf("CLIENT -> %s\n", message);
+ 	logf("CLIENT -> %s\n", message);
 	// On recupere les arguments de la commande
  	char* commande_name=strtok_r(message,"/",&args);
 	// On recupere la t_commande correspondant a la commande recue
@@ -232,8 +232,6 @@
 		// On recoit la commande.
  		if(recv(socket_audio, commande, sizeof(commande), 0) <= 0){
  			log("(Audio) Socket client fermée");
-			//check_client_deconnectes();
-			// send audio KO
  			pthread_exit((void *)0);
  		}
 
@@ -245,8 +243,6 @@
  }
 
 /* Thread d'envois des mix */
-
-
  void alarm_handler(int signum){
  	int i;
  	t_audio_buffer* mix;
@@ -262,9 +258,7 @@
  				destroy_audio_buffer(mix);
  			}
  		}
-
  	}
-
  }
 
  void* envoi_mixs(void * args){
@@ -349,6 +343,7 @@
 	// on n'a plus rien a faire.
 	// (Prochaine fonction appelee : AUDIO_PORT)
  }
+
 /*
  * Envoi de AUDIO_PORT
  * Args : user
@@ -367,6 +362,7 @@
  	handler_AUDIO_OK(args, serveur.socket_audio);	
 
  }
+
 /*
  * Envoi de AUDIO_OK
  * Args :  NULL OU user
@@ -423,6 +419,7 @@
 		// Le handler de CONNECTED est ensuite appele par la handler de CONNECT
  	}
  }
+
 /*
  * Envoi de CONNECTED
  * Args : user
@@ -445,6 +442,7 @@
  	logf("<- %s", connected_cmd);
 	// Procedure de connexion d'un nouvel utilisateur finie.
  }
+
 /*
  * Reception de EXIT
  * Args : user/(...)
@@ -460,6 +458,7 @@
  	handler_EXITED(args, socket);
 
  }
+
 /**
  * Envoi de EXITED
  * Args : inutile
@@ -513,6 +512,7 @@
  	logf("<- %s",exited_cmd);
 
  }
+
 /**
  * Envoi de EMPTY_SESSION
  * Args : user
@@ -534,6 +534,7 @@
 
  	logf("<- %s", empty_session_cmd);
  }
+
 /**
  * Envoi de CURRENT_SESSION
  * Args : inutile
@@ -558,6 +559,7 @@
  	logf("<- %s", current_session_cmd);
 
  }
+ 
 /**
  * Reception de SET_OPTIONS
  * Args : style/tempo/
@@ -668,6 +670,7 @@
  	logf("<- %s\n", audio_mix_cmd);
 
  }
+
 /*
  * Reception de AUDIO_ACK
  * args : 
@@ -678,6 +681,7 @@
  	c->next_tick_to_receive=(c->next_tick_to_receive+1)%4;
  	c->faillure_audio=0;
  }
+
 /*
  * Reception de TALK
  * args : texte/
@@ -832,11 +836,14 @@
  	}
  }
 
- t_audio_buffer* getMix(t_client * client){
+/**
+ * retourne le buffer du mixe de tout les buffers des clients différents de 'client'
+ */
+t_audio_buffer* getMix(t_client * client){
  	t_audio_buffer* mix=malloc(sizeof(t_audio_buffer));
  	if (client->next_tick_to_send!=client->next_tick_to_receive)
  	{
- 		//handler_AUDIO_KO("problem synchro audio",client->socket);
+		//handler_AUDIO_KO("problem synchro audio",client->socket);
  	}
 
  	mix->tick = client->next_tick_to_send;
@@ -873,14 +880,12 @@
 
  				}		
  			}else{
- 				handler_AUDIO_KO("problem synchro audio",serveur.clients[i]->socket);
+				//handler_AUDIO_KO("problem synchro audio",serveur.clients[i]->socket);
  			}
 
  		}
 
  	}
-
-
  	return mix;
  }
 

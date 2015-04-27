@@ -75,21 +75,18 @@ public enum Commande {
 		default : System.out.println("Handler Commandes : Commande inconnue : " + this);
 		}
 	}
+	
 	/**
 	 * Envoi de CONNECT
 	 */ 
 	private void handlerConnect(Client client, String username) {
 		client.send(this+"/"+username+"/");
-		//manque des trucs!
-		//devrais attendre welcome!
 	}
+	
 	/**
 	 * Reception de WELCOME
 	 */
 	private void handlerWelcome(Client client, String nouveauNom) {
-		/*
-		 * doit attendre la reception de welcome
-		 */
 		client.setNom(nouveauNom);
 		client.setConnected(true);
 	}
@@ -104,17 +101,32 @@ public enum Commande {
 		 */
 	}
 
+	
+	/**
+	 * Envoi de AUDIO_ACK
+	 */
 	private void handlerAudioAck(String[] args2, Client client) {
 		client.send(this+"/");
 	}
 
+	/**
+	 * Envoi de AUDIO_CHUNK
+	 */
 	private void handlerAudioChunk(Client client, String tick, String buffer) {
 		client.sendAudio(this+"/"+tick+"/"+buffer+"/");
 	}
 
+	
+	/**
+	 * Reception de AUDIO_KO
+	 */
 	private void handlerAudioKo(String[] args2, Client client) {
 	}
 
+	/**
+	 * Recepttion de AUDIO_MIX
+	 * 
+	 */
 	private void handlerAudioMix(final Client client, String buffer) {
 		if(client.isConnected()){
 			if(client.isRecording())
@@ -133,6 +145,9 @@ public enum Commande {
 		}
 	}
 
+	/**
+	 * Reception de AUDIO_OK
+	 */
 	private void handlerAudioOk(String[] args2, Client client) {
 		if(client.isConnected()){
 			if(!client.isRecording())
@@ -154,6 +169,10 @@ public enum Commande {
 		client.addContact(nomUser);
 	}
 
+	
+	/**
+	 * Reception CURRENT_SESSION
+	 */
 	private void handlerCurrentSession(String[] args2, Client client) {
 		if(!client.isPlaying()){
 			client.lectureAudio();
@@ -166,7 +185,6 @@ public enum Commande {
 	private void handlerEmptySession(Client client) {
 		String [] options = client.getOptionsSouhaitees();
 		SET_OPTIONS.handler(client, options);
-		//TODO
 		// temporaire !
 		if(!client.isPlaying()){
 			client.lectureAudio();
@@ -203,6 +221,10 @@ public enum Commande {
 		client.send(this+"/"+options[0]+"/"+options[1]+"/");
 	}
 
+	
+	/**
+	 * Envoi de LS
+	 */
 	private void handlerLS(Client client){
 		client.send(this+"/");
 	}
@@ -228,6 +250,10 @@ public enum Commande {
 		client.send(this+"/"+name+"/"+password+"/");
 	}
 
+	
+	/**
+	 * Reception de ACCESS_DENIED
+	 */
 	private void handlerAccessDenied(Client client, String message){
 		client.setErrorMessage(message);
 		
@@ -239,17 +265,27 @@ public enum Commande {
 		}
 	}
 
+	
+	/**
+	 * Envoi de LOGIN
+	 */
 	private void handlerLogin(Client client, String password){
 		client.send(this + "/" + client.getNom() + "/" + password + "/");
 	}
 
+	
+	/**
+	 * extrait le nom de la commande
+	 */
 	public static String commandeNameFromCommandeReceived(String commande){
 		String [] res = commande.split("/");
 		return res[0];
 	}
 
+	/**
+	 * extrait les arguments de la commande
+	 */
 	public static String[] argumentsFromCommande(String commande){
-		//System.out.println(commande);
 		ArrayList<String> res=new ArrayList<String>();
 		String[] split=new String[0];
 
@@ -259,8 +295,6 @@ public enum Commande {
 			res.add(split[0]);
 		}
 
-		//res.add(commande);
-		//System.out.println(res);
 		for(int i=0;i<res.size()-1;i++){
 			StringBuilder mot=new StringBuilder(res.get(i));
 
@@ -272,11 +306,8 @@ public enum Commande {
 				i--;
 			}
 		}
-		//System.out.println("**"+res+"**");
+
 		split=res.toArray(split);
-		//for(int i=0;i<split.length;i++)
-		//System.out.print(split[i]);
-		//System.out.println("\n**");
 		if(split.length>1)
 			return Arrays.copyOfRange(split, 1, split.length);
 		return new String[0];
