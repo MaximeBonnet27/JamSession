@@ -114,6 +114,9 @@ t_client* creer_client(char* name, int socket){
 	c->socket=socket;
 	c->is_admin = 0;
 	init_queue(&(c->queue));
+	c->next_tick_to_send=0;
+	c->next_tick_to_receive=0;
+	c->faillure_audio=0;
 	return c;
 }
 /**

@@ -105,6 +105,7 @@ public enum Commande {
 	}
 
 	private void handlerAudioAck(String[] args2, Client client) {
+		client.send(this+"/");
 	}
 
 	private void handlerAudioChunk(Client client, String tick, String buffer) {
@@ -114,20 +115,28 @@ public enum Commande {
 	private void handlerAudioKo(String[] args2, Client client) {
 	}
 
-	private void handlerAudioMix(Client client, String buffer) {
-		client.playSoundFromBuffer(buffer);
+	private void handlerAudioMix(final Client client, String buffer) {
+		if(client.isConnected()){
+			if(client.isRecording())
+				client.setCurrent_window_audio(client.getCurrent_window_audio()-1);
+
+
+			new Thread(new Runnable() {
+
+				@Override
+				public void run() {
+					AUDIO_ACK.handler(client, null);
+				}
+			}).start();
+
+			client.playSoundFromBuffer(buffer);
+		}
 	}
 
 	private void handlerAudioOk(String[] args2, Client client) {
 		if(client.isConnected()){
 			if(!client.isRecording())
 				client.captureAudio();
-			else{
-				//synchronized (this) {
-					client.setCurrent_window_audio(client.getCurrent_window_audio()-1);
-					//notifyAll();
-				//}
-			}
 		}
 	}
 
@@ -221,8 +230,13 @@ public enum Commande {
 
 	private void handlerAccessDenied(Client client, String message){
 		client.setErrorMessage(message);
-		client.setConnected(false);
-		client.cleanUp();
+		
+		if(client.isConnected()){
+			handlerExit(client);
+			client.connexion_perdu();
+		}else{
+			client.cleanUp();
+		}
 	}
 
 	private void handlerLogin(Client client, String password){

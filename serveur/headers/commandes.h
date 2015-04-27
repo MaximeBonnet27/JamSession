@@ -94,5 +94,6 @@ void handler_LS(char * args, int socket);
 
 /* Fonctions annexes */
 void check_client_deconnectes();
+t_audio_buffer* getMix(t_client * client);
 #endif
 

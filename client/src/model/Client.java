@@ -13,6 +13,7 @@ import java.io.PrintWriter;
 import java.net.Socket;
 import java.net.SocketException;
 import java.net.UnknownHostException;
+import java.util.ArrayList;
 import java.util.Observable;
 
 import model.audio.CaptureAudio;
@@ -54,7 +55,9 @@ public class Client extends Observable{
 	private LectureAudio lectureAudio;
 	private int current_window_audio;
 	private static final int window_audio=4;
-
+	
+	private ArrayList<Object> tickets;
+	
 	public Client(String adresse, int port, String nom){
 		ready=true;
 		//running = false;
@@ -63,7 +66,8 @@ public class Client extends Observable{
 		setConnected(false);
 		setRecording(false);
 		setPlaying(false);
-
+		tickets=new ArrayList<Object>();
+		
 		if(nom.isEmpty()){
 			ready=false;
 			setErrorMessage("pseudo ne doit pas etre vide");
@@ -95,8 +99,28 @@ public class Client extends Observable{
 			}
 		}
 	}
-
-
+	
+	Object nextTicket(){
+		Object obj=new Object();
+		synchronized (this) {
+			tickets.add(obj);
+		}
+		return obj;
+	}
+	
+	void pass(){
+		synchronized (this) {
+			tickets.remove(0);
+		}
+	}
+	
+	boolean isTicket(Object ticket){
+		boolean val;
+		synchronized (this) {
+			val=(tickets.get(0)==ticket);
+		}
+		return val;
+	}
 	public int getCurrent_window_audio() {
 		int val;
 		synchronized (this) {
@@ -108,7 +132,7 @@ public class Client extends Observable{
 
 	public void setCurrent_window_audio(int current_window_audio) {
 		synchronized (this) {
-			this.current_window_audio = current_window_audio;	
+			this.current_window_audio = Math.max(0,current_window_audio);	
 			notifyAll();
 		}
 
@@ -208,10 +232,10 @@ public class Client extends Observable{
 
 			if(isRunning()){
 				running = false;
-				//recording=false;
-				setRecording(false);
-				//playing=false;
-				setPlaying(false);
+				recording=false;
+				//setRecording(false);
+				playing=false;
+				//setPlaying(false);
 
 				try{
 					if(socket!=null)
@@ -234,24 +258,32 @@ public class Client extends Observable{
 			if(isConnected()){
 				setConnected(false);
 				setErrorMessage("connexion perdu");
-				controller.connexion_perdu();
+				connexion_perdu();
 			}
+			
 		}
 
 	}
 
+	public void connexion_perdu(){
+		controller.connexion_perdu();
+	}
 	public void send(String commande){
 		System.out.println("CANAL CTRL : " + commande + " -> ");
-		output.write(commande);
-		output.flush();
+		synchronized (output) {
+			output.write(commande);
+			output.flush();
+		}
 	}
 
 	public void sendAudio(String commande){
-
-		waitServeurForSendAudio();
+		Object obj=nextTicket();
+		
+		waitServeurForSendAudio(obj);
 		System.out.println("CANAL AUDIO : " + commande.length() + " -> ");
 
 		synchronized (outputAudio) {
+			pass();
 			outputAudio.write(commande);
 			outputAudio.flush();
 		}
@@ -384,11 +416,11 @@ public class Client extends Observable{
 		return isConnected();
 	}
 
-	public void waitServeurForSendAudio(){
+	public void waitServeurForSendAudio(Object ticket){
 		synchronized (this) {
-			while(getCurrent_window_audio()>=window_audio){
+			while(getCurrent_window_audio()>=window_audio || isTicket(ticket)){
 				try {
-					System.out.println("wait serveur:"+getCurrent_window_audio());
+					System.out.println("wait serveur:"+tickets.size());
 					wait();
 				} catch (InterruptedException e) {
 					e.printStackTrace();

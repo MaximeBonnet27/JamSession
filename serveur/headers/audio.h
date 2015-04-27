@@ -28,4 +28,5 @@ t_audio_buffer* pop(t_buffer_queue* queue);
 void init_queue(t_buffer_queue* queue);
 void convertStringToAudio(char* str, t_audio_buffer* buffer);
 void convertAudioToString(t_audio_buffer* buffer, char** res);
+
 #endif

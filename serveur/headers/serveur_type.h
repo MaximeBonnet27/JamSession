@@ -50,6 +50,11 @@ typedef struct
 	int is_admin;
 	// Liste des buffers
 	t_buffer_queue queue;
+
+	int next_tick_to_send;
+	int next_tick_to_receive;
+
+	int faillure_audio;
 } t_client;
 
 typedef struct {
@@ -82,7 +87,7 @@ typedef struct {
 	pthread_mutex_t mutex;
 	// Mutex d'acces au fichier db
 	pthread_mutex_t mutex_db;
-	int current_tick;
+	
 } t_serveur;
 
 // Instance unique du serveur
@@ -102,5 +107,5 @@ int compte_existe(char * nom, char * mdp);
 void enregistrer_nouveau_compte(char * nom, char * mdp);
 int check_authentification(char * nom, char * mdp);
 char * nom_valide(char * nom);
-t_audio_buffer getMix(int tick, t_client * client);
+
 #endif

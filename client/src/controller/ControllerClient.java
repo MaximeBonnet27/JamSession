@@ -18,7 +18,7 @@ public class ControllerClient implements IClientInterfaceDelegate{
 	}
 
 
-
+//
 
 	private IClientInterface view;
 	private UIClientDebug debugView;
