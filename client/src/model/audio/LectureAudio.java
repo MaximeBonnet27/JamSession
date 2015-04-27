@@ -7,13 +7,15 @@ import java.util.Arrays;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.DataLine;
+import javax.sound.sampled.LineEvent;
+import javax.sound.sampled.LineListener;
 import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.SourceDataLine;
 
 import model.Client;
 import model.Commande;
 
-public class LectureAudio extends Thread {
+public class LectureAudio extends Thread implements LineListener {
 
   SourceDataLine line;
 
@@ -55,11 +57,8 @@ public class LectureAudio extends Thread {
         audio[i] = Byte.parseByte(tokens[i]);
       }catch(NumberFormatException e){
         System.err.println("erroor format " + i);
-        i--;
       }
     }
-    System.out.println("buffer : ");
-    System.out.println(Arrays.toString(audio));
     ByteArrayInputStream bais = new ByteArrayInputStream(audio);
     AudioInputStream audioInputStream = new AudioInputStream(bais, CaptureAudio.format, audio.length / CaptureAudio.format.getFrameSize());
 
@@ -76,9 +75,12 @@ public class LectureAudio extends Thread {
     }
     try {
       line = (SourceDataLine) AudioSystem.getLine(info);
+      line.addLineListener(this);
       line.open(CaptureAudio.format, 16384); // 16384 = 16kB, taille du packet tcp par défaut ?
     } catch (LineUnavailableException ex) {
       return;
+    }catch(IllegalStateException e){
+      e.printStackTrace();
     }
 
     int frameSizeInBytes = CaptureAudio.format.getFrameSize();
@@ -98,10 +100,16 @@ public class LectureAudio extends Thread {
       numBytesRemaining -= line.write(data, 0, numBytesRemaining);
       System.out.println(numBytesRemaining);
     }
+    line.drain();
     line.stop();
     line.close();
     line = null;
     System.out.println("Lecture finie");
+  }
+
+  @Override
+  public void update(LineEvent arg0) {
+    System.out.println("EVENT : " + arg0.getType());
   }
 
 }

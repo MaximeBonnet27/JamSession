@@ -49,6 +49,7 @@ int init_serveur(int count, char ** args){
 	// Au depart, la jam n'est pas active
 	serveur.playing = 0;
 	serveur.configure = 0;
+	serveur.current_tick = 0;
 	// Allocation du tableau des clients
 	serveur.clients=malloc(sizeof(t_client)*serveur.max_user);
 
@@ -92,7 +93,7 @@ int init_serveur(int count, char ** args){
 		perror("Bind socket");
 		return -1;
 	}
-	
+
 	// Listen
 	if(listen(serveur.socket,LISTEN_QUEUE_SIZE) == -1){
 		perror("Listen");
@@ -155,7 +156,7 @@ void * loop(void * args){
 
 
 /* Fonction de terminaison du programme */
-
+// Pas utilisée !
 void serveur_shutdown(int signum){
 
 	int i;
@@ -182,15 +183,19 @@ int main(int argc, char ** argv){
 	init_commandes();
 
 	// Gestion des signaux pour quitter proprement le programme
-	
-	struct sigaction action;
-	action.sa_handler = serveur_shutdown;
-	sigemptyset(&action.sa_mask);
+
 	//sigaction(SIGINT, &action, NULL);
 	// Création du thread gérant la boucle principale.
 	pthread_t main_thread;
 	if((pthread_create(&main_thread, NULL, loop, NULL)) != 0){
 		perror("Création du thread principal ");
+		return -1;
+	}
+
+
+	pthread_t mix_thread;
+	if((pthread_create(&mix_thread, NULL, envoi_mixs , NULL)) != 0){
+		perror("Création du thread de mix");
 		return -1;
 	}
 	// Normalement, le main_thread est une boucle infinie, 
@@ -200,5 +205,14 @@ int main(int argc, char ** argv){
 		perror("Join");
 		return -1;
 	}
+	// De même pour le thread de mix.
+
+	if(pthread_join(mix_thread, (void **) &status) != 0){
+		perror("Join");
+		return -1;
+	}
 	return EXIT_SUCCESS;
 }
+
+
+

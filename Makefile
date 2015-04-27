@@ -1,5 +1,7 @@
 # MAKEFILE PRINCIPAL
 
+all : run_serveur
+	
 run_serveur : 
 	cd serveur && make run
 

@@ -1,6 +1,6 @@
 #ifndef SERVEUR_TYPE_H_GUARD
 #define SERVEUR_TYPE_H_GUARD
-//#define _XOPEN_SOURCE 700
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -17,6 +17,7 @@
 #include <signal.h>
 #include <sys/stat.h>
 #include <fcntl.h>
+#include <sys/time.h>
 
 #include "audio.h"
 
@@ -33,6 +34,7 @@
 #define log2f(X,Y,Z) if(DEBUG) fprintf(stderr,X,Y,Z);
 #define log3f(A,B,C,D) if(DEBUG) fprintf(stderr,A,B,C,D);
 
+// Hack pour Mac OS
 #ifndef MSG_NOSIGNAL
 #define MSG_NOSIGNAL SO_NOSIGPIPE
 #endif
@@ -80,6 +82,7 @@ typedef struct {
 	pthread_mutex_t mutex;
 	// Mutex d'acces au fichier db
 	pthread_mutex_t mutex_db;
+	int current_tick;
 } t_serveur;
 
 // Instance unique du serveur
@@ -99,4 +102,5 @@ int compte_existe(char * nom, char * mdp);
 void enregistrer_nouveau_compte(char * nom, char * mdp);
 int check_authentification(char * nom, char * mdp);
 char * nom_valide(char * nom);
+t_audio_buffer getMix(int tick, t_client * client);
 #endif

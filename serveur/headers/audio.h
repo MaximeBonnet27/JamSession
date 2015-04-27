@@ -5,7 +5,6 @@
 #include <stdio.h>
 #include <string.h>
 
-
 #define AUDIO_BUFFER_MAX_SIZE 44100
 #define QUEUE_MAX_SIZE 10
 

@@ -1,9 +1,12 @@
 #include "audio.h"
+#include "serveur_type.h"
 #include <string.h>
 
 int add_queue(t_buffer_queue * queue, t_audio_buffer* buffer){
 	int i=0;
-
+	queue->tab[buffer->tick] = buffer;
+	return 0;
+	/*
 	while(i < QUEUE_MAX_SIZE){
 		if(queue->tab[i]==NULL){
 			queue->tab[i]=buffer;
@@ -21,6 +24,7 @@ int add_queue(t_buffer_queue * queue, t_audio_buffer* buffer){
 			i++;
 	}
 	return -1;
+	*/
 }
 
 void destroy_audio_buffer(t_audio_buffer* buffer){
@@ -78,9 +82,9 @@ t_audio_buffer* create_audio_buffer(char* tick, char* buffer){
 	res->buffer=malloc(sizeof(int)*AUDIO_BUFFER_MAX_SIZE);
 	res->tick=atoi(tick);
 
-	printf(">create_audio_buffer call convertStringToAudio\n");
+	//printf(">create_audio_buffer call convertStringToAudio\n");
 	convertStringToAudio(buffer, res);
-	printf("%d<create_audio_buffer call convertStringToAudio\n",res->size);
+	//printf("%d<create_audio_buffer call convertStringToAudio\n",res->size);
 
 	return res;
 }
@@ -151,4 +155,32 @@ void convertAudioToString(t_audio_buffer* buffer, char ** res){
 		output_length -= length;
 	}
 */
+}
+
+t_audio_buffer getMix(int tick, t_client * client){
+	t_audio_buffer mix;
+	mix.tick = tick;
+	mix.buffer = malloc(sizeof(int) * AUDIO_BUFFER_MAX_SIZE);
+	int i;
+	for(i = 0; i < AUDIO_BUFFER_MAX_SIZE; ++i){
+		mix.buffer[i] = 0;
+	}
+	int signal_A;
+	int signal_B;
+	for(i = 0; i < serveur.max_user; ++i){
+		if(serveur.clients[i] == NULL) continue;
+		if(serveur.clients[i] != client){
+			int j;
+			for(j = 0; j < AUDIO_BUFFER_MAX_SIZE; ++j){
+				signal_A = mix.buffer[j];
+				signal_B = serveur.clients[i]->queue.tab[tick]->buffer[j];
+				mix.buffer[j] = signal_A + signal_B - signal_A * signal_B;
+				if(mix.buffer[j] > 128) mix.buffer[j] = 128;
+
+			}		
+		}
+
+	}
+
+	return mix;
 }

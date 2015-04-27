@@ -338,7 +338,6 @@ public class SimpleSoundCapture extends JPanel implements ActionListener {
         if ((numBytesRead = line.read(data, 0, bufferLengthInBytes)) == -1) {
           break;
         }
-        for(int i = 0; i < bufferLengthInBytes; i++) System.out.println(data[i]);
         tick = (tick + getNombreEnvoisParSeconde() / getNombreEnvoisParMesure()) % 4;
         out.write(data, 0, numBytesRead);
       }

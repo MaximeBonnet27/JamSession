@@ -46,6 +46,9 @@ void handle(char* commande,int socket);
 // Fonction d'accueil des clients
 void * thread_handle_commandes(void * args);
 
+/* MIX */
+void * envoi_mixs(void * args);
+
 /* INIT */
 
 void init_commandes();
